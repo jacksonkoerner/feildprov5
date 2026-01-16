@@ -40,7 +40,7 @@
                 <span class="hidden sm:inline">Back to Dashboard</span>
             </a>
             <div class="flex items-center gap-2">
-                <a href="interview.html" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg font-bold text-sm hover:bg-indigo-200 transition-colors">
+                <a href="quick-interview.html" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg font-bold text-sm hover:bg-indigo-200 transition-colors">
                     <i class="fas fa-edit mr-1"></i> Edit
                 </a>
                 <button onclick="window.print()" class="px-4 py-2 bg-emerald-600 text-white rounded-lg font-bold text-sm shadow-md hover:bg-emerald-700 transition-colors">
@@ -65,7 +65,7 @@
                 </div>
                 <div class="text-[10px] sm:text-xs font-bold text-left sm:text-right">
                     <div id="reportDate" class="text-slate-600"></div>
-                    <div>Page 1 of <span id="totalPages">4</span></div>
+                    <div>Page 1 of <span id="totalPages">2</span></div>
                 </div>
             </div>
 
@@ -86,7 +86,7 @@
             </div>
         </div>
 
-        <!-- PAGE 2: TABLES -->
+        <!-- PAGE 2: ISSUES, QA/QC, SAFETY -->
         <div id="page2" class="report-page bg-white border-4 border-slate-900 p-1 mb-8 print:mb-0 print:border-2 page-break">
             <!-- Header -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 border-b-2 border-slate-900 pb-2 mb-4 px-2">
@@ -94,66 +94,7 @@
                     <div class="w-10 h-10 sm:w-14 sm:h-14 bg-slate-200 flex items-center justify-center text-[7px] sm:text-[8px] font-bold rounded flex-shrink-0">LOGO</div>
                     <h1 class="text-base sm:text-xl font-black uppercase tracking-tighter">RPR Daily Report</h1>
                 </div>
-                <div class="text-[10px] sm:text-xs font-bold">Page 2 of <span class="totalPages">4</span></div>
-            </div>
-
-            <!-- Daily Operations Table -->
-            <div class="bg-emerald-900 text-white text-center font-bold py-1 uppercase text-sm mb-2 mx-1">
-                Daily Operations (Personnel On-Site)
-            </div>
-            <div class="table-scroll-wrapper mb-6">
-                <table id="operationsTable" class="w-full text-[9px] border-collapse border border-slate-900">
-                    <thead class="bg-slate-100">
-                        <tr>
-                            <th class="border border-slate-900 p-1.5 text-left font-black whitespace-nowrap">CONTRACTOR</th>
-                            <th class="border border-slate-900 p-1.5 text-left font-black whitespace-nowrap">TRADE</th>
-                            <th class="border border-slate-900 p-1.5 text-center font-black whitespace-nowrap">SUPER(S)</th>
-                            <th class="border border-slate-900 p-1.5 text-center font-black whitespace-nowrap">FOREMAN</th>
-                            <th class="border border-slate-900 p-1.5 text-center font-black whitespace-nowrap">OPERATOR(S)</th>
-                            <th class="border border-slate-900 p-1.5 text-center font-black whitespace-nowrap">LABORER(S)</th>
-                            <th class="border border-slate-900 p-1.5 text-center font-black whitespace-nowrap">OTHER(S)</th>
-                            <th class="border border-slate-900 p-1.5 text-center font-black whitespace-nowrap bg-emerald-100">TOTAL</th>
-                        </tr>
-                    </thead>
-                    <tbody id="operationsBody">
-                        <!-- Filled by JS -->
-                    </tbody>
-                    <tfoot id="operationsFoot" class="bg-slate-50 font-bold">
-                        <!-- Filled by JS -->
-                    </tfoot>
-                </table>
-            </div>
-
-            <!-- Equipment Table -->
-            <div class="bg-emerald-900 text-white text-center font-bold py-1 uppercase text-sm mb-2 mx-1">
-                Mobilized Equipment & Daily Utilization
-            </div>
-            <div class="table-scroll-wrapper">
-                <table class="w-full text-[9px] border-collapse border border-slate-900">
-                    <thead class="bg-slate-100">
-                        <tr>
-                            <th class="border border-slate-900 p-1.5 text-left font-black whitespace-nowrap">CONTRACTOR</th>
-                            <th class="border border-slate-900 p-1.5 text-left font-black whitespace-nowrap">EQUIPMENT TYPE / MODEL</th>
-                            <th class="border border-slate-900 p-1.5 text-center font-black whitespace-nowrap">QTY</th>
-                            <th class="border border-slate-900 p-1.5 text-left font-black whitespace-nowrap">STATUS / NOTES</th>
-                        </tr>
-                    </thead>
-                    <tbody id="equipmentBody">
-                        <!-- Filled by JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- PAGE 3: ISSUES, QA/QC, SAFETY -->
-        <div id="page3" class="report-page bg-white border-4 border-slate-900 p-1 mb-8 print:mb-0 print:border-2 page-break">
-            <!-- Header -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 border-b-2 border-slate-900 pb-2 mb-4 px-2">
-                <div class="flex items-center gap-2 sm:gap-4">
-                    <div class="w-10 h-10 sm:w-14 sm:h-14 bg-slate-200 flex items-center justify-center text-[7px] sm:text-[8px] font-bold rounded flex-shrink-0">LOGO</div>
-                    <h1 class="text-base sm:text-xl font-black uppercase tracking-tighter">RPR Daily Report</h1>
-                </div>
-                <div class="text-[10px] sm:text-xs font-bold">Page 3 of <span class="totalPages">4</span></div>
+                <div class="text-[10px] sm:text-xs font-bold">Page 2 of <span class="totalPages">2</span></div>
             </div>
 
             <!-- Issues & Delays -->
@@ -204,15 +145,15 @@
             </div>
         </div>
 
-        <!-- PAGE 4: PHOTOS (conditional) -->
-        <div id="page4" class="report-page bg-white border-4 border-slate-900 p-1 mb-8 print:mb-0 print:border-2 page-break hidden">
+        <!-- PAGE 3: PHOTOS (conditional) -->
+        <div id="page3" class="report-page bg-white border-4 border-slate-900 p-1 mb-8 print:mb-0 print:border-2 page-break hidden">
             <!-- Header -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 border-b-2 border-slate-900 pb-2 mb-4 px-2">
                 <div class="flex items-center gap-2 sm:gap-4">
                     <div class="w-10 h-10 sm:w-14 sm:h-14 bg-slate-200 flex items-center justify-center text-[7px] sm:text-[8px] font-bold rounded flex-shrink-0">LOGO</div>
                     <h1 class="text-base sm:text-xl font-black uppercase tracking-tighter">RPR Daily Report</h1>
                 </div>
-                <div class="text-[10px] sm:text-xs font-bold">Page 4 of <span class="totalPages">4</span></div>
+                <div class="text-[10px] sm:text-xs font-bold">Page 3 of <span class="totalPages">3</span></div>
             </div>
 
             <!-- Photos Section -->
@@ -422,72 +363,7 @@
                 `;
             }
 
-            // Page 2: Operations Table
-            const operationsBody = document.getElementById('operationsBody');
-            const operationsFoot = document.getElementById('operationsFoot');
-
-            if (report.operations.length > 0) {
-                let totals = { supers: 0, foreman: 0, operators: 0, laborers: 0, others: 0, total: 0 };
-
-                operationsBody.innerHTML = report.operations.map(row => {
-                    const s = parseInt(row.supers) || 0;
-                    const f = parseInt(row.foreman) || 0;
-                    const op = parseInt(row.operators) || 0;
-                    const l = parseInt(row.laborers) || 0;
-                    const ot = parseInt(row.others) || 0;
-                    const rowTotal = s + f + op + l + ot;
-
-                    totals.supers += s;
-                    totals.foreman += f;
-                    totals.operators += op;
-                    totals.laborers += l;
-                    totals.others += ot;
-                    totals.total += rowTotal;
-
-                    return `
-                        <tr>
-                            <td class="border border-slate-900 p-1.5 font-bold">${row.contractor}</td>
-                            <td class="border border-slate-900 p-1.5">${row.trade || 'General'}</td>
-                            <td class="border border-slate-900 p-1.5 text-center">${s || '-'}</td>
-                            <td class="border border-slate-900 p-1.5 text-center">${f || '-'}</td>
-                            <td class="border border-slate-900 p-1.5 text-center">${op || '-'}</td>
-                            <td class="border border-slate-900 p-1.5 text-center">${l || '-'}</td>
-                            <td class="border border-slate-900 p-1.5 text-center">${ot || '-'}</td>
-                            <td class="border border-slate-900 p-1.5 text-center font-bold bg-emerald-50">${rowTotal}</td>
-                        </tr>
-                    `;
-                }).join('');
-
-                operationsFoot.innerHTML = `
-                    <tr>
-                        <td colspan="2" class="border border-slate-900 p-1.5 text-right font-black">DAILY TOTALS:</td>
-                        <td class="border border-slate-900 p-1.5 text-center font-bold">${totals.supers || '-'}</td>
-                        <td class="border border-slate-900 p-1.5 text-center font-bold">${totals.foreman || '-'}</td>
-                        <td class="border border-slate-900 p-1.5 text-center font-bold">${totals.operators || '-'}</td>
-                        <td class="border border-slate-900 p-1.5 text-center font-bold">${totals.laborers || '-'}</td>
-                        <td class="border border-slate-900 p-1.5 text-center font-bold">${totals.others || '-'}</td>
-                        <td class="border border-slate-900 p-1.5 text-center font-black text-lg bg-emerald-100">${totals.total}</td>
-                    </tr>
-                `;
-            } else {
-                operationsBody.innerHTML = '<tr><td colspan="8" class="border border-slate-900 p-3 text-center italic text-slate-400">No personnel recorded for this date.</td></tr>';
-                operationsFoot.innerHTML = '';
-            }
-
-            // Page 2: Equipment Table
-            const equipmentBody = document.getElementById('equipmentBody');
-            equipmentBody.innerHTML = report.equipment.length > 0
-                ? report.equipment.map(row => `
-                    <tr>
-                        <td class="border border-slate-900 p-1.5 font-bold">${row.contractor}</td>
-                        <td class="border border-slate-900 p-1.5">${row.model}</td>
-                        <td class="border border-slate-900 p-1.5 text-center font-bold">${row.quantity}</td>
-                        <td class="border border-slate-900 p-1.5 text-slate-600">${row.notes || 'Active'}</td>
-                    </tr>
-                `).join('')
-                : '<tr><td colspan="4" class="border border-slate-900 p-3 text-center italic text-slate-400">No equipment mobilized or recorded.</td></tr>';
-
-            // Page 3: Issues - check for refined data first
+            // Page 2: Issues - check for refined data first
             const issuesSection = document.getElementById('issuesSection');
             const refinedIssues = report.refinedData?.issues;
             const naMarked = report.meta?.naMarked || {};
@@ -502,7 +378,7 @@
                 issuesSection.innerHTML = '<p class="italic text-slate-400">No issues, delays, or RFIs reported.</p>';
             }
 
-            // Page 3: Visitors - check for refined data first
+            // Page 2: Visitors - check for refined data first
             const visitorsSection = document.getElementById('visitorsSection');
             const refinedVisitors = report.refinedData?.visitors;
 
@@ -520,7 +396,7 @@
                     : '<p class="italic text-slate-400">No visitors or significant communications recorded.</p>';
             }
 
-            // Page 3: QA/QC - check for refined data first
+            // Page 2: QA/QC - check for refined data first
             const qaqcSection = document.getElementById('qaqcSection');
             const refinedInspections = report.refinedData?.inspections;
 
@@ -534,7 +410,7 @@
                 qaqcSection.innerHTML = '<p class="italic text-slate-400">No QA/QC inspections or testing recorded.</p>';
             }
 
-            // Page 3: Safety - check for refined data first
+            // Page 2: Safety - check for refined data first
             const safetySection = document.getElementById('safetySection');
             const refinedSafety = report.refinedData?.safety;
             const safety = report.safety || { hasIncidents: false, notes: [] };
@@ -558,12 +434,12 @@
             // Signature line
             document.getElementById('signatureLine').querySelector('span').textContent = o.completedBy;
 
-            // Page 4: Photos (conditional)
-            const page4 = document.getElementById('page4');
+            // Page 3: Photos (conditional)
+            const page3 = document.getElementById('page3');
             const photosGrid = document.getElementById('photosGrid');
 
             if (report.photos && report.photos.length > 0) {
-                page4.classList.remove('hidden');
+                page3.classList.remove('hidden');
                 photosGrid.innerHTML = report.photos.map(p => `
                     <div class="border border-slate-300 rounded overflow-hidden">
                         <img src="${p.url}" class="w-full h-40 object-cover" alt="${p.caption || 'Site photo'}">
@@ -579,12 +455,12 @@
                 `).join('');
 
                 // Update page counts
-                document.getElementById('totalPages').textContent = '4';
-                document.querySelectorAll('.totalPages').forEach(el => el.textContent = '4');
-            } else {
-                page4.classList.add('hidden');
                 document.getElementById('totalPages').textContent = '3';
                 document.querySelectorAll('.totalPages').forEach(el => el.textContent = '3');
+            } else {
+                page3.classList.add('hidden');
+                document.getElementById('totalPages').textContent = '2';
+                document.querySelectorAll('.totalPages').forEach(el => el.textContent = '2');
             }
         }
 
