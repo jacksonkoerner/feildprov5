@@ -110,7 +110,7 @@
             return {
                 meta: { createdAt: new Date().toISOString(), version: 2 },
                 overview: {
-                    projectName: "North-South Connector Road Phase 2",
+                    projectName: "",
                     date: new Date().toLocaleDateString(),
                     weather: { generalCondition: '--', jobSiteCondition: 'Dry' }
                 },
@@ -510,25 +510,22 @@
 
 
         function extractContractor(text) {
+            // Check if text mentions any known contractors from the report
+            const report = getReport();
             const lower = text.toLowerCase();
-            const knownContractors = {
-                'HGBM': ['hgbm', 'hunt gibbs', 'hunt, gibbs', 'the prime', 'prime contractor'],
-                'Boh Bros': ['boh', 'boh brothers', 'boh bros'],
-                'Metro Electric': ['metro', 'metro electrical', 'electricians'],
-                'Allied Concrete': ['allied', 'concrete guys', 'concrete sub']
-            };
 
-            for (const [name, aliases] of Object.entries(knownContractors)) {
-                if (aliases.some(alias => lower.includes(alias)) || lower.includes(name.toLowerCase())) {
-                    return name;
+            // Check against contractors already recorded in the report
+            for (const contractor of (report.contractors || [])) {
+                if (lower.includes(contractor.toLowerCase())) {
+                    return contractor;
                 }
             }
             return null;
         }
 
         function getDefaultContractor(report) {
-            // Use first contractor from today's report or default
-            return report.contractors?.[0] || 'HGBM';
+            // Use first contractor from today's report or empty string
+            return report.contractors?.[0] || '';
         }
 
         function parseHeadcount(text) {
