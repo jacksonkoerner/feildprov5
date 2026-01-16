@@ -25,22 +25,12 @@
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
         .header-stripe { background: repeating-linear-gradient(-45deg, #f59e0b, #f59e0b 10px, #0a1628 10px, #0a1628 20px); height: 4px; }
-        @keyframes pulse-recording {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.5); }
-            50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(234, 88, 12, 0); }
-        }
-        .recording-pulse { animation: pulse-recording 1.5s ease-out infinite; }
         .section-card { transition: all 0.3s ease; }
         .section-card.expanded { border-color: #1e3a5f; box-shadow: 0 0 0 2px rgba(30, 58, 95, 0.2); }
         .section-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
         .section-card.expanded .section-content { max-height: 1000px; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .voice-btn.mic-testing { background: linear-gradient(135deg, #1e3a5f 0%, #0a1628 100%); animation: pulse 1.5s ease-in-out infinite; }
-        .voice-btn.mic-working { background: #16a34a; }
-        .voice-btn.mic-denied { background: #dc2626; cursor: pointer; }
-        .voice-btn.mic-error { background: #ea580c; cursor: pointer; }
-        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.95); } }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen">
@@ -114,7 +104,7 @@
                             <label class="text-xs font-bold text-slate-500 uppercase">Site Conditions</label>
                             <div class="mt-2 flex items-center gap-2">
                                 <textarea id="site-conditions-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Describe site conditions..."></textarea>
-                                <button onclick="recordVoice('weather')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
+                                <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
                                     <i class="fas fa-microphone"></i>
                                 </button>
                             </div>
@@ -143,7 +133,7 @@
                         <div class="flex items-center gap-2">
                             <textarea id="activity-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Describe work performed..."></textarea>
                             <button onclick="addActivity()" class="px-4 py-3 bg-safety-green hover:bg-green-700 text-white font-bold transition-colors"><i class="fas fa-plus"></i></button>
-                            <button onclick="recordVoice('activities')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
+                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
                         </div>
                     </div>
                 </div>
@@ -172,7 +162,7 @@
                         <div class="flex items-center gap-2">
                             <textarea id="issue-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Describe any issues or delays..."></textarea>
                             <button onclick="addIssue()" class="px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold transition-colors"><i class="fas fa-plus"></i></button>
-                            <button onclick="recordVoice('issues')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
+                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
                         </div>
                     </div>
                 </div>
@@ -201,7 +191,7 @@
                         <div class="flex items-center gap-2">
                             <textarea id="inspection-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Describe inspections or testing..."></textarea>
                             <button onclick="addInspection()" class="px-4 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold transition-colors"><i class="fas fa-plus"></i></button>
-                            <button onclick="recordVoice('inspections')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
+                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
                         </div>
                     </div>
                 </div>
@@ -237,7 +227,7 @@
                         <div class="flex items-center gap-2">
                             <textarea id="safety-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Safety notes, toolbox talks..."></textarea>
                             <button onclick="addSafetyNote()" class="px-4 py-3 bg-safety-green hover:bg-green-700 text-white font-bold transition-colors"><i class="fas fa-plus"></i></button>
-                            <button onclick="recordVoice('safety')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
+                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
                         </div>
                     </div>
                 </div>
@@ -266,7 +256,7 @@
                         <div class="flex items-center gap-2">
                             <textarea id="visitor-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Visitors, calls, communications..."></textarea>
                             <button onclick="addVisitor()" class="px-4 py-3 bg-dot-blue hover:bg-blue-800 text-white font-bold transition-colors"><i class="fas fa-plus"></i></button>
-                            <button onclick="recordVoice('visitors')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
+                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
                         </div>
                     </div>
                 </div>
@@ -307,19 +297,29 @@
         </main>
     </div>
 
-    <!-- Voice Recording Modal -->
-    <div id="voiceModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+    <!-- Dictation Hint Modal -->
+    <div id="dictationHintModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm">
             <div class="bg-dot-navy text-white p-4 text-center">
-                <p id="voiceModalTitle" class="text-lg font-bold uppercase">Recording...</p>
-                <p class="text-xs text-slate-400">Tap stop when finished</p>
+                <p class="text-lg font-bold uppercase">Voice Input</p>
+                <p class="text-xs text-slate-400">Use your keyboard's dictation feature</p>
             </div>
-            <div id="voiceTranscript" class="bg-slate-50 p-4 m-4 border border-slate-200 min-h-[100px] max-h-[200px] overflow-y-auto">
-                <p id="liveTranscript" class="text-sm text-slate-600 italic">Listening...</p>
+            <div class="p-6 text-center">
+                <div class="w-20 h-20 bg-dot-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-keyboard text-dot-blue text-3xl"></i>
+                </div>
+                <p class="text-sm text-slate-700 mb-4">To dictate text, tap the text field and use the <strong>microphone button</strong> on your device's keyboard.</p>
+                <div class="bg-slate-50 border border-slate-200 p-3 rounded text-left">
+                    <p class="text-xs font-bold text-slate-500 uppercase mb-2">How to dictate:</p>
+                    <ol class="text-xs text-slate-600 space-y-1 list-decimal list-inside">
+                        <li>Tap any text input field</li>
+                        <li>Tap the <i class="fas fa-microphone text-dot-blue"></i> on your keyboard</li>
+                        <li>Speak your notes</li>
+                    </ol>
+                </div>
             </div>
-            <div class="p-4 pt-0 flex justify-center gap-4">
-                <button onclick="cancelVoice()" class="px-6 py-3 bg-slate-200 text-slate-700 font-bold uppercase hover:bg-slate-300 transition-colors">Cancel</button>
-                <button id="stopVoiceBtn" onclick="stopVoice()" class="recording-pulse px-6 py-3 bg-dot-orange text-white font-bold uppercase"><i class="fas fa-stop mr-2"></i>Stop</button>
+            <div class="p-4 pt-0">
+                <button onclick="closeDictationHint()" class="w-full py-3 bg-dot-navy hover:bg-dot-blue text-white font-bold uppercase transition-colors">Got It</button>
             </div>
         </div>
     </div>
@@ -345,7 +345,7 @@
                             </div>
                             <div>
                                 <p class="font-bold text-slate-800 text-sm uppercase">Microphone</p>
-                                <p id="micPermissionStatus" class="text-xs text-slate-500">For voice notes</p>
+                                <p id="micPermissionStatus" class="text-xs text-slate-500">For keyboard dictation</p>
                             </div>
                         </div>
                         <button id="micPermissionBtn" onclick="requestMicrophonePermission()" class="px-4 py-2 bg-dot-navy hover:bg-dot-blue text-white text-xs font-bold uppercase transition-colors">Enable</button>
@@ -379,10 +379,6 @@
     <script>
         // ============ STATE ============
         let currentSection = null;
-        let isRecording = false;
-        let recognition = null;
-        let currentTranscript = '';
-        let activeVoiceSection = null;
         let report = null;
         let permissionsChecked = false;
 
@@ -390,188 +386,6 @@
         const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
         const isIOSSafari = isIOS && isSafari;
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-        let microphoneState = { status: 'unknown', lastError: null, lastTested: null };
-
-        // ============ GROQ WHISPER FALLBACK ============
-        let mediaRecorder = null;
-        let audioChunks = [];
-        let useWhisperFallback = false; // Will be set to true on iOS or when SpeechRecognition fails
-        let audioStream = null;
-
-        function getGroqApiKey() {
-            return localStorage.getItem('groq_api_key');
-        }
-
-        async function transcribeWithWhisper(audioBlob) {
-            const apiKey = getGroqApiKey();
-            if (!apiKey) {
-                throw new Error('NO_API_KEY');
-            }
-
-            // Convert blob to file for FormData
-            const audioFile = new File([audioBlob], 'recording.webm', { type: audioBlob.type });
-
-            const formData = new FormData();
-            formData.append('file', audioFile);
-            formData.append('model', 'whisper-large-v3-turbo');
-            formData.append('language', 'en');
-            formData.append('response_format', 'json');
-
-            const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                body: formData
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Whisper API error:', response.status, errorText);
-                throw new Error(`WHISPER_API_ERROR: ${response.status}`);
-            }
-
-            const result = await response.json();
-            return result.text || '';
-        }
-
-        async function startWhisperRecording() {
-            try {
-                audioChunks = [];
-
-                // Get audio stream
-                audioStream = await navigator.mediaDevices.getUserMedia({
-                    audio: {
-                        echoCancellation: true,
-                        noiseSuppression: true,
-                        sampleRate: 16000
-                    }
-                });
-
-                // Determine best supported format - prefer webm, fallback to mp4 for iOS
-                let mimeType = 'audio/webm;codecs=opus';
-                if (!MediaRecorder.isTypeSupported(mimeType)) {
-                    mimeType = 'audio/webm';
-                }
-                if (!MediaRecorder.isTypeSupported(mimeType)) {
-                    mimeType = 'audio/mp4';
-                }
-                if (!MediaRecorder.isTypeSupported(mimeType)) {
-                    mimeType = ''; // Let browser choose
-                }
-
-                const options = mimeType ? { mimeType } : {};
-                mediaRecorder = new MediaRecorder(audioStream, options);
-
-                mediaRecorder.ondataavailable = (event) => {
-                    if (event.data.size > 0) {
-                        audioChunks.push(event.data);
-                    }
-                };
-
-                mediaRecorder.start(100); // Collect in 100ms chunks
-                isRecording = true;
-
-                // Update modal UI for whisper mode
-                document.getElementById('liveTranscript').innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                        <span>Recording audio...</span>
-                    </div>
-                    <p class="text-xs text-slate-400 mt-2">Audio will be transcribed when you stop</p>
-                `;
-
-                console.log('Whisper recording started with format:', mimeType || 'browser default');
-
-            } catch (err) {
-                console.error('Failed to start Whisper recording:', err);
-                throw err;
-            }
-        }
-
-        async function stopWhisperRecording() {
-            return new Promise((resolve, reject) => {
-                if (!mediaRecorder || mediaRecorder.state === 'inactive') {
-                    reject(new Error('No active recording'));
-                    return;
-                }
-
-                mediaRecorder.onstop = async () => {
-                    try {
-                        // Stop all audio tracks
-                        if (audioStream) {
-                            audioStream.getTracks().forEach(track => track.stop());
-                            audioStream = null;
-                        }
-
-                        // Create blob from chunks
-                        const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
-                        console.log('Audio recorded:', audioBlob.size, 'bytes,', mediaRecorder.mimeType);
-
-                        if (audioBlob.size < 1000) {
-                            reject(new Error('Recording too short'));
-                            return;
-                        }
-
-                        // Show transcribing state
-                        document.getElementById('liveTranscript').innerHTML = `
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-spinner fa-spin text-dot-blue"></i>
-                                <span>Transcribing with AI...</span>
-                            </div>
-                        `;
-
-                        // Transcribe with Whisper
-                        const transcript = await transcribeWithWhisper(audioBlob);
-                        resolve(transcript);
-
-                    } catch (err) {
-                        reject(err);
-                    }
-                };
-
-                mediaRecorder.stop();
-                isRecording = false;
-            });
-        }
-
-        function cancelWhisperRecording() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-            }
-            if (audioStream) {
-                audioStream.getTracks().forEach(track => track.stop());
-                audioStream = null;
-            }
-            audioChunks = [];
-            isRecording = false;
-        }
-
-        // Check if we should use Whisper fallback (iOS or no SpeechRecognition)
-        function shouldUseWhisperFallback() {
-            // Always use Whisper on iOS Safari due to Siri/Dictation requirements
-            if (isIOSSafari) {
-                console.log('iOS Safari detected - using Whisper fallback');
-                return true;
-            }
-
-            // Check if SpeechRecognition is available
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                console.log('No SpeechRecognition API - using Whisper fallback');
-                return true;
-            }
-
-            // Check if we've had previous speech recognition failures
-            const hadSpeechError = localStorage.getItem('fvp_speech_failed') === 'true';
-            if (hadSpeechError) {
-                console.log('Previous speech recognition failure - using Whisper fallback');
-                return true;
-            }
-
-            return false;
-        }
 
         // ============ STORAGE ============
         function getTodayKey() { return `fieldvoice_report_${new Date().toISOString().split('T')[0]}`; }
@@ -733,185 +547,14 @@
             });
         }
 
-        // ============ VOICE RECORDING ============
-        async function recordVoice(section) {
-            activeVoiceSection = section;
-            currentTranscript = '';
-
-            const sectionNames = { weather: 'Site Conditions', activities: 'Work Summary', issues: 'Issues', inspections: 'Inspections', safety: 'Safety', visitors: 'Visitors' };
-
-            // Check if we need to use Whisper fallback
-            useWhisperFallback = shouldUseWhisperFallback();
-
-            // Check for API key if using Whisper
-            if (useWhisperFallback) {
-                const apiKey = getGroqApiKey();
-                if (!apiKey) {
-                    const setupNow = confirm(
-                        'Voice recording on this device requires a Groq API key.\n\n' +
-                        'Would you like to set up your API key now?\n\n' +
-                        '(Get a free key at console.groq.com)'
-                    );
-                    if (setupNow) {
-                        window.location.href = 'permissions.html#apiKeyCard';
-                    }
-                    return;
-                }
-            }
-
-            document.getElementById('voiceModal').classList.remove('hidden');
-            document.getElementById('voiceModalTitle').textContent = `Recording: ${sectionNames[section]}`;
-
-            if (useWhisperFallback) {
-                // Update modal subtitle for Whisper mode
-                document.querySelector('#voiceModal .text-xs.text-slate-400').textContent = 'Using AI transcription';
-                document.getElementById('liveTranscript').innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-spinner fa-spin text-dot-blue"></i>
-                        <span>Starting microphone...</span>
-                    </div>
-                `;
-                try {
-                    await startWhisperRecording();
-                } catch (err) {
-                    console.error('Failed to start Whisper recording:', err);
-                    document.getElementById('liveTranscript').innerHTML = `
-                        <div class="text-red-600">
-                            <i class="fas fa-exclamation-circle mr-2"></i>
-                            Failed to access microphone
-                        </div>
-                        <p class="text-xs text-slate-500 mt-2">${err.message}</p>
-                    `;
-                }
-            } else {
-                document.querySelector('#voiceModal .text-xs.text-slate-400').textContent = 'Tap stop when finished';
-                document.getElementById('liveTranscript').textContent = 'Listening...';
-                startRecording();
-            }
+        // ============ VOICE INPUT HINT ============
+        // Voice input now uses device's native keyboard dictation
+        function showDictationHint() {
+            document.getElementById('dictationHintModal').classList.remove('hidden');
         }
 
-        function startRecording() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                // Fall back to Whisper if SpeechRecognition not available
-                useWhisperFallback = true;
-                startWhisperRecording().catch(err => {
-                    console.error('Whisper fallback also failed:', err);
-                    cancelVoice();
-                    alert('Voice recording is not available on this device.');
-                });
-                return;
-            }
-            recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.lang = 'en-US';
-            recognition.onstart = () => { isRecording = true; };
-            recognition.onresult = (event) => {
-                let transcript = '';
-                for (let i = 0; i < event.results.length; i++) { transcript += event.results[i][0].transcript; }
-                currentTranscript = transcript;
-                document.getElementById('liveTranscript').textContent = transcript || 'Listening...';
-            };
-            recognition.onend = () => { isRecording = false; };
-            recognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
-                isRecording = false;
-
-                // Mark that speech recognition failed for future reference
-                if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-                    localStorage.setItem('fvp_speech_failed', 'true');
-                    cancelVoice();
-
-                    // Offer to use Whisper fallback
-                    const apiKey = getGroqApiKey();
-                    if (apiKey) {
-                        const useWhisper = confirm(
-                            'Speech recognition is not available on this device.\n\n' +
-                            'Would you like to try AI-powered transcription instead?'
-                        );
-                        if (useWhisper) {
-                            recordVoice(activeVoiceSection);
-                        }
-                    } else {
-                        alert(
-                            'Speech recognition requires Siri & Dictation to be enabled.\n\n' +
-                            'Alternatively, set up a Groq API key on the Permissions page for AI transcription.'
-                        );
-                    }
-                }
-            };
-            recognition.start();
-        }
-
-        async function stopVoice() {
-            if (useWhisperFallback) {
-                // Stop Whisper recording and get transcript
-                try {
-                    const transcript = await stopWhisperRecording();
-                    if (transcript && transcript.trim()) {
-                        document.getElementById('liveTranscript').innerHTML = `
-                            <div class="text-safety-green">
-                                <i class="fas fa-check-circle mr-2"></i>
-                                Transcribed successfully
-                            </div>
-                            <p class="text-sm text-slate-700 mt-2">"${transcript.trim()}"</p>
-                        `;
-                        // Brief delay to show the result
-                        await new Promise(resolve => setTimeout(resolve, 800));
-                        applyVoiceToSection(activeVoiceSection, transcript.trim());
-                    } else {
-                        showToast('No speech detected', 'warning');
-                    }
-                } catch (err) {
-                    console.error('Whisper transcription failed:', err);
-                    if (err.message === 'NO_API_KEY') {
-                        alert('Please set up your Groq API key on the Permissions page.');
-                    } else if (err.message === 'Recording too short') {
-                        showToast('Recording too short', 'warning');
-                    } else {
-                        showToast('Transcription failed', 'error');
-                    }
-                }
-            } else {
-                // Standard SpeechRecognition stop
-                if (recognition) { recognition.stop(); recognition = null; }
-                isRecording = false;
-                const transcript = currentTranscript.trim();
-                if (transcript) { applyVoiceToSection(activeVoiceSection, transcript); }
-            }
-
-            document.getElementById('voiceModal').classList.add('hidden');
-            currentTranscript = '';
-            activeVoiceSection = null;
-            useWhisperFallback = false;
-        }
-
-        function cancelVoice() {
-            if (useWhisperFallback) {
-                cancelWhisperRecording();
-            } else {
-                if (recognition) { recognition.stop(); recognition = null; }
-            }
-            isRecording = false;
-            currentTranscript = '';
-            activeVoiceSection = null;
-            useWhisperFallback = false;
-            document.getElementById('voiceModal').classList.add('hidden');
-        }
-
-        function applyVoiceToSection(section, transcript) {
-            switch (section) {
-                case 'weather': report.overview.weather.jobSiteCondition = transcript; document.getElementById('site-conditions-input').value = transcript; break;
-                case 'activities': report.activities.push({ contractor: 'General', trade: 'General', narrative: transcript }); break;
-                case 'issues': if (!transcript.toLowerCase().includes('none') && !transcript.toLowerCase().includes('no issues')) { report.generalIssues.push(transcript); } break;
-                case 'inspections': if (!transcript.toLowerCase().includes('none') && !transcript.toLowerCase().includes('no inspection')) { report.qaqcNotes.push(transcript); } break;
-                case 'safety': report.safety.notes.push(transcript); if (transcript.toLowerCase().includes('incident') || transcript.toLowerCase().includes('injury')) { report.safety.hasIncidents = true; } break;
-                case 'visitors': if (!transcript.toLowerCase().includes('none') && !transcript.toLowerCase().includes('no visitor')) { report.visitorsRemarks.push(transcript); } break;
-            }
-            saveReport();
-            renderSection(section);
-            showToast('Added successfully');
+        function closeDictationHint() {
+            document.getElementById('dictationHintModal').classList.add('hidden');
         }
 
         // ============ MANUAL ADD FUNCTIONS ============
