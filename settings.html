@@ -62,12 +62,12 @@
                         <input type="text" id="projectName" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="Enter project name">
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-dot-blue uppercase tracking-wider">NOAB Project No.</label>
-                        <input type="text" id="noabProjectNo" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="e.g. 1291">
+                        <label class="text-xs font-bold text-dot-blue uppercase tracking-wider">Project Number</label>
+                        <input type="text" id="noabProjectNo" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="Enter project number">
                     </div>
                     <div>
                         <label class="text-xs font-bold text-dot-blue uppercase tracking-wider">Location</label>
-                        <input type="text" id="location" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="e.g. MSY Airport">
+                        <input type="text" id="location" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="Enter project location">
                     </div>
                 </div>
             </section>
@@ -87,15 +87,15 @@
                     </div>
                     <div>
                         <label class="text-xs font-bold text-dot-blue uppercase tracking-wider">Contract Duration (Days)</label>
-                        <input type="number" id="contractDuration" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="e.g. 467">
+                        <input type="number" id="contractDuration" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="Enter total contract days">
                     </div>
                     <div>
                         <label class="text-xs font-bold text-dot-blue uppercase tracking-wider">Contractor</label>
-                        <input type="text" id="contractor" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="e.g. HGBM">
+                        <input type="text" id="contractor" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="Enter prime contractor name">
                     </div>
                     <div>
                         <label class="text-xs font-bold text-dot-blue uppercase tracking-wider">Engineer</label>
-                        <input type="text" id="engineer" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="e.g. Garver, LLC">
+                        <input type="text" id="engineer" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="Enter engineering firm name">
                     </div>
                 </div>
             </section>
@@ -184,14 +184,7 @@
                     document.getElementById('defaultEndTime').value = settings.defaultEndTime || '16:00';
                 } catch (e) {}
             } else {
-                document.getElementById('projectName').value = 'North-South Connector Road Phase 2';
-                document.getElementById('noabProjectNo').value = '1291';
-                document.getElementById('location').value = 'Louis Armstrong New Orleans Int\'l Airport';
-                document.getElementById('ntpDate').value = '2025-06-27';
-                document.getElementById('contractDuration').value = '467';
-                document.getElementById('contractor').value = 'Hunt, Gibbs, Boh, & Metro (HGBM)';
-                document.getElementById('engineer').value = 'Garver, LLC';
-                document.getElementById('inspectorName').value = 'Inspector Name, RPR';
+                // No default values - user should configure their own project
                 document.getElementById('defaultStartTime').value = '06:00';
                 document.getElementById('defaultEndTime').value = '16:00';
             }

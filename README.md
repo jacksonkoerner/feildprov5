@@ -2,18 +2,18 @@
 
 ## Overview
 
-**FieldVoice Pro** is a voice-first, mobile-optimized web application designed for construction field documentation. It enables Resident Project Representatives (RPRs), field engineers, and inspectors to quickly document daily work activities using voice-to-text transcription with AI refinement, generating professional DOT-compliant reports.
+**FieldVoice Pro** is a mobile-optimized web application designed for construction field documentation. It enables Resident Project Representatives (RPRs), field engineers, and inspectors to quickly document daily work activities using native device dictation, generating professional DOT-compliant reports.
 
 ### Primary Use Case
 - **Target Users**: Construction inspectors, Resident Project Representatives (RPRs), field engineers
-- **Industry Focus**: DOT (Department of Transportation) construction projects, specifically LADOTD compliance
-- **Current Project**: North-South Connector Road Phase 2 at Louis Armstrong New Orleans International Airport (MSY)
+- **Industry Focus**: DOT (Department of Transportation) construction projects
+- **Deployment**: Configurable for any construction project
 
 ### Key Value Propositions
 - Save 1+ hour daily on field documentation
-- Ensure LADOTD (Louisiana Department of Transportation) compliance
+- Ensure DOT compliance with structured reporting
 - GPS-verified, timestamped reports for legal protection
-- Voice-assisted documentation optimized for noisy construction environments
+- Optimized for mobile field use with native keyboard dictation support
 
 ---
 
@@ -29,17 +29,13 @@
 ### External APIs & Services
 | Service | Purpose | Authentication |
 |---------|---------|----------------|
-| **Groq Whisper API** | Speech-to-text transcription (iOS fallback) | Bearer token (user's API key) |
-| **Groq LLM API** | AI text refinement for professional reports | Bearer token (user's API key) |
 | **Open-Meteo API** | Real-time weather data | None (free, no key required) |
 
 ### Browser APIs Used
 | API | Purpose |
 |-----|---------|
-| Web Speech Recognition API | Native browser speech-to-text |
-| MediaDevices API | Camera & microphone access |
+| MediaDevices API | Camera access |
 | Geolocation API | GPS coordinates for photos/weather |
-| AudioContext API | Microphone level testing/visualization |
 | Canvas API | Image compression |
 | localStorage | Client-side data persistence |
 
@@ -56,8 +52,7 @@
 ```
 /V3/
 ├── index.html              # Home dashboard / main entry point
-├── quick-interview.html    # Quick report flow (~3 min, essential fields)
-├── interview.html          # Full report flow (~5+ min, comprehensive)
+├── quick-interview.html    # Daily report flow (streamlined field entry)
 ├── review.html             # AI-powered review & text refinement
 ├── report.html             # Print-ready PDF report viewer/generator
 ├── editor.html             # Photo editor & section-specific editing
@@ -104,22 +99,22 @@
     }
   },
 
-  // Project Overview
+  // Project Overview (user-configurable via Settings)
   overview: {
-    projectName: "North-South Connector Road Phase 2",
-    noabProjectNo: "1291",
+    projectName: "Your Project Name",
+    noabProjectNo: "12345",
     cnoSolicitationNo: "N/A",
     date: "1/14/2025",
     startTime: "6:00 AM",
     endTime: "4:00 PM",
     shiftDuration: "10.00 hours",
-    location: "Louis Armstrong New Orleans Int'l Airport",
-    engineer: "Garver, LLC",
-    contractor: "Hunt, Gibbs, Boh, & Metro (HGBM)",
-    noticeToProceed: "June 27th, 2025",
-    contractDuration: "467 days",
-    expectedCompletion: "October 7th, 2026",
-    contractDayNo: "Day 201 of 467",
+    location: "Project Location",
+    engineer: "Engineering Firm",
+    contractor: "Prime Contractor Name",
+    noticeToProceed: "Start Date",
+    contractDuration: "X days",
+    expectedCompletion: "End Date",
+    contractDayNo: "Day X of Y",
     weatherDays: "0 days",
     completedBy: "Inspector Name, RPR",
     weather: {
@@ -132,9 +127,9 @@
     }
   },
 
-  // Contractors on site (Full report only)
+  // Contractors on site
   contractors: [
-    { name: "HGBM", trade: "General Contractor", count: 12 }
+    { name: "Contractor Name", trade: "General Contractor", count: 12 }
   ],
 
   // Work activities documented
@@ -142,10 +137,10 @@
     { contractor: "General", trade: "General", narrative: "Continued grading operations..." }
   ],
 
-  // Personnel headcounts (Full report only)
+  // Personnel headcounts
   operations: [
     {
-      contractor: "HGBM",
+      contractor: "Contractor Name",
       trade: "Earthwork",
       superintendents: 1,
       foremen: 2,
@@ -156,9 +151,9 @@
     }
   ],
 
-  // Equipment on site (Full report only)
+  // Equipment on site
   equipment: [
-    { contractor: "HGBM", type: "Excavator", model: "CAT 336", quantity: 2, status: "Active" }
+    { contractor: "Contractor Name", type: "Excavator", model: "CAT 336", quantity: 2, status: "Active" }
   ],
 
   // Issues and delays
@@ -182,7 +177,7 @@
 
   // Visitors and communications
   visitorsRemarks: [
-    "LADOTD inspector on site 10:00 AM - 2:00 PM"
+    "DOT inspector on site 10:00 AM - 2:00 PM"
   ],
 
   // Photo documentation
@@ -205,14 +200,14 @@
     }
   ],
 
-  // AI-refined versions of text (populated after review.html refinement)
+  // Edited versions of text (populated after review.html editing)
   refinedData: {
     weather: "Site conditions were dry with partly cloudy skies...",
-    activities: "Contractor HGBM continued earthwork operations...",
+    activities: "The contractor continued earthwork operations...",
     issues: "A utility conflict was identified at Station 45+00...",
     inspections: "Quality control testing included casting of concrete cylinders...",
     safety: "No safety incidents were reported. A toolbox talk on heat stress...",
-    visitors: "LADOTD representative conducted a site inspection..."
+    visitors: "DOT representative conducted a site inspection..."
   }
 }
 ```
@@ -223,13 +218,12 @@
 |-------------|---------|
 | `fieldvoice_report_YYYY-MM-DD` | Primary storage for date-specific reports |
 | `fieldvoice_report` | Legacy/backup key for compatibility |
-| `groq_api_key` | User's Groq API key for Whisper & LLM |
+| `fvp_settings` | User's project configuration settings |
 | `fvp_mic_granted` | Microphone permission status flag |
 | `fvp_loc_granted` | Location permission status flag |
 | `fvp_onboarded` | First-time onboarding completed flag |
 | `fvp_banner_dismissed` | Permission warning banner dismissed |
 | `fvp_banner_dismissed_date` | Timestamp of banner dismissal (24hr reset) |
-| `fvp_speech_failed` | Speech Recognition failure tracking |
 
 ---
 
@@ -385,22 +379,19 @@ User taps photo capture (camera icon)
 
 ## Configuration
 
-### Hardcoded Project Configuration
+### Project Configuration
 
-The current project details are hardcoded in `index.html` and `quick-interview.html`:
+Project details are configured via `settings.html` and stored in localStorage under the `fvp_settings` key. Users can configure:
 
-```javascript
-const INITIAL_OVERVIEW = {
-    projectName: "North-South Connector Road Phase 2",
-    noabProjectNo: "1291",
-    location: "Louis Armstrong New Orleans Int'l Airport",
-    engineer: "Garver, LLC",
-    contractor: "Hunt, Gibbs, Boh, & Metro (HGBM)",
-    noticeToProceed: "June 27th, 2025",
-    contractDuration: "467 days",
-    expectedCompletion: "October 7th, 2026"
-};
-```
+- Project Name
+- Project Number
+- Location
+- Notice to Proceed Date
+- Contract Duration (Days)
+- Prime Contractor Name
+- Engineering Firm Name
+- Inspector Name
+- Default Start/End Times
 
 ### Custom Theme Colors (Tailwind)
 
