@@ -30,11 +30,6 @@
             background: repeating-linear-gradient(-45deg, #f59e0b, #f59e0b 10px, #0a1628 10px, #0a1628 20px);
             height: 4px;
         }
-        @keyframes pulse-recording {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.5); }
-            50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(234, 88, 12, 0); }
-        }
-        .recording-pulse { animation: pulse-recording 1.5s ease-out infinite; }
         .section-card { transition: all 0.3s ease; }
         .section-card.expanded { border-color: #1e3a5f; box-shadow: 0 0 0 2px rgba(30, 58, 95, 0.2); }
         .section-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
@@ -123,7 +118,7 @@
                             <label class="text-xs font-bold text-slate-500 uppercase">Site Conditions</label>
                             <div class="mt-2 flex items-center gap-2">
                                 <textarea id="site-conditions-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Describe site conditions..."></textarea>
-                                <button onclick="recordVoice('weather')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
+                                <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
                                     <i class="fas fa-microphone"></i>
                                 </button>
                             </div>
@@ -154,7 +149,7 @@
                             <button onclick="addContractor()" class="px-4 py-3 bg-dot-orange hover:bg-orange-700 text-white font-bold transition-colors">
                                 <i class="fas fa-plus"></i>
                             </button>
-                            <button onclick="recordVoice('contractors')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
+                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
                                 <i class="fas fa-microphone"></i>
                             </button>
                         </div>
@@ -184,7 +179,7 @@
                             <button onclick="addActivity()" class="px-4 py-3 bg-safety-green hover:bg-green-700 text-white font-bold transition-colors">
                                 <i class="fas fa-plus"></i>
                             </button>
-                            <button onclick="recordVoice('activities')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
+                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
                                 <i class="fas fa-microphone"></i>
                             </button>
                         </div>
@@ -214,7 +209,7 @@
                             <button onclick="addHeadcount()" class="px-4 py-3 bg-dot-blue hover:bg-blue-800 text-white font-bold transition-colors">
                                 <i class="fas fa-plus"></i>
                             </button>
-                            <button onclick="recordVoice('headcounts')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
+                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
                                 <i class="fas fa-microphone"></i>
                             </button>
                         </div>
@@ -247,7 +242,7 @@
                             <button onclick="addEquipment()" class="px-4 py-3 bg-dot-yellow hover:bg-yellow-600 text-dot-navy font-bold transition-colors">
                                 <i class="fas fa-plus"></i>
                             </button>
-                            <button onclick="recordVoice('equipment')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
+                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
                                 <i class="fas fa-microphone"></i>
                             </button>
                         </div>
@@ -280,7 +275,7 @@
                             <button onclick="addIssue()" class="px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold transition-colors">
                                 <i class="fas fa-plus"></i>
                             </button>
-                            <button onclick="recordVoice('issues')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
+                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
                                 <i class="fas fa-microphone"></i>
                             </button>
                         </div>
@@ -313,7 +308,7 @@
                             <button onclick="addInspection()" class="px-4 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold transition-colors">
                                 <i class="fas fa-plus"></i>
                             </button>
-                            <button onclick="recordVoice('inspections')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
+                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
                                 <i class="fas fa-microphone"></i>
                             </button>
                         </div>
@@ -353,7 +348,7 @@
                             <button onclick="addSafetyNote()" class="px-4 py-3 bg-safety-green hover:bg-green-700 text-white font-bold transition-colors">
                                 <i class="fas fa-plus"></i>
                             </button>
-                            <button onclick="recordVoice('safety')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
+                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
                                 <i class="fas fa-microphone"></i>
                             </button>
                         </div>
@@ -386,7 +381,7 @@
                             <button onclick="addVisitor()" class="px-4 py-3 bg-dot-blue hover:bg-blue-800 text-white font-bold transition-colors">
                                 <i class="fas fa-plus"></i>
                             </button>
-                            <button onclick="recordVoice('visitors')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
+                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
                                 <i class="fas fa-microphone"></i>
                             </button>
                         </div>
@@ -426,25 +421,29 @@
         </main>
     </div>
 
-    <!-- Voice Recording Modal -->
-    <div id="voiceModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+    <!-- Dictation Hint Modal -->
+    <div id="dictationHintModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm">
             <div class="bg-dot-navy text-white p-4 text-center">
-                <p id="voiceModalTitle" class="text-lg font-bold uppercase">Recording...</p>
-                <p class="text-xs text-slate-400">Tap stop when finished</p>
+                <p class="text-lg font-bold uppercase">Voice Input</p>
+                <p class="text-xs text-slate-400">Use your keyboard's dictation feature</p>
             </div>
-
-            <div id="voiceTranscript" class="bg-slate-50 p-4 m-4 border border-slate-200 min-h-[100px] max-h-[200px] overflow-y-auto">
-                <p id="liveTranscript" class="text-sm text-slate-600 italic">Listening...</p>
+            <div class="p-6 text-center">
+                <div class="w-20 h-20 bg-dot-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-keyboard text-dot-blue text-3xl"></i>
+                </div>
+                <p class="text-sm text-slate-700 mb-4">To dictate text, tap the text field and use the <strong>microphone button</strong> on your device's keyboard.</p>
+                <div class="bg-slate-50 border border-slate-200 p-3 rounded text-left">
+                    <p class="text-xs font-bold text-slate-500 uppercase mb-2">How to dictate:</p>
+                    <ol class="text-xs text-slate-600 space-y-1 list-decimal list-inside">
+                        <li>Tap any text input field</li>
+                        <li>Tap the <i class="fas fa-microphone text-dot-blue"></i> on your keyboard</li>
+                        <li>Speak your notes</li>
+                    </ol>
+                </div>
             </div>
-
-            <div class="p-4 pt-0 flex justify-center gap-4">
-                <button onclick="cancelVoice()" class="px-6 py-3 bg-slate-200 text-slate-700 font-bold uppercase hover:bg-slate-300 transition-colors">
-                    Cancel
-                </button>
-                <button id="stopVoiceBtn" onclick="stopVoice()" class="recording-pulse px-6 py-3 bg-dot-orange text-white font-bold uppercase">
-                    <i class="fas fa-stop mr-2"></i>Stop
-                </button>
+            <div class="p-4 pt-0">
+                <button onclick="closeDictationHint()" class="w-full py-3 bg-dot-navy hover:bg-dot-blue text-white font-bold uppercase transition-colors">Got It</button>
             </div>
         </div>
     </div>
@@ -452,10 +451,6 @@
     <script>
         // ============ STATE ============
         let currentSection = null;
-        let isRecording = false;
-        let recognition = null;
-        let currentTranscript = '';
-        let activeVoiceSection = null;
         let report = null;
 
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -560,114 +555,14 @@
             });
         }
 
-        // ============ VOICE RECORDING ============
-        function recordVoice(section) {
-            activeVoiceSection = section;
-            currentTranscript = '';
-            document.getElementById('liveTranscript').textContent = 'Listening...';
-            document.getElementById('voiceModal').classList.remove('hidden');
-            const sectionNames = { weather: 'Site Conditions', contractors: 'Contractors', activities: 'Work Summary', headcounts: 'Headcounts', equipment: 'Equipment', issues: 'Issues', inspections: 'Inspections', safety: 'Safety', visitors: 'Visitors' };
-            document.getElementById('voiceModalTitle').textContent = `Recording: ${sectionNames[section]}`;
-            startRecording();
+        // ============ VOICE INPUT HINT ============
+        // Voice input now uses device's native keyboard dictation
+        function showDictationHint() {
+            document.getElementById('dictationHintModal').classList.remove('hidden');
         }
 
-        function startRecording() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                alert("Speech Recognition not supported. Please use Chrome or Safari.");
-                cancelVoice();
-                return;
-            }
-            recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.lang = 'en-US';
-            recognition.onstart = () => { isRecording = true; };
-            recognition.onresult = (event) => {
-                let transcript = '';
-                for (let i = 0; i < event.results.length; i++) {
-                    transcript += event.results[i][0].transcript;
-                }
-                currentTranscript = transcript;
-                document.getElementById('liveTranscript').textContent = transcript || 'Listening...';
-            };
-            recognition.onend = () => { isRecording = false; };
-            recognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
-                isRecording = false;
-                if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-                    cancelVoice();
-                    alert('Microphone access is required for voice recording.');
-                }
-            };
-            recognition.start();
-        }
-
-        function stopVoice() {
-            if (recognition) { recognition.stop(); recognition = null; }
-            isRecording = false;
-            const transcript = currentTranscript.trim();
-            if (transcript) { applyVoiceToSection(activeVoiceSection, transcript); }
-            document.getElementById('voiceModal').classList.add('hidden');
-            currentTranscript = '';
-            activeVoiceSection = null;
-        }
-
-        function cancelVoice() {
-            if (recognition) { recognition.stop(); recognition = null; }
-            isRecording = false;
-            currentTranscript = '';
-            activeVoiceSection = null;
-            document.getElementById('voiceModal').classList.add('hidden');
-        }
-
-        function applyVoiceToSection(section, transcript) {
-            switch (section) {
-                case 'weather':
-                    report.overview.weather.jobSiteCondition = transcript;
-                    document.getElementById('site-conditions-input').value = transcript;
-                    break;
-                case 'contractors':
-                    const contractors = transcript.split(/,|and|&/).map(c => c.trim()).filter(c => c);
-                    contractors.forEach(c => {
-                        const normalized = normalizeContractorName(c);
-                        if (!report.contractors.includes(normalized)) { report.contractors.push(normalized); }
-                    });
-                    break;
-                case 'activities':
-                    report.activities.push({ contractor: report.contractors[0] || 'General', trade: 'General', narrative: transcript });
-                    break;
-                case 'headcounts':
-                    parseAndAddHeadcount(transcript);
-                    break;
-                case 'equipment':
-                    report.equipment.push({ contractor: report.contractors[0] || 'General', model: transcript, quantity: 1, notes: '' });
-                    break;
-                case 'issues':
-                    if (!transcript.toLowerCase().includes('none') && !transcript.toLowerCase().includes('no issues')) {
-                        report.generalIssues.push(transcript);
-                    }
-                    break;
-                case 'inspections':
-                    if (!transcript.toLowerCase().includes('none') && !transcript.toLowerCase().includes('no inspection')) {
-                        report.qaqcNotes.push(transcript);
-                    }
-                    break;
-                case 'safety':
-                    report.safety.notes.push(transcript);
-                    if (transcript.toLowerCase().includes('incident') || transcript.toLowerCase().includes('injury')) {
-                        report.safety.hasIncidents = true;
-                    }
-                    break;
-                case 'visitors':
-                    if (!transcript.toLowerCase().includes('none') && !transcript.toLowerCase().includes('no visitor')) {
-                        report.visitorsRemarks.push(transcript);
-                    }
-                    break;
-            }
-            saveReport();
-            renderSection(section);
-            showToast('Added successfully');
+        function closeDictationHint() {
+            document.getElementById('dictationHintModal').classList.add('hidden');
         }
 
         // ============ MANUAL ADD FUNCTIONS ============

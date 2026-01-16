@@ -219,8 +219,8 @@
                         <span class="text-sm text-slate-300">Automatic location & weather data</span>
                     </div>
                     <div class="flex items-center gap-3 text-left bg-dot-blue/30 p-3 rounded">
-                        <i class="fas fa-comment-dots text-dot-orange w-6 text-center"></i>
-                        <span class="text-sm text-slate-300">Real-time speech-to-text transcription</span>
+                        <i class="fas fa-keyboard text-dot-orange w-6 text-center"></i>
+                        <span class="text-sm text-slate-300">Native keyboard dictation support</span>
                     </div>
                 </div>
 
@@ -248,7 +248,7 @@
             <!-- Header with stepper -->
             <header class="bg-dot-navy text-white p-4 flex-shrink-0">
                 <div id="stepper-mic" class="flex items-center justify-center gap-2 mb-4"></div>
-                <p class="text-center text-slate-400 text-sm">Step 1 of 4</p>
+                <p class="text-center text-slate-400 text-sm">Step 1 of 3</p>
             </header>
 
             <main class="flex-1 flex flex-col items-center p-6 pb-36 overflow-y-auto">
@@ -260,7 +260,7 @@
 
                     <h2 class="text-2xl font-bold text-slate-800 mb-2">Microphone Access</h2>
                     <p class="text-slate-600 mb-6 max-w-xs mx-auto">
-                        Required for voice recording. Speak your field reports instead of typing.
+                        For keyboard dictation. Speak your field reports instead of typing.
                     </p>
 
                     <div class="bg-dot-navy/5 border border-slate-200 p-4 rounded mb-8 max-w-xs mx-auto">
@@ -328,7 +328,7 @@
         <div id="screen-cam" class="flow-screen flex flex-col bg-slate-100">
             <header class="bg-dot-navy text-white p-4 flex-shrink-0">
                 <div id="stepper-cam" class="flex items-center justify-center gap-2 mb-4"></div>
-                <p class="text-center text-slate-400 text-sm">Step 2 of 4</p>
+                <p class="text-center text-slate-400 text-sm">Step 2 of 3</p>
             </header>
 
             <main class="flex-1 flex flex-col items-center p-6 pb-36 overflow-y-auto">
@@ -408,7 +408,7 @@
         <div id="screen-loc" class="flow-screen flex flex-col bg-slate-100">
             <header class="bg-dot-navy text-white p-4 flex-shrink-0">
                 <div id="stepper-loc" class="flex items-center justify-center gap-2 mb-4"></div>
-                <p class="text-center text-slate-400 text-sm">Step 3 of 4</p>
+                <p class="text-center text-slate-400 text-sm">Step 3 of 3</p>
             </header>
 
             <main class="flex-1 flex flex-col items-center p-6 pb-36 overflow-y-auto">
@@ -484,160 +484,7 @@
             </main>
         </div>
 
-        <!-- ==================== SCREEN 4: SPEECH RECOGNITION ==================== -->
-        <div id="screen-speech" class="flow-screen flex flex-col bg-slate-100">
-            <header class="bg-dot-navy text-white p-4 flex-shrink-0">
-                <div id="stepper-speech" class="flex items-center justify-center gap-2 mb-4"></div>
-                <p class="text-center text-slate-400 text-sm">Step 4 of 4</p>
-            </header>
-
-            <main class="flex-1 flex flex-col items-center p-6 pb-36 overflow-y-auto">
-                <!-- Pre-permission content -->
-                <div id="speech-pre" class="text-center mt-auto mb-auto">
-                    <div class="w-28 h-28 bg-violet-600 rounded-full flex items-center justify-center mx-auto mb-6 icon-pulse">
-                        <i class="fas fa-comment-dots text-white text-5xl"></i>
-                    </div>
-
-                    <h2 class="text-2xl font-bold text-slate-800 mb-2">Speech Recognition</h2>
-                    <p class="text-slate-600 mb-6 max-w-xs mx-auto">
-                        Converts your voice to text in real-time for faster reporting.
-                    </p>
-
-                    <div class="bg-violet-50 border border-violet-200 p-4 rounded mb-8 max-w-xs mx-auto">
-                        <p class="text-xs text-slate-500 uppercase font-bold mb-2">Why we need this</p>
-                        <ul class="text-sm text-slate-600 space-y-1 text-left">
-                            <li><i class="fas fa-check text-safety-green mr-2"></i>Real-time voice transcription</li>
-                            <li><i class="fas fa-check text-safety-green mr-2"></i>Hands-free text entry</li>
-                            <li><i class="fas fa-check text-safety-green mr-2"></i>Quick field note dictation</li>
-                        </ul>
-                    </div>
-
-                    <!-- iOS Warning -->
-                    <div id="ios-speech-warning" class="hidden bg-yellow-50 border border-yellow-300 p-4 rounded mb-6 max-w-xs mx-auto text-left">
-                        <p class="text-xs text-yellow-700 font-bold uppercase mb-2">
-                            <i class="fab fa-apple mr-1"></i>iOS Safari Note
-                        </p>
-                        <p class="text-xs text-yellow-600">
-                            Speech recognition on iOS requires <strong>Siri & Dictation</strong> to be enabled in your device settings.
-                        </p>
-                    </div>
-
-                    <button id="speech-test-btn" onclick="requestSpeechPermission()" class="w-full max-w-xs py-4 bg-violet-600 hover:bg-violet-700 text-white font-bold uppercase transition-all">
-                        <i class="fas fa-comment-dots mr-2"></i>Test Speech Recognition
-                    </button>
-
-                    <button onclick="skipPermission('speech')" class="mt-3 text-slate-500 text-sm underline hover:text-slate-600">
-                        Skip for now
-                    </button>
-                </div>
-
-                <!-- Loading/Testing state -->
-                <div id="speech-loading" class="text-center hidden mt-auto mb-auto">
-                    <div class="w-28 h-28 bg-violet-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-ear-listen text-white text-4xl"></i>
-                    </div>
-                    <p class="text-slate-800 font-bold mb-2">Listening...</p>
-                    <p class="text-slate-600 mb-4">Say something to test speech recognition</p>
-                    <div class="bg-violet-50 border border-violet-200 p-4 rounded max-w-xs mx-auto">
-                        <p id="speech-transcript" class="text-sm text-slate-700 italic min-h-[40px]">Waiting for speech...</p>
-                    </div>
-                    <button onclick="cancelSpeechTest()" class="mt-4 text-slate-500 text-sm underline hover:text-slate-600">
-                        Cancel
-                    </button>
-                </div>
-
-                <!-- Success state -->
-                <div id="speech-success" class="text-center hidden mt-auto mb-auto">
-                    <div class="w-28 h-28 bg-safety-green rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-check text-white text-5xl check-bounce"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-safety-green mb-2">Speech Recognition Works!</h2>
-                    <p class="text-slate-600 mb-6">Voice-to-text is ready</p>
-                    <p class="text-xs text-slate-400">Moving to summary...</p>
-                </div>
-
-                <!-- Error state with iOS help -->
-                <div id="speech-error" class="text-center hidden mt-auto mb-auto">
-                    <div class="w-28 h-28 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-comment-slash text-white text-5xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-red-600 mb-2">Speech Recognition Failed</h2>
-                    <p id="speech-error-message" class="text-slate-600 mb-4 max-w-xs mx-auto"></p>
-
-                    <!-- iOS-specific help panel -->
-                    <div id="ios-help-panel" class="hidden bg-red-50 border-2 border-red-200 rounded max-w-sm mx-auto mb-6 text-left">
-                        <div class="p-3 bg-red-100 border-b border-red-200">
-                            <p class="text-sm font-bold text-red-700 uppercase flex items-center gap-2">
-                                <i class="fab fa-apple"></i> iOS Safari - Siri & Dictation Required
-                            </p>
-                        </div>
-                        <div class="p-4 space-y-4">
-                            <p class="text-xs text-red-600">
-                                iOS Safari uses Apple's Siri servers for speech recognition. You must enable <strong>Siri</strong> and <strong>Dictation</strong> in your device settings.
-                            </p>
-
-                            <div class="space-y-3">
-                                <div class="bg-white p-3 border border-red-200 rounded">
-                                    <p class="text-xs font-bold text-slate-700 uppercase mb-2">Step 1: Enable Siri</p>
-                                    <ol class="text-xs text-slate-600 space-y-1 list-decimal list-inside">
-                                        <li>Open <strong>Settings</strong> app</li>
-                                        <li>Tap <strong>Siri & Search</strong></li>
-                                        <li>Enable <strong>"Listen for 'Hey Siri'"</strong> OR <strong>"Press Side Button for Siri"</strong></li>
-                                    </ol>
-                                </div>
-
-                                <div class="bg-white p-3 border border-red-200 rounded">
-                                    <p class="text-xs font-bold text-slate-700 uppercase mb-2">Step 2: Enable Dictation</p>
-                                    <ol class="text-xs text-slate-600 space-y-1 list-decimal list-inside">
-                                        <li>Open <strong>Settings</strong> > <strong>General</strong></li>
-                                        <li>Tap <strong>Keyboard</strong></li>
-                                        <li>Enable <strong>"Enable Dictation"</strong></li>
-                                    </ol>
-                                </div>
-
-                                <div class="bg-white p-3 border border-red-200 rounded">
-                                    <p class="text-xs font-bold text-slate-700 uppercase mb-2">Step 3: Reload & Test</p>
-                                    <ol class="text-xs text-slate-600 space-y-1 list-decimal list-inside">
-                                        <li>Close Safari completely</li>
-                                        <li>Reopen and navigate back here</li>
-                                        <li>Tap "Try Again"</li>
-                                    </ol>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Generic error help -->
-                    <div id="speech-error-help" class="bg-red-50 border border-red-200 p-4 rounded mb-6 max-w-xs mx-auto text-left">
-                        <p class="text-xs text-red-700 uppercase font-bold mb-2">How to fix</p>
-                        <p id="speech-error-fix" class="text-sm text-red-600"></p>
-                    </div>
-
-                    <button onclick="requestSpeechPermission()" class="w-full max-w-xs py-3 bg-red-600 hover:bg-red-700 text-white font-bold uppercase transition-all mb-3">
-                        <i class="fas fa-redo mr-2"></i>Try Again
-                    </button>
-
-                    <!-- Groq Whisper Alternative -->
-                    <div id="groq-alternative" class="hidden mt-6 bg-safety-green/10 border-2 border-safety-green p-4 rounded max-w-sm mx-auto text-left">
-                        <p class="text-xs font-bold text-safety-green uppercase flex items-center gap-2 mb-2">
-                            <i class="fas fa-magic"></i> Alternative: AI Transcription
-                        </p>
-                        <p class="text-xs text-slate-600 mb-3">
-                            Skip the Siri/Dictation hassle! Use <strong>Groq Whisper AI</strong> for speech-to-text instead. It's free and works on any device.
-                        </p>
-                        <button onclick="showApiKeySetup()" class="w-full py-2 bg-safety-green hover:bg-green-700 text-white font-bold text-xs uppercase transition-colors">
-                            <i class="fas fa-key mr-2"></i>Set Up Groq API Key
-                        </button>
-                    </div>
-
-                    <button onclick="skipPermission('speech')" class="mt-4 text-slate-500 text-sm underline hover:text-slate-600">
-                        Continue without speech recognition
-                    </button>
-                </div>
-            </main>
-        </div>
-
-        <!-- ==================== SCREEN 5: SUMMARY ==================== -->
+        <!-- ==================== SCREEN 4: SUMMARY ==================== -->
         <div id="screen-summary" class="flow-screen flex flex-col bg-slate-100">
             <header class="bg-dot-navy text-white p-6 text-center flex-shrink-0">
                 <div class="w-16 h-16 bg-dot-yellow flex items-center justify-center mx-auto mb-4 rounded-full">
@@ -680,43 +527,6 @@
                         <p id="result-loc-status" class="text-xs text-slate-500">Not configured</p>
                     </div>
                     <i id="result-loc-badge" class="fas fa-circle text-slate-300"></i>
-                </div>
-
-                <div id="result-speech" class="result-card bg-white border-2 border-slate-200 p-4 flex items-center gap-4">
-                    <div id="result-speech-icon" class="w-12 h-12 bg-slate-200 flex items-center justify-center rounded-full flex-shrink-0">
-                        <i class="fas fa-comment-dots text-slate-400 text-lg"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-bold text-slate-800 text-sm uppercase">Speech Recognition</p>
-                        <p id="result-speech-status" class="text-xs text-slate-500">Not configured</p>
-                    </div>
-                    <i id="result-speech-badge" class="fas fa-circle text-slate-300"></i>
-                </div>
-
-                <!-- API Key Section (collapsible) -->
-                <div id="api-key-section" class="bg-white border-2 border-slate-200">
-                    <button onclick="toggleApiKey()" class="w-full p-4 flex items-center gap-4 text-left">
-                        <div class="w-12 h-12 bg-dot-yellow flex items-center justify-center rounded-full flex-shrink-0">
-                            <i class="fas fa-key text-dot-navy text-lg"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-bold text-slate-800 text-sm uppercase">Groq API Key</p>
-                            <p id="api-key-preview" class="text-xs text-slate-500">Optional - for AI transcription</p>
-                        </div>
-                        <i id="api-key-toggle" class="fas fa-chevron-down text-slate-400"></i>
-                    </button>
-                    <div id="api-key-form" class="hidden border-t border-slate-200 p-4">
-                        <p class="text-xs text-slate-600 mb-3">
-                            Get a free API key at <a href="https://console.groq.com" target="_blank" class="underline text-dot-blue font-bold">console.groq.com</a>
-                        </p>
-                        <div class="flex gap-2">
-                            <input type="password" id="apiKeyInput" class="flex-1 bg-white border-2 border-slate-300 px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue rounded" placeholder="gsk_...">
-                            <button onclick="saveApiKey()" class="px-4 py-2 bg-dot-orange hover:bg-orange-700 text-white font-bold uppercase text-xs transition-colors rounded">
-                                Save
-                            </button>
-                        </div>
-                        <p id="apiKeyMessage" class="text-xs mt-2 hidden"></p>
-                    </div>
                 </div>
 
                 <!-- Summary message -->
@@ -770,7 +580,7 @@
                         </div>
                         <div class="flex-1">
                             <p class="font-bold text-slate-800 text-sm uppercase">Microphone</p>
-                            <p id="manual-mic-status" class="text-xs text-slate-500">Required for voice recording</p>
+                            <p id="manual-mic-status" class="text-xs text-slate-500">For keyboard dictation</p>
                         </div>
                         <button id="manual-mic-btn" onclick="manualRequestMic()" class="px-4 py-2 bg-dot-navy hover:bg-dot-blue text-white font-bold text-xs uppercase transition-colors rounded">
                             Enable
@@ -806,41 +616,6 @@
                             Enable
                         </button>
                     </div>
-                </div>
-
-                <div id="manual-speech-card" class="bg-white border-2 border-slate-200 p-4">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-violet-600 flex items-center justify-center flex-shrink-0 rounded">
-                            <i id="manual-speech-icon" class="fas fa-comment-dots text-white text-lg"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-bold text-slate-800 text-sm uppercase">Speech Recognition</p>
-                            <p id="manual-speech-status" class="text-xs text-slate-500">Required for voice-to-text</p>
-                        </div>
-                        <button id="manual-speech-btn" onclick="manualRequestSpeech()" class="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs uppercase transition-colors rounded">
-                            Test
-                        </button>
-                    </div>
-                </div>
-
-                <!-- API Key -->
-                <div class="bg-white border-2 border-slate-200 p-4">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 bg-dot-yellow flex items-center justify-center flex-shrink-0 rounded">
-                            <i class="fas fa-key text-dot-navy text-lg"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-bold text-slate-800 text-sm uppercase">Groq API Key</p>
-                            <p class="text-xs text-slate-500">For AI transcription (optional)</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-2">
-                        <input type="password" id="manualApiKeyInput" class="flex-1 bg-white border-2 border-slate-300 px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue rounded" placeholder="gsk_...">
-                        <button onclick="saveManualApiKey()" class="px-4 py-2 bg-dot-orange hover:bg-orange-700 text-white font-bold uppercase text-xs transition-colors rounded">
-                            Save
-                        </button>
-                    </div>
-                    <p id="manualApiKeyMessage" class="text-xs mt-2 hidden"></p>
                 </div>
 
                 <!-- Summary -->
@@ -957,8 +732,7 @@
         const permissionResults = {
             mic: { status: 'pending', error: null },    // pending, granted, denied, skipped
             cam: { status: 'pending', error: null },
-            loc: { status: 'pending', error: null },
-            speech: { status: 'pending', error: null }
+            loc: { status: 'pending', error: null }
         };
 
         let currentScreen = 'welcome';
@@ -974,7 +748,6 @@
         const isAndroid = /Android/i.test(navigator.userAgent);
         const isSecureContext = window.isSecureContext;
         const hasMediaDevices = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-        const hasSpeechRecognition = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
         // ============ ERROR CODE MAPPING ============
         const errorCodes = {
@@ -985,12 +758,6 @@
             'AbortError': { code: 'ERR_005', message: 'Request was aborted', fix: 'Try again or restart browser' },
             'SecurityError': { code: 'ERR_006', message: 'Security policy blocked access', fix: 'Ensure you are on HTTPS' },
             'TypeError': { code: 'ERR_007', message: 'Invalid request or browser incompatible', fix: 'Update your browser to latest version' },
-            'no-speech': { code: 'SPE_001', message: 'No speech detected', fix: 'Speak louder or check microphone' },
-            'aborted': { code: 'SPE_002', message: 'Speech recognition aborted', fix: 'Try again' },
-            'audio-capture': { code: 'SPE_003', message: 'Audio capture failed', fix: 'Check microphone permissions' },
-            'network': { code: 'SPE_004', message: 'Network error', fix: 'Check internet connection' },
-            'not-allowed': { code: 'SPE_005', message: 'Speech recognition not allowed', fix: 'Enable microphone permission' },
-            'service-not-allowed': { code: 'SPE_006', message: 'Speech service blocked', fix: 'Enable Siri & Dictation in iOS Settings' },
             'PERMISSION_DENIED': { code: 'GEO_001', message: 'Location permission denied', fix: 'Enable location in browser and device settings' },
             'POSITION_UNAVAILABLE': { code: 'GEO_002', message: 'Location unavailable', fix: 'Move to area with better GPS signal' },
             'TIMEOUT': { code: 'GEO_003', message: 'Location request timed out', fix: 'Try again in area with better signal' },
@@ -1189,7 +956,7 @@
         }
 
         function proceedToNext(current) {
-            const sequence = ['mic', 'cam', 'loc', 'speech', 'summary'];
+            const sequence = ['mic', 'cam', 'loc', 'summary'];
             const currentIndex = sequence.indexOf(current);
             const nextScreen = sequence[currentIndex + 1];
 
@@ -1414,255 +1181,18 @@
             document.getElementById('loc-error-fix').textContent = fix;
         }
 
-        // ============ SPEECH RECOGNITION ============
-        // Lazy-loaded speech recognition with proper cleanup
-        let speechRecognition = null;
-        let speechTimeout = null;
-        let isSpeechTesting = false;
-        let speechHasResult = false;
-
-        function initSpeechRecognition() {
-            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SR) return null;
-
-            const rec = new SR();
-            rec.continuous = false;
-            rec.interimResults = true;
-            rec.lang = 'en-US';
-            rec.maxAlternatives = 1;
-            return rec;
-        }
-
-        function cleanupSpeechRecognition() {
-            if (speechTimeout) {
-                clearTimeout(speechTimeout);
-                speechTimeout = null;
-            }
-            if (speechRecognition) {
-                try {
-                    speechRecognition.abort();
-                } catch (e) {
-                    // Ignore errors during cleanup
-                }
-            }
-            isSpeechTesting = false;
-            speechHasResult = false;
-        }
-
-        async function requestSpeechPermission() {
-            // Prevent double-clicks
-            if (isSpeechTesting) {
-                log('Speech test already in progress, ignoring', 'warn');
-                return;
-            }
-
-            const preEl = document.getElementById('speech-pre');
-            const loadingEl = document.getElementById('speech-loading');
-            const successEl = document.getElementById('speech-success');
-            const transcript = document.getElementById('speech-transcript');
-            const testBtn = document.getElementById('speech-test-btn');
-
-            // Disable button immediately for responsiveness
-            if (testBtn) testBtn.disabled = true;
-
-            // Cleanup any previous test
-            cleanupSpeechRecognition();
-
-            isSpeechTesting = true;
-            speechHasResult = false;
-
-            preEl.classList.add('hidden');
-            loadingEl.classList.remove('hidden');
-            transcript.textContent = 'Waiting for speech...';
-
-            log('Testing speech recognition...');
-
-            if (!hasSpeechRecognition) {
-                isSpeechTesting = false;
-                if (testBtn) testBtn.disabled = false;
-                showSpeechError('SPE_API', 'Speech Recognition not supported', 'Use Chrome, Safari, or Edge browser', false);
-                return;
-            }
-
-            // Lazy-load the recognition object
-            if (!speechRecognition) {
-                speechRecognition = initSpeechRecognition();
-                if (!speechRecognition) {
-                    isSpeechTesting = false;
-                    if (testBtn) testBtn.disabled = false;
-                    showSpeechError('SPE_API', 'Speech Recognition not available', 'Update your browser', false);
-                    return;
-                }
-            }
-
-            // Set up timeout (8 seconds max)
-            speechTimeout = setTimeout(() => {
-                log('Speech recognition timeout', 'warn');
-                if (speechRecognition && isSpeechTesting) {
-                    try {
-                        speechRecognition.stop();
-                    } catch (e) {}
-                }
-            }, 8000);
-
-            // Set up event handlers (using property assignment to avoid stacking)
-            speechRecognition.onstart = () => {
-                log('Speech recognition started', 'info');
-            };
-
-            speechRecognition.onresult = (event) => {
-                speechHasResult = true;
-                let finalTranscript = '';
-                let interimTranscript = '';
-
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    const result = event.results[i];
-                    if (result.isFinal) {
-                        finalTranscript += result[0].transcript;
-                    } else {
-                        interimTranscript += result[0].transcript;
-                    }
-                }
-
-                transcript.textContent = finalTranscript || interimTranscript || 'Listening...';
-                if (finalTranscript) {
-                    log(`Speech recognized: "${finalTranscript}"`, 'success');
-                }
-            };
-
-            speechRecognition.onend = () => {
-                if (speechTimeout) {
-                    clearTimeout(speechTimeout);
-                    speechTimeout = null;
-                }
-
-                if (!isSpeechTesting) {
-                    // Test was cancelled
-                    return;
-                }
-
-                log('Speech recognition ended', 'info');
-                isSpeechTesting = false;
-                if (testBtn) testBtn.disabled = false;
-
-                // Mark as success regardless of speech detected
-                permissionResults.speech.status = 'granted';
-                localStorage.setItem('fvp_speech_granted', 'true');
-
-                loadingEl.classList.add('hidden');
-                successEl.classList.remove('hidden');
-
-                if (speechHasResult) {
-                    log('Speech recognition test passed!', 'success');
-                } else {
-                    log('Speech recognition available (no speech detected)', 'warn');
-                }
-
-                proceedToNext('speech');
-            };
-
-            speechRecognition.onerror = (event) => {
-                if (speechTimeout) {
-                    clearTimeout(speechTimeout);
-                    speechTimeout = null;
-                }
-
-                // Ignore aborted errors (user cancelled)
-                if (event.error === 'aborted') {
-                    log('Speech recognition aborted', 'info');
-                    isSpeechTesting = false;
-                    if (testBtn) testBtn.disabled = false;
-                    return;
-                }
-
-                log(`Speech recognition error: ${event.error}`, 'error');
-                isSpeechTesting = false;
-                if (testBtn) testBtn.disabled = false;
-
-                const errInfo = getErrorInfo({ error: event.error });
-                permissionResults.speech.status = 'denied';
-                permissionResults.speech.error = errInfo;
-
-                const isServiceNotAllowed = event.error === 'service-not-allowed';
-                showSpeechError(errInfo.code, errInfo.message, errInfo.fix, isServiceNotAllowed && isIOS);
-            };
-
-            // Start recognition
-            try {
-                speechRecognition.start();
-            } catch (err) {
-                if (speechTimeout) {
-                    clearTimeout(speechTimeout);
-                    speechTimeout = null;
-                }
-                isSpeechTesting = false;
-                if (testBtn) testBtn.disabled = false;
-
-                if (err.name === 'InvalidStateError') {
-                    // Recognition already running - stop and retry
-                    log('Recognition already running, restarting...', 'warn');
-                    try {
-                        speechRecognition.stop();
-                    } catch (e) {}
-                    setTimeout(() => requestSpeechPermission(), 300);
-                } else {
-                    log(`Failed to start speech recognition: ${err.message}`, 'error');
-                    showSpeechError('SPE_START', 'Failed to start', 'Reload page and try again', false);
-                }
-            }
-        }
-
-        function cancelSpeechTest() {
-            log('User cancelled speech test', 'info');
-            cleanupSpeechRecognition();
-
-            const preEl = document.getElementById('speech-pre');
-            const loadingEl = document.getElementById('speech-loading');
-            const testBtn = document.getElementById('speech-test-btn');
-
-            loadingEl.classList.add('hidden');
-            preEl.classList.remove('hidden');
-            if (testBtn) testBtn.disabled = false;
-        }
-
-        function showSpeechError(code, message, fix, showIOSHelp) {
-            document.getElementById('speech-loading').classList.add('hidden');
-            document.getElementById('speech-error').classList.remove('hidden');
-            document.getElementById('speech-error-message').textContent = message;
-            document.getElementById('speech-error-fix').textContent = fix;
-
-            if (showIOSHelp) {
-                document.getElementById('ios-help-panel').classList.remove('hidden');
-                document.getElementById('speech-error-help').classList.add('hidden');
-                document.getElementById('groq-alternative').classList.remove('hidden');
-                log('Showing iOS Siri/Dictation help', 'info');
-            } else {
-                document.getElementById('ios-help-panel').classList.add('hidden');
-                document.getElementById('speech-error-help').classList.remove('hidden');
-                document.getElementById('groq-alternative').classList.add('hidden');
-            }
-        }
-
-        function showApiKeySetup() {
-            // Scroll to and expand the API key section
-            document.getElementById('api-key-form').classList.remove('hidden');
-            document.getElementById('api-key-section').scrollIntoView({ behavior: 'smooth' });
-        }
-
         // ============ SUMMARY SCREEN ============
         function renderSummary() {
-            const types = ['mic', 'cam', 'loc', 'speech'];
+            const types = ['mic', 'cam', 'loc'];
             const icons = {
                 mic: 'fa-microphone',
                 cam: 'fa-camera',
-                loc: 'fa-location-dot',
-                speech: 'fa-comment-dots'
+                loc: 'fa-location-dot'
             };
             const colors = {
                 mic: 'bg-dot-navy',
                 cam: 'bg-dot-orange',
-                loc: 'bg-safety-green',
-                speech: 'bg-violet-600'
+                loc: 'bg-safety-green'
             };
 
             let grantedCount = 0;
@@ -1709,14 +1239,14 @@
             const headerIcon = document.getElementById('summary-header-icon');
             const messageText = document.getElementById('summary-message-text');
 
-            if (grantedCount === 4) {
+            if (grantedCount === 3) {
                 title.textContent = 'All Systems Ready!';
                 subtitle.textContent = 'Full functionality enabled';
                 headerIcon.className = 'fas fa-check text-dot-navy text-2xl';
-                messageText.textContent = 'You have access to all FieldVoice Pro features. Start creating voice-powered field reports!';
+                messageText.textContent = 'You have access to all FieldVoice Pro features. Use your keyboard\'s microphone button to dictate notes!';
             } else if (grantedCount >= 2) {
                 title.textContent = 'Partial Setup Complete';
-                subtitle.textContent = `${grantedCount} of 4 permissions enabled`;
+                subtitle.textContent = `${grantedCount} of 3 permissions enabled`;
                 headerIcon.className = 'fas fa-exclamation text-dot-navy text-2xl';
                 messageText.textContent = `Some features may be limited. You can enable additional permissions later from your browser settings.`;
             } else {
@@ -1730,19 +1260,11 @@
             if (deniedCount > 0) {
                 document.getElementById('retry-failed-btn').classList.remove('hidden');
             }
-
-            // Load API key if saved
-            const savedKey = localStorage.getItem('groq_api_key');
-            if (savedKey) {
-                document.getElementById('apiKeyInput').value = savedKey;
-                document.getElementById('api-key-preview').textContent = 'API key configured';
-                document.getElementById('api-key-preview').className = 'text-xs text-safety-green font-medium';
-            }
         }
 
         function retryFailed() {
             // Find first failed permission and restart from there
-            const sequence = ['mic', 'cam', 'loc', 'speech'];
+            const sequence = ['mic', 'cam', 'loc'];
             for (const type of sequence) {
                 if (permissionResults[type].status === 'denied') {
                     // Reset the states
@@ -1758,74 +1280,6 @@
                     return;
                 }
             }
-        }
-
-        function toggleApiKey() {
-            const form = document.getElementById('api-key-form');
-            const toggle = document.getElementById('api-key-toggle');
-            form.classList.toggle('hidden');
-            toggle.className = form.classList.contains('hidden') ? 'fas fa-chevron-down text-slate-400' : 'fas fa-chevron-up text-slate-400';
-        }
-
-        // ============ API KEY ============
-        function saveApiKey() {
-            const input = document.getElementById('apiKeyInput');
-            const key = input.value.trim();
-            const message = document.getElementById('apiKeyMessage');
-
-            if (!key) {
-                message.textContent = 'Please enter an API key';
-                message.className = 'text-xs mt-2 text-red-500';
-                message.classList.remove('hidden');
-                return;
-            }
-
-            if (!key.startsWith('gsk_')) {
-                message.textContent = 'Invalid key format (should start with gsk_)';
-                message.className = 'text-xs mt-2 text-dot-orange';
-                message.classList.remove('hidden');
-                return;
-            }
-
-            localStorage.setItem('groq_api_key', key);
-            message.textContent = 'API key saved successfully!';
-            message.className = 'text-xs mt-2 text-safety-green';
-            message.classList.remove('hidden');
-
-            document.getElementById('api-key-preview').textContent = 'API key configured';
-            document.getElementById('api-key-preview').className = 'text-xs text-safety-green font-medium';
-
-            log('Groq API key saved', 'success');
-
-            setTimeout(() => message.classList.add('hidden'), 3000);
-        }
-
-        function saveManualApiKey() {
-            const input = document.getElementById('manualApiKeyInput');
-            const key = input.value.trim();
-            const message = document.getElementById('manualApiKeyMessage');
-
-            if (!key) {
-                message.textContent = 'Please enter an API key';
-                message.className = 'text-xs mt-2 text-red-500';
-                message.classList.remove('hidden');
-                return;
-            }
-
-            if (!key.startsWith('gsk_')) {
-                message.textContent = 'Invalid format (should start with gsk_)';
-                message.className = 'text-xs mt-2 text-dot-orange';
-                message.classList.remove('hidden');
-                return;
-            }
-
-            localStorage.setItem('groq_api_key', key);
-            message.textContent = 'API key saved!';
-            message.className = 'text-xs mt-2 text-safety-green';
-            message.classList.remove('hidden');
-            log('Groq API key saved', 'success');
-
-            setTimeout(() => message.classList.add('hidden'), 3000);
         }
 
         // ============ MANUAL MODE HANDLERS ============
@@ -1848,12 +1302,6 @@
 
             // Check existing permissions
             checkExistingPermissions();
-
-            // Load API key
-            const savedKey = localStorage.getItem('groq_api_key');
-            if (savedKey) {
-                document.getElementById('manualApiKeyInput').value = savedKey;
-            }
         }
 
         function checkExistingPermissions() {
@@ -1868,10 +1316,6 @@
             if (localStorage.getItem('fvp_loc_granted') === 'true') {
                 permissionResults.loc.status = 'granted';
                 updateManualCard('loc', 'granted');
-            }
-            if (localStorage.getItem('fvp_speech_granted') === 'true') {
-                permissionResults.speech.status = 'granted';
-                updateManualCard('speech', 'granted');
             }
             updateManualSummary();
         }
@@ -1908,9 +1352,9 @@
             const title = document.getElementById('manual-summary-title');
             const text = document.getElementById('manual-summary-text');
 
-            const enabledCount = Object.values(permissionResults).filter(r => r.status === 'granted').length;
+            const enabledCount = ['mic', 'cam', 'loc'].filter(type => permissionResults[type].status === 'granted').length;
 
-            if (enabledCount === 4) {
+            if (enabledCount === 3) {
                 icon.className = 'w-10 h-10 bg-safety-green flex items-center justify-center rounded';
                 icon.innerHTML = '<i class="fas fa-check text-white"></i>';
                 title.textContent = 'All Systems Ready';
@@ -1920,7 +1364,7 @@
             } else if (enabledCount >= 2) {
                 icon.className = 'w-10 h-10 bg-dot-orange flex items-center justify-center rounded';
                 icon.innerHTML = '<i class="fas fa-exclamation text-white"></i>';
-                title.textContent = `${enabledCount}/4 Permissions`;
+                title.textContent = `${enabledCount}/3 Permissions`;
                 title.className = 'font-bold text-dot-orange text-sm uppercase';
                 text.textContent = 'Some features may be limited';
                 text.className = 'text-xs text-dot-orange';
@@ -2014,82 +1458,6 @@
             updateManualSummary();
         }
 
-        async function manualRequestSpeech() {
-            const btn = document.getElementById('manual-speech-btn');
-            const status = document.getElementById('manual-speech-status');
-
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            btn.disabled = true;
-            status.textContent = 'Testing...';
-            log('Manual: Testing speech recognition...', 'info');
-
-            if (!hasSpeechRecognition) {
-                log('Manual: Speech API not available', 'error');
-                permissionResults.speech.status = 'denied';
-                updateManualCard('speech', 'denied');
-                updateManualSummary();
-                return;
-            }
-
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const rec = new SpeechRecognition();
-            rec.continuous = false;
-            rec.interimResults = false;
-            rec.lang = 'en-US';
-
-            let resolved = false;
-
-            rec.onstart = () => {
-                status.textContent = 'Listening... say something';
-            };
-
-            rec.onresult = () => {
-                if (!resolved) {
-                    resolved = true;
-                    permissionResults.speech.status = 'granted';
-                    localStorage.setItem('fvp_speech_granted', 'true');
-                    updateManualCard('speech', 'granted');
-                    log('Manual: Speech recognition works', 'success');
-                    updateManualSummary();
-                }
-            };
-
-            rec.onend = () => {
-                if (!resolved) {
-                    resolved = true;
-                    // Even if no speech detected, if it started it works
-                    permissionResults.speech.status = 'granted';
-                    localStorage.setItem('fvp_speech_granted', 'true');
-                    updateManualCard('speech', 'granted');
-                    log('Manual: Speech recognition available', 'success');
-                    updateManualSummary();
-                }
-            };
-
-            rec.onerror = (event) => {
-                if (!resolved) {
-                    resolved = true;
-                    log(`Manual: Speech error - ${event.error}`, 'error');
-                    permissionResults.speech.status = 'denied';
-                    updateManualCard('speech', 'denied');
-                    updateManualSummary();
-                }
-            };
-
-            try {
-                rec.start();
-                // Auto-stop after 5 seconds
-                setTimeout(() => {
-                    try { rec.stop(); } catch(e) {}
-                }, 5000);
-            } catch (err) {
-                log(`Manual: Failed to start speech - ${err.message}`, 'error');
-                permissionResults.speech.status = 'denied';
-                updateManualCard('speech', 'denied');
-                updateManualSummary();
-            }
-        }
-
         // ============ FINISH SETUP ============
         function finishSetup() {
             localStorage.setItem('fvp_onboarded', 'true');
@@ -2101,7 +1469,7 @@
         function init() {
             log('=== FieldVoice Pro Permission Setup ===', 'info');
             log(`iOS: ${isIOS}, Safari: ${isSafari}, Secure: ${isSecureContext}`, 'info');
-            log(`MediaDevices: ${hasMediaDevices}, SpeechRecognition: ${hasSpeechRecognition}`, 'info');
+            log(`MediaDevices: ${hasMediaDevices}`, 'info');
 
             // Check if already onboarded
             if (localStorage.getItem('fvp_onboarded') === 'true') {

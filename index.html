@@ -169,7 +169,7 @@
                     </div>
                     <div class="text-left">
                         <p id="mainActionTitle" class="text-lg font-bold uppercase tracking-wide">Begin Daily Report</p>
-                        <p id="mainActionSubtitle" class="text-xs text-slate-400">Voice-assisted field documentation</p>
+                        <p id="mainActionSubtitle" class="text-xs text-slate-400">Quick field documentation</p>
                     </div>
                     <i class="fas fa-chevron-right text-slate-500 ml-auto"></i>
                 </div>
@@ -503,7 +503,7 @@
                 `;
                 mainActionIcon.className = 'fas fa-microphone text-dot-navy text-xl';
                 mainActionTitle.textContent = "Begin Daily Report";
-                mainActionSubtitle.textContent = "Voice-assisted field documentation";
+                mainActionSubtitle.textContent = "Quick field documentation";
                 viewReportBtn.classList.add('hidden');
             } else if (report.meta?.interviewCompleted) {
                 const contractorCount = report.contractors?.length || 0;
