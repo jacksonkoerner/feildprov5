@@ -77,6 +77,59 @@
         <!-- SECTIONS LIST -->
         <main class="flex-1 p-4 pb-8 space-y-3 overflow-y-auto hide-scrollbar">
 
+            <!-- Reporter Information Section -->
+            <div class="section-card bg-white border-2 border-slate-200" data-section="reporter">
+                <button onclick="toggleSection('reporter')" class="w-full p-4 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-dot-navy flex items-center justify-center">
+                        <i class="fas fa-user-circle text-dot-yellow text-lg"></i>
+                    </div>
+                    <div class="flex-1 text-left">
+                        <p class="font-bold text-slate-800 uppercase text-sm">Reporter Information</p>
+                        <p id="reporter-preview" class="text-sm text-slate-500 truncate">Tap to add</p>
+                    </div>
+                    <div id="reporter-status" class="w-8 h-8 border border-slate-300 flex items-center justify-center">
+                        <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                    </div>
+                </button>
+                <div class="section-content">
+                    <div class="px-4 pb-4 space-y-3 border-t border-slate-200 pt-4">
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase">Inspector / RPR Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="reporter-name-input" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue" placeholder="Enter your full name">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Information Section -->
+            <div class="section-card bg-white border-2 border-slate-200" data-section="project">
+                <button onclick="toggleSection('project')" class="w-full p-4 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-dot-blue flex items-center justify-center">
+                        <i class="fas fa-hard-hat text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1 text-left">
+                        <p class="font-bold text-slate-800 uppercase text-sm">Project Information</p>
+                        <p id="project-preview" class="text-sm text-slate-500 truncate">Tap to add</p>
+                    </div>
+                    <div id="project-status" class="w-8 h-8 border border-slate-300 flex items-center justify-center">
+                        <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                    </div>
+                </button>
+                <div class="section-content">
+                    <div class="px-4 pb-4 space-y-3 border-t border-slate-200 pt-4">
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase">Project Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="project-name-input" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue" placeholder="Enter project name">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase">Contract Day Number <span class="text-red-500">*</span></label>
+                            <input type="number" id="project-day-input" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue" placeholder="e.g., 45" min="1">
+                            <p class="text-xs text-slate-400 mt-1">What day of the contract is this?</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Weather Section -->
             <div class="section-card bg-white border-2 border-slate-200" data-section="weather">
                 <button onclick="toggleSection('weather')" class="w-full p-4 flex items-center gap-4">
@@ -294,6 +347,36 @@
                 </div>
             </div>
 
+            <!-- Additional Notes Section -->
+            <div class="section-card bg-white border-2 border-slate-200" data-section="notes">
+                <button onclick="toggleSection('notes')" class="w-full p-4 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-slate-600 flex items-center justify-center">
+                        <i class="fas fa-sticky-note text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1 text-left">
+                        <p class="font-bold text-slate-800 uppercase text-sm">Additional Notes</p>
+                        <p id="notes-preview" class="text-sm text-slate-500 truncate">Optional</p>
+                    </div>
+                    <div id="notes-status" class="w-8 h-8 border border-slate-300 flex items-center justify-center">
+                        <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                    </div>
+                </button>
+                <div class="section-content">
+                    <div class="px-4 pb-4 space-y-3 border-t border-slate-200 pt-4">
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase">Additional Notes & Comments</label>
+                            <div class="mt-2 flex items-start gap-2">
+                                <textarea id="additional-notes-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="4" placeholder="Any other observations, comments, or information not covered above..."></textarea>
+                                <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-1">Optional - for anything that doesn't fit other categories</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -398,6 +481,10 @@
                     if (!parsed.meta) parsed.meta = {};
                     if (!parsed.meta.naMarked) parsed.meta.naMarked = {};
                     if (!parsed.safety) parsed.safety = { hasIncidents: false, noIncidents: false, notes: [] };
+                    // Ensure new fields exist for legacy reports
+                    if (!parsed.reporter) parsed.reporter = { name: "" };
+                    if (!parsed.project) parsed.project = { name: "", dayNumber: null };
+                    if (parsed.additionalNotes === undefined) parsed.additionalNotes = "";
                     return parsed;
                 } catch (e) {}
             }
@@ -407,6 +494,13 @@
         function createFreshReport() {
             return {
                 meta: { createdAt: new Date().toISOString(), interviewCompleted: false, version: 2, naMarked: {} },
+                reporter: {
+                    name: ""
+                },
+                project: {
+                    name: "",
+                    dayNumber: null
+                },
                 overview: {
                     projectName: "",
                     date: new Date().toLocaleDateString(),
@@ -414,7 +508,8 @@
                     weather: { highTemp: "--", lowTemp: "--", precipitation: "0.00\"", generalCondition: "Syncing...", jobSiteCondition: "", adverseConditions: "N/A" }
                 },
                 contractors: [], activities: [], operations: [], equipment: [], generalIssues: [], qaqcNotes: [],
-                safety: { hasIncidents: false, noIncidents: false, notes: [] }, visitorsRemarks: [], photos: []
+                safety: { hasIncidents: false, noIncidents: false, notes: [] }, visitorsRemarks: [], photos: [],
+                additionalNotes: ""
             };
         }
 
@@ -832,6 +927,10 @@
 
         // ============ PREVIEWS & PROGRESS ============
         function updateAllPreviews() {
+            // Reporter and Project sections
+            document.getElementById('reporter-preview').textContent = report.reporter?.name ? report.reporter.name : 'Tap to add';
+            document.getElementById('project-preview').textContent = report.project?.name ? `${report.project.name}${report.project.dayNumber ? ` - Day ${report.project.dayNumber}` : ''}` : 'Tap to add';
+
             const w = report.overview.weather;
             document.getElementById('weather-preview').textContent = w.jobSiteCondition || `${w.generalCondition}, ${w.highTemp}`;
             document.getElementById('activities-preview').textContent = report.activities.length > 0 ? `${report.activities.length} activities logged` : 'Tap to add';
@@ -841,19 +940,23 @@
             document.getElementById('safety-preview').textContent = report.safety.hasIncidents ? 'INCIDENT REPORTED' : report.safety.noIncidents ? 'No incidents (confirmed)' : report.safety.notes.length > 0 ? 'Notes added' : 'Tap to confirm';
             document.getElementById('visitors-preview').textContent = naMarked.visitors ? 'N/A - No visitors' : report.visitorsRemarks.length > 0 ? `${report.visitorsRemarks.length} entries` : 'None reported';
             document.getElementById('photos-preview').textContent = naMarked.photos ? 'N/A - No photos' : report.photos.length > 0 ? `${report.photos.length} photos` : 'No photos';
+            document.getElementById('notes-preview').textContent = report.additionalNotes ? 'Notes added' : 'Optional';
             updateStatusIcons();
         }
 
         function updateStatusIcons() {
             const naMarked = report.meta.naMarked || {};
             const sections = {
+                'reporter': report.reporter?.name,
+                'project': report.project?.name && report.project?.dayNumber,
                 'weather': report.overview.weather.jobSiteCondition,
                 'activities': report.activities.length > 0,
                 'issues': report.generalIssues.length > 0 || naMarked.issues,
                 'inspections': report.qaqcNotes.length > 0 || naMarked.inspections,
                 'safety': report.safety.noIncidents || report.safety.hasIncidents || report.safety.notes.length > 0,
                 'visitors': report.visitorsRemarks.length > 0 || naMarked.visitors,
-                'photos': report.photos.length > 0 || naMarked.photos
+                'photos': report.photos.length > 0 || naMarked.photos,
+                'notes': report.additionalNotes  // Optional - shows check when filled
             };
             Object.entries(sections).forEach(([section, hasData]) => {
                 const statusEl = document.getElementById(`${section}-status`);
@@ -873,7 +976,13 @@
         function updateProgress() {
             const naMarked = report.meta.naMarked || {};
             let filled = 0;
-            let total = 7; // weather, activities, issues, inspections, safety, visitors, photos
+            let total = 9; // reporter, project, weather, activities, issues, inspections, safety, visitors, photos
+
+            // Reporter - has name
+            if (report.reporter?.name) filled++;
+
+            // Project - has name AND day number
+            if (report.project?.name && report.project?.dayNumber) filled++;
 
             // Weather - has site condition text
             if (report.overview.weather.jobSiteCondition) filled++;
@@ -895,6 +1004,8 @@
 
             // Photos - has photos OR marked N/A
             if (report.photos.length > 0 || naMarked.photos) filled++;
+
+            // Note: Additional Notes is optional and not included in progress
 
             const percent = Math.round((filled / total) * 100);
             document.getElementById('progressBar').style.width = `${percent}%`;
@@ -1062,6 +1173,32 @@
         }
 
         // ============ EVENT LISTENERS ============
+        // Reporter name input
+        document.getElementById('reporter-name-input').addEventListener('change', (e) => {
+            report.reporter.name = e.target.value.trim();
+            // Also update completedBy for the report
+            report.overview.completedBy = e.target.value.trim();
+            saveReport();
+        });
+
+        // Project name input
+        document.getElementById('project-name-input').addEventListener('change', (e) => {
+            report.project.name = e.target.value.trim();
+            // Also update projectName for legacy compatibility
+            report.overview.projectName = e.target.value.trim();
+            saveReport();
+        });
+
+        // Project day input
+        document.getElementById('project-day-input').addEventListener('change', (e) => {
+            report.project.dayNumber = e.target.value ? parseInt(e.target.value) : null;
+            // Also update contractDayNo for legacy compatibility
+            if (report.project.dayNumber) {
+                report.overview.contractDayNo = `Day ${report.project.dayNumber}`;
+            }
+            saveReport();
+        });
+
         document.getElementById('site-conditions-input').addEventListener('change', (e) => {
             report.overview.weather.jobSiteCondition = e.target.value;
             saveReport();
@@ -1081,6 +1218,12 @@
             updateAllPreviews();
         });
 
+        // Additional notes input
+        document.getElementById('additional-notes-input').addEventListener('change', (e) => {
+            report.additionalNotes = e.target.value.trim();
+            saveReport();
+        });
+
         document.getElementById('photoInput').addEventListener('change', handlePhotoInput);
 
         // ============ INIT ============
@@ -1095,6 +1238,13 @@
             updateAllPreviews();
             updateProgress();
             updateNAButtons();
+
+            // Populate new fields
+            document.getElementById('reporter-name-input').value = report.reporter?.name || '';
+            document.getElementById('project-name-input').value = report.project?.name || '';
+            document.getElementById('project-day-input').value = report.project?.dayNumber || '';
+            document.getElementById('additional-notes-input').value = report.additionalNotes || '';
+
             document.getElementById('no-incidents').checked = report.safety.noIncidents || false;
             document.getElementById('has-incidents').checked = report.safety.hasIncidents || false;
         });
