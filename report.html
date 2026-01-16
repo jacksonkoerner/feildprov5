@@ -125,8 +125,18 @@
             <div class="bg-emerald-900 text-white text-center font-bold py-1 uppercase text-sm mb-2 mx-1">
                 Safety & Incidents
             </div>
-            <div id="safetySection" class="text-[10px] px-3 py-2 min-h-[80px] border border-slate-200 mx-1 rounded">
+            <div id="safetySection" class="text-[10px] px-3 py-2 min-h-[80px] border border-slate-200 mx-1 rounded mb-4">
                 <!-- Filled by JS -->
+            </div>
+
+            <!-- Additional Notes (conditional) -->
+            <div id="notesWrapper" class="hidden">
+                <div class="bg-slate-600 text-white text-center font-bold py-1 uppercase text-sm mb-2 mx-1">
+                    Additional Notes & Comments
+                </div>
+                <div id="notesSection" class="text-[10px] px-3 py-2 min-h-[60px] border border-slate-200 mx-1 rounded">
+                    <!-- Filled by JS -->
+                </div>
             </div>
 
             <!-- Signature Block -->
@@ -213,6 +223,13 @@
 
         function getInitialReport() {
             return {
+                reporter: {
+                    name: ""
+                },
+                project: {
+                    name: "",
+                    dayNumber: null
+                },
                 overview: {
                     projectName: "",
                     noabProjectNo: "",
@@ -249,6 +266,7 @@
                 safety: { hasIncidents: false, notes: [] },
                 visitorsRemarks: [],
                 photos: [],
+                additionalNotes: "",
             };
         }
 
@@ -258,6 +276,11 @@
             const o = report.overview;
             const w = o.weather || {};
 
+            // Get reporter and project info (new fields with fallback to overview for legacy)
+            const reporterName = report.reporter?.name || o.completedBy || '';
+            const projectName = report.project?.name || o.projectName || '';
+            const projectDay = report.project?.dayNumber ? `Day ${report.project.dayNumber}` : o.contractDayNo || '';
+
             // Update document title
             document.title = `Daily Report - ${o.date} - FieldVoice Pro`;
             document.getElementById('reportDate').textContent = o.date;
@@ -266,7 +289,7 @@
             document.getElementById('overviewGrid').innerHTML = `
                 <div class="sm:border-r border-b border-slate-900 p-2">
                     <span class="font-black text-slate-600">PROJECT NAME:</span><br>
-                    <span class="font-bold break-words">${o.projectName}</span>
+                    <span class="font-bold break-words">${projectName || '--'}</span>
                 </div>
                 <div class="border-b border-slate-900 p-2">
                     <span class="font-black text-slate-600">DATE:</span><br>
@@ -274,39 +297,30 @@
                 </div>
 
                 <div class="sm:border-r border-b border-slate-900 p-2">
-                    <span class="font-black text-slate-600">PROJECT NO:</span><br>
-                    <span class="font-bold">${o.noabProjectNo}</span>
+                    <span class="font-black text-slate-600">CONTRACT DAY:</span><br>
+                    <span class="font-bold">${projectDay || '--'}</span>
                 </div>
                 <div class="border-b border-slate-900 p-2">
                     <span class="font-black text-slate-600">LOCATION:</span><br>
-                    <span class="font-bold break-words">${o.location}</span>
+                    <span class="font-bold break-words">${o.location || '--'}</span>
                 </div>
 
                 <div class="sm:border-r border-b border-slate-900 p-2">
-                    <span class="font-black text-slate-600">NOTICE TO PROCEED:</span><br>
-                    <span class="font-bold">${o.noticeToProceed}</span>
-                </div>
-                <div class="border-b border-slate-900 p-2">
-                    <span class="font-black text-slate-600">ENGINEER:</span><br>
-                    <span class="font-bold break-words">${o.engineer}</span>
-                </div>
-
-                <div class="sm:border-r border-b border-slate-900 p-2">
-                    <span class="font-black text-slate-600">CONTRACT DURATION:</span><br>
-                    <span class="font-bold">${o.contractDuration}</span>
+                    <span class="font-black text-slate-600">PROJECT NO:</span><br>
+                    <span class="font-bold">${o.noabProjectNo || '--'}</span>
                 </div>
                 <div class="border-b border-slate-900 p-2">
                     <span class="font-black text-slate-600">PRIME CONTRACTOR:</span><br>
-                    <span class="font-bold break-words">${o.contractor}</span>
+                    <span class="font-bold break-words">${o.contractor || '--'}</span>
                 </div>
 
                 <div class="sm:border-r border-b border-slate-900 p-2">
-                    <span class="font-black text-slate-600">CONTRACT DAY NO:</span><br>
-                    <span class="font-bold">${o.contractDayNo}</span>
-                </div>
-                <div class="border-b border-slate-900 p-2">
                     <span class="font-black text-slate-600">SHIFT HOURS:</span><br>
                     <span class="font-bold">${o.startTime || '--'} - ${o.endTime || '--'} (${o.shiftDuration || '--'})</span>
+                </div>
+                <div class="border-b border-slate-900 p-2">
+                    <span class="font-black text-slate-600">ENGINEER:</span><br>
+                    <span class="font-bold break-words">${o.engineer || '--'}</span>
                 </div>
 
                 <div class="sm:border-r border-b sm:border-b-0 border-slate-900 p-2">
@@ -326,7 +340,7 @@
                         <span class="font-black text-slate-600">COMPLETED BY:</span>
                     </div>
                     <div class="text-right mt-2">
-                        <div class="border-b border-slate-900 w-full mb-1 pb-1 text-center italic font-serif text-base break-words">${o.completedBy}</div>
+                        <div class="border-b border-slate-900 w-full mb-1 pb-1 text-center italic font-serif text-base break-words">${reporterName || '--'}</div>
                         <div class="text-[8px] font-black text-slate-500 uppercase">RPR Name & Title</div>
                     </div>
                 </div>
@@ -431,8 +445,25 @@
                 }
             `;
 
+            // Page 2: Additional Notes (conditional) - check for refined data first
+            const notesWrapper = document.getElementById('notesWrapper');
+            const notesSection = document.getElementById('notesSection');
+            const refinedNotes = report.refinedData?.notes;
+            const originalNotes = report.additionalNotes || '';
+
+            if (refinedNotes || originalNotes) {
+                notesWrapper.classList.remove('hidden');
+                if (refinedNotes) {
+                    notesSection.innerHTML = `<p class="text-slate-700">${refinedNotes.replace(/\n/g, '<br>')}</p>`;
+                } else {
+                    notesSection.innerHTML = `<p class="text-slate-700">${originalNotes.replace(/\n/g, '<br>')}</p>`;
+                }
+            } else {
+                notesWrapper.classList.add('hidden');
+            }
+
             // Signature line
-            document.getElementById('signatureLine').querySelector('span').textContent = o.completedBy;
+            document.getElementById('signatureLine').querySelector('span').textContent = reporterName;
 
             // Page 3: Photos (conditional)
             const page3 = document.getElementById('page3');
