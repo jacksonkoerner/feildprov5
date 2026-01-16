@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quick Report - Field Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'dot-navy': '#0a1628',
+                        'dot-blue': '#1e3a5f',
+                        'dot-slate': '#334155',
+                        'dot-orange': '#ea580c',
+                        'dot-yellow': '#f59e0b',
+                        'safety-green': '#16a34a',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+        .header-stripe { background: repeating-linear-gradient(-45deg, #f59e0b, #f59e0b 10px, #0a1628 10px, #0a1628 20px); height: 4px; }
+        @keyframes pulse-recording {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(234, 88, 12, 0); }
+        }
+        .recording-pulse { animation: pulse-recording 1.5s ease-out infinite; }
+        .section-card { transition: all 0.3s ease; }
+        .section-card.expanded { border-color: #1e3a5f; box-shadow: 0 0 0 2px rgba(30, 58, 95, 0.2); }
+        .section-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .section-card.expanded .section-content { max-height: 1000px; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .voice-btn.mic-testing { background: linear-gradient(135deg, #1e3a5f 0%, #0a1628 100%); animation: pulse 1.5s ease-in-out infinite; }
+        .voice-btn.mic-working { background: #16a34a; }
+        .voice-btn.mic-denied { background: #dc2626; cursor: pointer; }
+        .voice-btn.mic-error { background: #ea580c; cursor: pointer; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.95); } }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen">
+    <div class="header-stripe"></div>
+
+    <div id="app" class="max-w-lg mx-auto min-h-screen flex flex-col">
+
+        <!-- Permissions Warning Banner -->
+        <div id="permissionsWarningBanner" class="hidden bg-dot-orange">
+            <div class="px-4 py-3 flex items-center gap-3">
+                <i class="fas fa-exclamation-triangle text-white"></i>
+                <p class="flex-1 text-sm text-white font-medium">Some features require permissions</p>
+                <a href="permissions.html" class="px-3 py-1.5 bg-white text-dot-orange font-bold text-xs">Enable</a>
+                <button onclick="dismissWarningBanner()" class="text-white/80 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- HEADER -->
+        <header class="sticky top-0 z-20 bg-dot-navy text-white">
+            <div class="p-4 flex items-center justify-between">
+                <a href="index.html" class="w-10 h-10 flex items-center justify-center border border-slate-600 hover:bg-slate-800 transition-colors">
+                    <i class="fas fa-arrow-left text-slate-400"></i>
+                </a>
+                <div class="text-center flex-1 mx-4">
+                    <p class="text-[10px] font-bold text-safety-green uppercase tracking-widest">Quick Report</p>
+                    <p id="currentDate" class="text-sm text-slate-400"></p>
+                </div>
+                <button onclick="finishReport()" class="px-4 py-2 bg-safety-green hover:bg-green-700 text-white text-sm font-bold uppercase transition-colors">
+                    Finish
+                </button>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="px-4 pb-3 flex items-center gap-3">
+                <div class="flex-1 h-2 bg-slate-700 overflow-hidden">
+                    <div id="progressBar" class="h-full bg-safety-green transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <span id="progressText" class="text-xs font-bold text-slate-400">0%</span>
+            </div>
+        </header>
+
+        <!-- SECTIONS LIST -->
+        <main class="flex-1 p-4 pb-8 space-y-3 overflow-y-auto hide-scrollbar">
+
+            <!-- Weather Section -->
+            <div class="section-card bg-white border-2 border-slate-200" data-section="weather">
+                <button onclick="toggleSection('weather')" class="w-full p-4 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-dot-blue flex items-center justify-center">
+                        <i class="fas fa-cloud-sun text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1 text-left">
+                        <p class="font-bold text-slate-800 uppercase text-sm">Weather & Site Conditions</p>
+                        <p id="weather-preview" class="text-sm text-slate-500 truncate">Tap to add</p>
+                    </div>
+                    <div id="weather-status" class="w-8 h-8 border border-slate-300 flex items-center justify-center">
+                        <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                    </div>
+                </button>
+                <div class="section-content">
+                    <div class="px-4 pb-4 space-y-3 border-t border-slate-200 pt-4">
+                        <div class="bg-slate-50 border border-slate-200 p-3">
+                            <div class="grid grid-cols-3 gap-3 text-sm">
+                                <div><span class="text-slate-400 text-xs uppercase">Condition</span><p id="weather-condition" class="font-bold text-slate-700">--</p></div>
+                                <div><span class="text-slate-400 text-xs uppercase">Temp</span><p id="weather-temp" class="font-bold text-slate-700">--</p></div>
+                                <div><span class="text-slate-400 text-xs uppercase">Precip</span><p id="weather-precip" class="font-bold text-slate-700">--</p></div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase">Site Conditions</label>
+                            <div class="mt-2 flex items-center gap-2">
+                                <textarea id="site-conditions-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Describe site conditions..."></textarea>
+                                <button onclick="recordVoice('weather')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Work Summary Section -->
+            <div class="section-card bg-white border-2 border-slate-200" data-section="activities">
+                <button onclick="toggleSection('activities')" class="w-full p-4 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-safety-green flex items-center justify-center">
+                        <i class="fas fa-tasks text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1 text-left">
+                        <p class="font-bold text-slate-800 uppercase text-sm">Work Summary</p>
+                        <p id="activities-preview" class="text-sm text-slate-500 truncate">Tap to add</p>
+                    </div>
+                    <div id="activities-status" class="w-8 h-8 border border-slate-300 flex items-center justify-center">
+                        <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                    </div>
+                </button>
+                <div class="section-content">
+                    <div class="px-4 pb-4 space-y-3 border-t border-slate-200 pt-4">
+                        <div id="activities-list" class="space-y-2"></div>
+                        <div class="flex items-center gap-2">
+                            <textarea id="activity-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Describe work performed..."></textarea>
+                            <button onclick="addActivity()" class="px-4 py-3 bg-safety-green hover:bg-green-700 text-white font-bold transition-colors"><i class="fas fa-plus"></i></button>
+                            <button onclick="recordVoice('activities')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Issues Section -->
+            <div class="section-card bg-white border-2 border-slate-200" data-section="issues">
+                <button onclick="toggleSection('issues')" class="w-full p-4 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-red-600 flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1 text-left">
+                        <p class="font-bold text-slate-800 uppercase text-sm">Issues & Delays</p>
+                        <p id="issues-preview" class="text-sm text-slate-500 truncate">None reported</p>
+                    </div>
+                    <div id="issues-status" class="w-8 h-8 border border-slate-300 flex items-center justify-center">
+                        <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                    </div>
+                </button>
+                <div class="section-content">
+                    <div class="px-4 pb-4 space-y-3 border-t border-slate-200 pt-4">
+                        <button onclick="markNA('issues')" id="issues-na-btn" class="w-full p-3 bg-slate-100 border border-slate-300 text-slate-600 hover:bg-slate-200 transition-colors text-sm font-medium uppercase">
+                            <i class="fas fa-check mr-2"></i>No Issues - Mark as N/A
+                        </button>
+                        <div id="issues-list" class="space-y-2"></div>
+                        <div class="flex items-center gap-2">
+                            <textarea id="issue-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Describe any issues or delays..."></textarea>
+                            <button onclick="addIssue()" class="px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold transition-colors"><i class="fas fa-plus"></i></button>
+                            <button onclick="recordVoice('issues')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inspections Section -->
+            <div class="section-card bg-white border-2 border-slate-200" data-section="inspections">
+                <button onclick="toggleSection('inspections')" class="w-full p-4 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-violet-600 flex items-center justify-center">
+                        <i class="fas fa-check-double text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1 text-left">
+                        <p class="font-bold text-slate-800 uppercase text-sm">QA/QC Inspections</p>
+                        <p id="inspections-preview" class="text-sm text-slate-500 truncate">None reported</p>
+                    </div>
+                    <div id="inspections-status" class="w-8 h-8 border border-slate-300 flex items-center justify-center">
+                        <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                    </div>
+                </button>
+                <div class="section-content">
+                    <div class="px-4 pb-4 space-y-3 border-t border-slate-200 pt-4">
+                        <button onclick="markNA('inspections')" id="inspections-na-btn" class="w-full p-3 bg-slate-100 border border-slate-300 text-slate-600 hover:bg-slate-200 transition-colors text-sm font-medium uppercase">
+                            <i class="fas fa-ban mr-2"></i>No Inspections - Mark as N/A
+                        </button>
+                        <div id="inspections-list" class="space-y-2"></div>
+                        <div class="flex items-center gap-2">
+                            <textarea id="inspection-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Describe inspections or testing..."></textarea>
+                            <button onclick="addInspection()" class="px-4 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold transition-colors"><i class="fas fa-plus"></i></button>
+                            <button onclick="recordVoice('inspections')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Safety Section -->
+            <div class="section-card bg-white border-2 border-slate-200" data-section="safety">
+                <button onclick="toggleSection('safety')" class="w-full p-4 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-safety-green flex items-center justify-center">
+                        <i class="fas fa-hard-hat text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1 text-left">
+                        <p class="font-bold text-slate-800 uppercase text-sm">Safety</p>
+                        <p id="safety-preview" class="text-sm text-slate-500 truncate">No incidents</p>
+                    </div>
+                    <div id="safety-status" class="w-8 h-8 border border-slate-300 flex items-center justify-center">
+                        <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                    </div>
+                </button>
+                <div class="section-content">
+                    <div class="px-4 pb-4 space-y-3 border-t border-slate-200 pt-4">
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="flex items-center gap-3 p-3 bg-safety-green/10 border-2 border-safety-green cursor-pointer">
+                                <input type="checkbox" id="no-incidents" class="w-5 h-5">
+                                <span class="font-medium text-safety-green text-sm uppercase">No Incidents</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 bg-red-50 border-2 border-red-500 cursor-pointer">
+                                <input type="checkbox" id="has-incidents" class="w-5 h-5">
+                                <span class="font-medium text-red-600 text-sm uppercase">Incident</span>
+                            </label>
+                        </div>
+                        <div id="safety-list" class="space-y-2"></div>
+                        <div class="flex items-center gap-2">
+                            <textarea id="safety-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Safety notes, toolbox talks..."></textarea>
+                            <button onclick="addSafetyNote()" class="px-4 py-3 bg-safety-green hover:bg-green-700 text-white font-bold transition-colors"><i class="fas fa-plus"></i></button>
+                            <button onclick="recordVoice('safety')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visitors Section -->
+            <div class="section-card bg-white border-2 border-slate-200" data-section="visitors">
+                <button onclick="toggleSection('visitors')" class="w-full p-4 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-dot-blue flex items-center justify-center">
+                        <i class="fas fa-user-tie text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1 text-left">
+                        <p class="font-bold text-slate-800 uppercase text-sm">Visitors & Communications</p>
+                        <p id="visitors-preview" class="text-sm text-slate-500 truncate">None reported</p>
+                    </div>
+                    <div id="visitors-status" class="w-8 h-8 border border-slate-300 flex items-center justify-center">
+                        <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                    </div>
+                </button>
+                <div class="section-content">
+                    <div class="px-4 pb-4 space-y-3 border-t border-slate-200 pt-4">
+                        <button onclick="markNA('visitors')" id="visitors-na-btn" class="w-full p-3 bg-slate-100 border border-slate-300 text-slate-600 hover:bg-slate-200 transition-colors text-sm font-medium uppercase">
+                            <i class="fas fa-ban mr-2"></i>No Visitors - Mark as N/A
+                        </button>
+                        <div id="visitors-list" class="space-y-2"></div>
+                        <div class="flex items-center gap-2">
+                            <textarea id="visitor-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Visitors, calls, communications..."></textarea>
+                            <button onclick="addVisitor()" class="px-4 py-3 bg-dot-blue hover:bg-blue-800 text-white font-bold transition-colors"><i class="fas fa-plus"></i></button>
+                            <button onclick="recordVoice('visitors')" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Photos Section -->
+            <div class="section-card bg-white border-2 border-slate-200" data-section="photos">
+                <button onclick="toggleSection('photos')" class="w-full p-4 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-dot-navy flex items-center justify-center">
+                        <i class="fas fa-camera text-dot-yellow text-lg"></i>
+                    </div>
+                    <div class="flex-1 text-left">
+                        <p class="font-bold text-slate-800 uppercase text-sm">Progress Photos</p>
+                        <p id="photos-preview" class="text-sm text-slate-500 truncate">No photos</p>
+                    </div>
+                    <div id="photos-status" class="w-8 h-8 border border-slate-300 flex items-center justify-center">
+                        <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                    </div>
+                </button>
+                <div class="section-content">
+                    <div class="px-4 pb-4 space-y-3 border-t border-slate-200 pt-4">
+                        <button onclick="markNA('photos')" id="photos-na-btn" class="w-full p-3 bg-slate-100 border border-slate-300 text-slate-600 hover:bg-slate-200 transition-colors text-sm font-medium uppercase">
+                            <i class="fas fa-ban mr-2"></i>No Photos - Mark as N/A
+                        </button>
+                        <label class="block cursor-pointer" id="photos-upload-label">
+                            <input type="file" accept="image/*" capture="environment" multiple class="hidden" id="photoInput">
+                            <div class="border-2 border-dashed border-slate-300 p-6 text-center hover:border-dot-blue hover:bg-slate-50 transition-colors">
+                                <i class="fas fa-camera text-2xl text-slate-400 mb-2"></i>
+                                <p class="font-bold text-slate-600 uppercase text-sm">Tap to Add Photos</p>
+                                <p class="text-xs text-slate-400">GPS location will be captured</p>
+                            </div>
+                        </label>
+                        <div id="photos-grid" class="grid grid-cols-2 gap-2"></div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Voice Recording Modal -->
+    <div id="voiceModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm">
+            <div class="bg-dot-navy text-white p-4 text-center">
+                <p id="voiceModalTitle" class="text-lg font-bold uppercase">Recording...</p>
+                <p class="text-xs text-slate-400">Tap stop when finished</p>
+            </div>
+            <div id="voiceTranscript" class="bg-slate-50 p-4 m-4 border border-slate-200 min-h-[100px] max-h-[200px] overflow-y-auto">
+                <p id="liveTranscript" class="text-sm text-slate-600 italic">Listening...</p>
+            </div>
+            <div class="p-4 pt-0 flex justify-center gap-4">
+                <button onclick="cancelVoice()" class="px-6 py-3 bg-slate-200 text-slate-700 font-bold uppercase hover:bg-slate-300 transition-colors">Cancel</button>
+                <button id="stopVoiceBtn" onclick="stopVoice()" class="recording-pulse px-6 py-3 bg-dot-orange text-white font-bold uppercase"><i class="fas fa-stop mr-2"></i>Stop</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Permissions Setup Modal -->
+    <div id="permissionsModal" class="hidden fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm">
+            <div class="bg-dot-navy text-white p-6 text-center">
+                <div class="w-16 h-16 bg-dot-yellow flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-shield-alt text-dot-navy text-2xl"></i>
+                </div>
+                <p class="text-xl font-bold uppercase">Enable Permissions</p>
+                <p class="text-sm text-slate-400 mt-1">Required for voice recording & weather</p>
+            </div>
+
+            <div class="p-4 space-y-3">
+                <!-- Microphone Permission -->
+                <div id="micPermissionRow" class="bg-slate-50 border border-slate-200 p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-dot-navy flex items-center justify-center">
+                                <i class="fas fa-microphone text-dot-yellow"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-800 text-sm uppercase">Microphone</p>
+                                <p id="micPermissionStatus" class="text-xs text-slate-500">For voice notes</p>
+                            </div>
+                        </div>
+                        <button id="micPermissionBtn" onclick="requestMicrophonePermission()" class="px-4 py-2 bg-dot-navy hover:bg-dot-blue text-white text-xs font-bold uppercase transition-colors">Enable</button>
+                    </div>
+                </div>
+
+                <!-- Location Permission -->
+                <div id="locPermissionRow" class="bg-slate-50 border border-slate-200 p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-safety-green flex items-center justify-center">
+                                <i class="fas fa-location-dot text-white"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-800 text-sm uppercase">Location</p>
+                                <p id="locPermissionStatus" class="text-xs text-slate-500">For weather & GPS</p>
+                            </div>
+                        </div>
+                        <button id="locPermissionBtn" onclick="requestLocationPermission()" class="px-4 py-2 bg-safety-green hover:bg-green-700 text-white text-xs font-bold uppercase transition-colors">Enable</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 pt-0 space-y-2">
+                <button id="permissionsContinueBtn" onclick="closePermissionsModal()" class="w-full p-4 bg-dot-navy hover:bg-dot-blue text-white font-bold uppercase transition-colors">Continue</button>
+                <button onclick="closePermissionsModal()" class="w-full p-3 text-slate-500 hover:text-slate-700 text-sm font-medium">Skip for now</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ STATE ============
+        let currentSection = null;
+        let isRecording = false;
+        let recognition = null;
+        let currentTranscript = '';
+        let activeVoiceSection = null;
+        let report = null;
+        let permissionsChecked = false;
+
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        const isIOSSafari = isIOS && isSafari;
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        let microphoneState = { status: 'unknown', lastError: null, lastTested: null };
+
+        // ============ GROQ WHISPER FALLBACK ============
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let useWhisperFallback = false; // Will be set to true on iOS or when SpeechRecognition fails
+        let audioStream = null;
+
+        function getGroqApiKey() {
+            return localStorage.getItem('groq_api_key');
+        }
+
+        async function transcribeWithWhisper(audioBlob) {
+            const apiKey = getGroqApiKey();
+            if (!apiKey) {
+                throw new Error('NO_API_KEY');
+            }
+
+            // Convert blob to file for FormData
+            const audioFile = new File([audioBlob], 'recording.webm', { type: audioBlob.type });
+
+            const formData = new FormData();
+            formData.append('file', audioFile);
+            formData.append('model', 'whisper-large-v3-turbo');
+            formData.append('language', 'en');
+            formData.append('response_format', 'json');
+
+            const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Whisper API error:', response.status, errorText);
+                throw new Error(`WHISPER_API_ERROR: ${response.status}`);
+            }
+
+            const result = await response.json();
+            return result.text || '';
+        }
+
+        async function startWhisperRecording() {
+            try {
+                audioChunks = [];
+
+                // Get audio stream
+                audioStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        sampleRate: 16000
+                    }
+                });
+
+                // Determine best supported format - prefer webm, fallback to mp4 for iOS
+                let mimeType = 'audio/webm;codecs=opus';
+                if (!MediaRecorder.isTypeSupported(mimeType)) {
+                    mimeType = 'audio/webm';
+                }
+                if (!MediaRecorder.isTypeSupported(mimeType)) {
+                    mimeType = 'audio/mp4';
+                }
+                if (!MediaRecorder.isTypeSupported(mimeType)) {
+                    mimeType = ''; // Let browser choose
+                }
+
+                const options = mimeType ? { mimeType } : {};
+                mediaRecorder = new MediaRecorder(audioStream, options);
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.start(100); // Collect in 100ms chunks
+                isRecording = true;
+
+                // Update modal UI for whisper mode
+                document.getElementById('liveTranscript').innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                        <span>Recording audio...</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">Audio will be transcribed when you stop</p>
+                `;
+
+                console.log('Whisper recording started with format:', mimeType || 'browser default');
+
+            } catch (err) {
+                console.error('Failed to start Whisper recording:', err);
+                throw err;
+            }
+        }
+
+        async function stopWhisperRecording() {
+            return new Promise((resolve, reject) => {
+                if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+                    reject(new Error('No active recording'));
+                    return;
+                }
+
+                mediaRecorder.onstop = async () => {
+                    try {
+                        // Stop all audio tracks
+                        if (audioStream) {
+                            audioStream.getTracks().forEach(track => track.stop());
+                            audioStream = null;
+                        }
+
+                        // Create blob from chunks
+                        const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+                        console.log('Audio recorded:', audioBlob.size, 'bytes,', mediaRecorder.mimeType);
+
+                        if (audioBlob.size < 1000) {
+                            reject(new Error('Recording too short'));
+                            return;
+                        }
+
+                        // Show transcribing state
+                        document.getElementById('liveTranscript').innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-spinner fa-spin text-dot-blue"></i>
+                                <span>Transcribing with AI...</span>
+                            </div>
+                        `;
+
+                        // Transcribe with Whisper
+                        const transcript = await transcribeWithWhisper(audioBlob);
+                        resolve(transcript);
+
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+
+                mediaRecorder.stop();
+                isRecording = false;
+            });
+        }
+
+        function cancelWhisperRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+            if (audioStream) {
+                audioStream.getTracks().forEach(track => track.stop());
+                audioStream = null;
+            }
+            audioChunks = [];
+            isRecording = false;
+        }
+
+        // Check if we should use Whisper fallback (iOS or no SpeechRecognition)
+        function shouldUseWhisperFallback() {
+            // Always use Whisper on iOS Safari due to Siri/Dictation requirements
+            if (isIOSSafari) {
+                console.log('iOS Safari detected - using Whisper fallback');
+                return true;
+            }
+
+            // Check if SpeechRecognition is available
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                console.log('No SpeechRecognition API - using Whisper fallback');
+                return true;
+            }
+
+            // Check if we've had previous speech recognition failures
+            const hadSpeechError = localStorage.getItem('fvp_speech_failed') === 'true';
+            if (hadSpeechError) {
+                console.log('Previous speech recognition failure - using Whisper fallback');
+                return true;
+            }
+
+            return false;
+        }
+
+        // ============ STORAGE ============
+        function getTodayKey() { return `fieldvoice_report_${new Date().toISOString().split('T')[0]}`; }
+
+        function getReport() {
+            const saved = localStorage.getItem(getTodayKey());
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (!parsed.meta) parsed.meta = {};
+                    if (!parsed.meta.naMarked) parsed.meta.naMarked = {};
+                    if (!parsed.safety) parsed.safety = { hasIncidents: false, noIncidents: false, notes: [] };
+                    return parsed;
+                } catch (e) {}
+            }
+            return createFreshReport();
+        }
+
+        function createFreshReport() {
+            return {
+                meta: { createdAt: new Date().toISOString(), interviewCompleted: false, reportType: 'quick', version: 2, naMarked: {} },
+                overview: {
+                    projectName: "North-South Connector Road Phase 2",
+                    date: new Date().toLocaleDateString(),
+                    startTime: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+                    weather: { highTemp: "--", lowTemp: "--", precipitation: "0.00\"", generalCondition: "Syncing...", jobSiteCondition: "", adverseConditions: "N/A" }
+                },
+                contractors: [], activities: [], operations: [], equipment: [], generalIssues: [], qaqcNotes: [],
+                safety: { hasIncidents: false, noIncidents: false, notes: [] }, visitorsRemarks: [], photos: []
+            };
+        }
+
+        function saveReport() {
+            try {
+                const reportJson = JSON.stringify(report);
+                localStorage.setItem(getTodayKey(), reportJson);
+                localStorage.setItem('fieldvoice_report', reportJson);
+                updateAllPreviews();
+                updateProgress();
+            } catch (err) {
+                if (err.name === 'QuotaExceededError' || err.message.includes('quota')) {
+                    console.error('[STORAGE] Quota exceeded! Report size:', JSON.stringify(report).length, 'bytes');
+                    console.error('[STORAGE] Photos count:', report.photos.length);
+                    showToast('Storage full! Remove some photos.', 'error');
+                    // Try to save without the last photo
+                    if (report.photos.length > 0) {
+                        const removedPhoto = report.photos.pop();
+                        console.warn('[STORAGE] Removed last photo to free space:', removedPhoto.id);
+                        showToast('Last photo removed - storage full', 'warning');
+                        saveReport(); // Retry
+                    }
+                } else {
+                    console.error('[STORAGE] Save failed:', err);
+                    showToast('Failed to save report', 'error');
+                }
+            }
+        }
+
+        // ============ IMAGE COMPRESSION ============
+        async function compressImage(dataUrl, maxWidth = 1200, quality = 0.7) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    try {
+                        // Calculate new dimensions
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > maxWidth) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        }
+
+                        // Create canvas and draw resized image
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // Convert to compressed JPEG
+                        const compressedUrl = canvas.toDataURL('image/jpeg', quality);
+
+                        console.log(`[PHOTO] Compressed: ${Math.round(dataUrl.length/1024)}KB -> ${Math.round(compressedUrl.length/1024)}KB (${width}x${height})`);
+
+                        resolve(compressedUrl);
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                img.onerror = () => reject(new Error('Failed to load image for compression'));
+                img.src = dataUrl;
+            });
+        }
+
+        function getStorageUsage() {
+            let total = 0;
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key)) {
+                    total += localStorage[key].length * 2; // UTF-16 = 2 bytes per char
+                }
+            }
+            return total;
+        }
+
+        // ============ WEATHER ============
+        async function fetchWeather() {
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
+                });
+                const { latitude, longitude } = position.coords;
+                localStorage.setItem('fvp_loc_granted', 'true');
+                const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&temperature_unit=fahrenheit&precipitation_unit=inch`);
+                const data = await response.json();
+                const weatherCodes = { 0: 'Clear', 1: 'Mostly Clear', 2: 'Partly Cloudy', 3: 'Overcast', 45: 'Fog', 48: 'Fog', 51: 'Light Drizzle', 53: 'Drizzle', 55: 'Heavy Drizzle', 61: 'Light Rain', 63: 'Rain', 65: 'Heavy Rain', 80: 'Showers', 95: 'Thunderstorm' };
+                const precip = data.daily.precipitation_sum[0];
+                report.overview.weather = {
+                    highTemp: `${Math.round(data.daily.temperature_2m_max[0])}°F`,
+                    lowTemp: `${Math.round(data.daily.temperature_2m_min[0])}°F`,
+                    precipitation: `${precip.toFixed(2)}"`,
+                    generalCondition: weatherCodes[data.current_weather.weathercode] || 'Cloudy',
+                    jobSiteCondition: report.overview.weather.jobSiteCondition || (precip > 0.1 ? 'Wet' : 'Dry'),
+                    adverseConditions: precip > 0.25 ? 'Rain impact possible' : 'N/A'
+                };
+                saveReport();
+                updateWeatherDisplay();
+            } catch (error) {
+                console.error('Weather fetch failed:', error);
+            }
+        }
+
+        function updateWeatherDisplay() {
+            const w = report.overview.weather;
+            document.getElementById('weather-condition').textContent = w.generalCondition;
+            document.getElementById('weather-temp').textContent = `${w.highTemp} / ${w.lowTemp}`;
+            document.getElementById('weather-precip').textContent = w.precipitation;
+            document.getElementById('site-conditions-input').value = w.jobSiteCondition || '';
+        }
+
+        // ============ SECTION TOGGLE ============
+        function toggleSection(sectionId) {
+            const cards = document.querySelectorAll('.section-card');
+            cards.forEach(card => {
+                if (card.dataset.section === sectionId) {
+                    card.classList.toggle('expanded');
+                    const icon = card.querySelector('[id$="-status"] i');
+                    if (card.classList.contains('expanded')) {
+                        icon.className = 'fas fa-chevron-up text-dot-blue text-xs';
+                    } else {
+                        icon.className = 'fas fa-chevron-down text-slate-400 text-xs';
+                    }
+                } else {
+                    card.classList.remove('expanded');
+                    const icon = card.querySelector('[id$="-status"] i');
+                    if (icon) icon.className = 'fas fa-chevron-down text-slate-400 text-xs';
+                }
+            });
+        }
+
+        // ============ VOICE RECORDING ============
+        async function recordVoice(section) {
+            activeVoiceSection = section;
+            currentTranscript = '';
+
+            const sectionNames = { weather: 'Site Conditions', activities: 'Work Summary', issues: 'Issues', inspections: 'Inspections', safety: 'Safety', visitors: 'Visitors' };
+
+            // Check if we need to use Whisper fallback
+            useWhisperFallback = shouldUseWhisperFallback();
+
+            // Check for API key if using Whisper
+            if (useWhisperFallback) {
+                const apiKey = getGroqApiKey();
+                if (!apiKey) {
+                    const setupNow = confirm(
+                        'Voice recording on this device requires a Groq API key.\n\n' +
+                        'Would you like to set up your API key now?\n\n' +
+                        '(Get a free key at console.groq.com)'
+                    );
+                    if (setupNow) {
+                        window.location.href = 'permissions.html#apiKeyCard';
+                    }
+                    return;
+                }
+            }
+
+            document.getElementById('voiceModal').classList.remove('hidden');
+            document.getElementById('voiceModalTitle').textContent = `Recording: ${sectionNames[section]}`;
+
+            if (useWhisperFallback) {
+                // Update modal subtitle for Whisper mode
+                document.querySelector('#voiceModal .text-xs.text-slate-400').textContent = 'Using AI transcription';
+                document.getElementById('liveTranscript').innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-spinner fa-spin text-dot-blue"></i>
+                        <span>Starting microphone...</span>
+                    </div>
+                `;
+                try {
+                    await startWhisperRecording();
+                } catch (err) {
+                    console.error('Failed to start Whisper recording:', err);
+                    document.getElementById('liveTranscript').innerHTML = `
+                        <div class="text-red-600">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            Failed to access microphone
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">${err.message}</p>
+                    `;
+                }
+            } else {
+                document.querySelector('#voiceModal .text-xs.text-slate-400').textContent = 'Tap stop when finished';
+                document.getElementById('liveTranscript').textContent = 'Listening...';
+                startRecording();
+            }
+        }
+
+        function startRecording() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                // Fall back to Whisper if SpeechRecognition not available
+                useWhisperFallback = true;
+                startWhisperRecording().catch(err => {
+                    console.error('Whisper fallback also failed:', err);
+                    cancelVoice();
+                    alert('Voice recording is not available on this device.');
+                });
+                return;
+            }
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            recognition.onstart = () => { isRecording = true; };
+            recognition.onresult = (event) => {
+                let transcript = '';
+                for (let i = 0; i < event.results.length; i++) { transcript += event.results[i][0].transcript; }
+                currentTranscript = transcript;
+                document.getElementById('liveTranscript').textContent = transcript || 'Listening...';
+            };
+            recognition.onend = () => { isRecording = false; };
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                isRecording = false;
+
+                // Mark that speech recognition failed for future reference
+                if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+                    localStorage.setItem('fvp_speech_failed', 'true');
+                    cancelVoice();
+
+                    // Offer to use Whisper fallback
+                    const apiKey = getGroqApiKey();
+                    if (apiKey) {
+                        const useWhisper = confirm(
+                            'Speech recognition is not available on this device.\n\n' +
+                            'Would you like to try AI-powered transcription instead?'
+                        );
+                        if (useWhisper) {
+                            recordVoice(activeVoiceSection);
+                        }
+                    } else {
+                        alert(
+                            'Speech recognition requires Siri & Dictation to be enabled.\n\n' +
+                            'Alternatively, set up a Groq API key on the Permissions page for AI transcription.'
+                        );
+                    }
+                }
+            };
+            recognition.start();
+        }
+
+        async function stopVoice() {
+            if (useWhisperFallback) {
+                // Stop Whisper recording and get transcript
+                try {
+                    const transcript = await stopWhisperRecording();
+                    if (transcript && transcript.trim()) {
+                        document.getElementById('liveTranscript').innerHTML = `
+                            <div class="text-safety-green">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                Transcribed successfully
+                            </div>
+                            <p class="text-sm text-slate-700 mt-2">"${transcript.trim()}"</p>
+                        `;
+                        // Brief delay to show the result
+                        await new Promise(resolve => setTimeout(resolve, 800));
+                        applyVoiceToSection(activeVoiceSection, transcript.trim());
+                    } else {
+                        showToast('No speech detected', 'warning');
+                    }
+                } catch (err) {
+                    console.error('Whisper transcription failed:', err);
+                    if (err.message === 'NO_API_KEY') {
+                        alert('Please set up your Groq API key on the Permissions page.');
+                    } else if (err.message === 'Recording too short') {
+                        showToast('Recording too short', 'warning');
+                    } else {
+                        showToast('Transcription failed', 'error');
+                    }
+                }
+            } else {
+                // Standard SpeechRecognition stop
+                if (recognition) { recognition.stop(); recognition = null; }
+                isRecording = false;
+                const transcript = currentTranscript.trim();
+                if (transcript) { applyVoiceToSection(activeVoiceSection, transcript); }
+            }
+
+            document.getElementById('voiceModal').classList.add('hidden');
+            currentTranscript = '';
+            activeVoiceSection = null;
+            useWhisperFallback = false;
+        }
+
+        function cancelVoice() {
+            if (useWhisperFallback) {
+                cancelWhisperRecording();
+            } else {
+                if (recognition) { recognition.stop(); recognition = null; }
+            }
+            isRecording = false;
+            currentTranscript = '';
+            activeVoiceSection = null;
+            useWhisperFallback = false;
+            document.getElementById('voiceModal').classList.add('hidden');
+        }
+
+        function applyVoiceToSection(section, transcript) {
+            switch (section) {
+                case 'weather': report.overview.weather.jobSiteCondition = transcript; document.getElementById('site-conditions-input').value = transcript; break;
+                case 'activities': report.activities.push({ contractor: 'General', trade: 'General', narrative: transcript }); break;
+                case 'issues': if (!transcript.toLowerCase().includes('none') && !transcript.toLowerCase().includes('no issues')) { report.generalIssues.push(transcript); } break;
+                case 'inspections': if (!transcript.toLowerCase().includes('none') && !transcript.toLowerCase().includes('no inspection')) { report.qaqcNotes.push(transcript); } break;
+                case 'safety': report.safety.notes.push(transcript); if (transcript.toLowerCase().includes('incident') || transcript.toLowerCase().includes('injury')) { report.safety.hasIncidents = true; } break;
+                case 'visitors': if (!transcript.toLowerCase().includes('none') && !transcript.toLowerCase().includes('no visitor')) { report.visitorsRemarks.push(transcript); } break;
+            }
+            saveReport();
+            renderSection(section);
+            showToast('Added successfully');
+        }
+
+        // ============ MANUAL ADD FUNCTIONS ============
+        function addActivity() {
+            const input = document.getElementById('activity-input');
+            const text = input.value.trim();
+            if (text) { report.activities.push({ contractor: 'General', trade: 'General', narrative: text }); saveReport(); renderSection('activities'); input.value = ''; }
+        }
+
+        function removeActivity(index) { report.activities.splice(index, 1); saveReport(); renderSection('activities'); }
+
+        function addIssue() {
+            const input = document.getElementById('issue-input');
+            const text = input.value.trim();
+            if (text) { report.generalIssues.push(text); saveReport(); renderSection('issues'); input.value = ''; }
+        }
+
+        function removeIssue(index) { report.generalIssues.splice(index, 1); saveReport(); renderSection('issues'); }
+
+        function addInspection() {
+            const input = document.getElementById('inspection-input');
+            const text = input.value.trim();
+            if (text) { report.qaqcNotes.push(text); saveReport(); renderSection('inspections'); input.value = ''; }
+        }
+
+        function removeInspection(index) { report.qaqcNotes.splice(index, 1); saveReport(); renderSection('inspections'); }
+
+        function addSafetyNote() {
+            const input = document.getElementById('safety-input');
+            const text = input.value.trim();
+            if (text) { report.safety.notes.push(text); saveReport(); renderSection('safety'); input.value = ''; }
+        }
+
+        function removeSafetyNote(index) { report.safety.notes.splice(index, 1); saveReport(); renderSection('safety'); }
+
+        function addVisitor() {
+            const input = document.getElementById('visitor-input');
+            const text = input.value.trim();
+            if (text) { report.visitorsRemarks.push(text); saveReport(); renderSection('visitors'); input.value = ''; }
+        }
+
+        function removeVisitor(index) { report.visitorsRemarks.splice(index, 1); saveReport(); renderSection('visitors'); }
+
+        // ============ PHOTOS ============
+        async function handlePhotoInput(e) {
+            console.log('[PHOTO] handlePhotoInput triggered');
+
+            const files = e.target.files;
+            if (!files || files.length === 0) {
+                console.warn('[PHOTO] No files selected');
+                showToast('No photo selected', 'warning');
+                return;
+            }
+
+            console.log(`[PHOTO] Processing ${files.length} file(s)`);
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                console.log(`[PHOTO] File ${i + 1}: ${file.name}, type: ${file.type}, size: ${file.size} bytes`);
+
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    console.error(`[PHOTO] Invalid file type: ${file.type}`);
+                    showToast(`Invalid file type: ${file.type}`, 'error');
+                    continue;
+                }
+
+                // Validate file size (max 20MB)
+                if (file.size > 20 * 1024 * 1024) {
+                    console.error(`[PHOTO] File too large: ${file.size} bytes`);
+                    showToast('Photo too large (max 20MB)', 'error');
+                    continue;
+                }
+
+                // Show processing indicator
+                showToast('Processing photo...', 'info');
+
+                // Get GPS coordinates
+                let gps = null;
+                try {
+                    console.log('[PHOTO] Requesting GPS coordinates...');
+                    const pos = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, {
+                            timeout: 10000,
+                            enableHighAccuracy: true,
+                            maximumAge: 60000
+                        });
+                    });
+                    gps = {
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude,
+                        accuracy: Math.round(pos.coords.accuracy)
+                    };
+                    console.log(`[PHOTO] GPS acquired: ${gps.lat.toFixed(6)}, ${gps.lng.toFixed(6)} (±${gps.accuracy}m)`);
+                } catch (err) {
+                    console.warn('[PHOTO] GPS failed:', err.code, err.message);
+                    // Continue without GPS - don't block the photo
+                }
+
+                // Read file as data URL
+                try {
+                    const rawDataUrl = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            console.log(`[PHOTO] FileReader success, raw size: ${Math.round(ev.target.result.length/1024)}KB`);
+                            resolve(ev.target.result);
+                        };
+                        reader.onerror = (err) => {
+                            console.error('[PHOTO] FileReader error:', err);
+                            reject(new Error('Failed to read photo file'));
+                        };
+                        reader.onabort = () => {
+                            console.error('[PHOTO] FileReader aborted');
+                            reject(new Error('Photo read was aborted'));
+                        };
+                        reader.readAsDataURL(file);
+                    });
+
+                    // Compress image to reduce storage size (max 1200px width, 70% quality)
+                    console.log('[PHOTO] Compressing image...');
+                    showToast('Compressing photo...', 'info');
+                    let dataUrl = await compressImage(rawDataUrl, 1200, 0.7);
+
+                    // Check storage before saving
+                    const storageUsed = getStorageUsage();
+                    let photoSize = dataUrl.length * 2;
+                    console.log(`[PHOTO] Storage: ${Math.round(storageUsed/1024/1024*10)/10}MB used, photo: ${Math.round(photoSize/1024)}KB`);
+
+                    // If storage is getting full, try more aggressive compression
+                    if (storageUsed + photoSize > 4.5 * 1024 * 1024) {
+                        console.warn('[PHOTO] Storage nearly full, trying higher compression...');
+                        showToast('Storage low, compressing more...', 'warning');
+                        dataUrl = await compressImage(rawDataUrl, 800, 0.5);
+                        photoSize = dataUrl.length * 2;
+                        console.log(`[PHOTO] Re-compressed to: ${Math.round(photoSize/1024)}KB`);
+
+                        if (storageUsed + photoSize > 4.8 * 1024 * 1024) {
+                            throw new Error('Storage full - remove old photos first');
+                        }
+                    }
+
+                    // Create timestamp
+                    const now = new Date();
+                    const timestamp = now.toISOString();
+                    const date = now.toLocaleDateString();
+                    const time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+
+                    // Create photo object
+                    const photoObj = {
+                        id: `photo_${Date.now()}_${i}`,
+                        url: dataUrl,
+                        caption: '',
+                        timestamp: timestamp,
+                        date: date,
+                        time: time,
+                        gps: gps,
+                        fileName: file.name,
+                        fileSize: file.size,
+                        fileType: file.type
+                    };
+
+                    console.log('[PHOTO] Adding photo to report:', {
+                        id: photoObj.id,
+                        timestamp: photoObj.timestamp,
+                        gps: photoObj.gps,
+                        dataLength: dataUrl.length
+                    });
+
+                    report.photos.push(photoObj);
+                    saveReport();
+                    renderSection('photos');
+                    showToast('Photo added', 'success');
+
+                    console.log(`[PHOTO] Success! Total photos: ${report.photos.length}`);
+
+                } catch (err) {
+                    console.error('[PHOTO] Failed to process photo:', err);
+                    showToast(`Photo error: ${err.message}`, 'error');
+                }
+            }
+
+            // Reset the input so the same file can be selected again
+            e.target.value = '';
+        }
+
+        function removePhoto(index) {
+            console.log(`[PHOTO] Removing photo at index ${index}`);
+            report.photos.splice(index, 1);
+            saveReport();
+            renderSection('photos');
+            showToast('Photo removed', 'info');
+        }
+
+        // ============ RENDER SECTIONS ============
+        function renderSection(section) {
+            switch (section) {
+                case 'activities':
+                    document.getElementById('activities-list').innerHTML = report.activities.map((a, i) => `
+                        <div class="bg-slate-50 border border-slate-200 p-3 flex items-start gap-3">
+                            <div class="flex-1"><p class="text-sm text-slate-700">${a.narrative}</p></div>
+                            <button onclick="removeActivity(${i})" class="text-red-400 hover:text-red-600"><i class="fas fa-trash text-xs"></i></button>
+                        </div>
+                    `).join('') || '';
+                    break;
+                case 'issues':
+                    document.getElementById('issues-list').innerHTML = report.generalIssues.map((issue, i) => `
+                        <div class="bg-red-50 border border-red-200 p-3 flex items-start gap-3">
+                            <i class="fas fa-exclamation-circle text-red-500 mt-0.5"></i>
+                            <p class="flex-1 text-sm text-slate-700">${issue}</p>
+                            <button onclick="removeIssue(${i})" class="text-red-400 hover:text-red-600"><i class="fas fa-trash text-xs"></i></button>
+                        </div>
+                    `).join('') || '';
+                    break;
+                case 'inspections':
+                    document.getElementById('inspections-list').innerHTML = report.qaqcNotes.map((note, i) => `
+                        <div class="bg-violet-50 border border-violet-200 p-3 flex items-start gap-3">
+                            <i class="fas fa-check-circle text-violet-500 mt-0.5"></i>
+                            <p class="flex-1 text-sm text-slate-700">${note}</p>
+                            <button onclick="removeInspection(${i})" class="text-red-400 hover:text-red-600"><i class="fas fa-trash text-xs"></i></button>
+                        </div>
+                    `).join('') || '';
+                    break;
+                case 'safety':
+                    document.getElementById('safety-list').innerHTML = report.safety.notes.map((note, i) => `
+                        <div class="bg-green-50 border border-green-200 p-3 flex items-start gap-3">
+                            <i class="fas fa-shield-alt text-safety-green mt-0.5"></i>
+                            <p class="flex-1 text-sm text-slate-700">${note}</p>
+                            <button onclick="removeSafetyNote(${i})" class="text-red-400 hover:text-red-600"><i class="fas fa-trash text-xs"></i></button>
+                        </div>
+                    `).join('') || '';
+                    document.getElementById('has-incidents').checked = report.safety.hasIncidents;
+                    break;
+                case 'visitors':
+                    document.getElementById('visitors-list').innerHTML = report.visitorsRemarks.map((v, i) => `
+                        <div class="bg-slate-50 border border-slate-200 p-3 flex items-start gap-3">
+                            <i class="fas fa-user text-dot-blue mt-0.5"></i>
+                            <p class="flex-1 text-sm text-slate-700">${v}</p>
+                            <button onclick="removeVisitor(${i})" class="text-red-400 hover:text-red-600"><i class="fas fa-trash text-xs"></i></button>
+                        </div>
+                    `).join('') || '';
+                    break;
+                case 'photos':
+                    document.getElementById('photos-grid').innerHTML = report.photos.map((p, i) => `
+                        <div class="relative border-2 border-slate-300 overflow-hidden bg-slate-100">
+                            <img src="${p.url}" class="w-full aspect-square object-cover" onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23cbd5e1%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2364748b%22 font-size=%2212%22>Error</text></svg>';">
+                            <button onclick="removePhoto(${i})" class="absolute top-2 right-2 w-7 h-7 bg-red-600 text-white text-xs flex items-center justify-center shadow-lg"><i class="fas fa-times"></i></button>
+                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 pt-6">
+                                <div class="flex items-center gap-1 text-white/90 mb-1">
+                                    <i class="fas fa-clock text-[8px]"></i>
+                                    <p class="text-[10px] font-medium">${p.date} ${p.time}</p>
+                                </div>
+                                ${p.gps ? `
+                                    <div class="flex items-center gap-1 text-safety-green">
+                                        <i class="fas fa-map-marker-alt text-[8px]"></i>
+                                        <p class="text-[9px] font-mono">${p.gps.lat.toFixed(5)}, ${p.gps.lng.toFixed(5)}</p>
+                                        <span class="text-[8px] text-white/60">(±${p.gps.accuracy}m)</span>
+                                    </div>
+                                ` : `
+                                    <div class="flex items-center gap-1 text-dot-orange">
+                                        <i class="fas fa-location-crosshairs text-[8px]"></i>
+                                        <p class="text-[9px]">No GPS</p>
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+                    `).join('') || '<p class="col-span-2 text-center text-slate-400 text-sm py-4">No photos yet</p>';
+                    break;
+            }
+        }
+
+        function renderAllSections() {
+            ['activities', 'issues', 'inspections', 'safety', 'visitors', 'photos'].forEach(renderSection);
+            updateWeatherDisplay();
+        }
+
+        // ============ PREVIEWS & PROGRESS ============
+        function updateAllPreviews() {
+            const w = report.overview.weather;
+            document.getElementById('weather-preview').textContent = w.jobSiteCondition || `${w.generalCondition}, ${w.highTemp}`;
+            document.getElementById('activities-preview').textContent = report.activities.length > 0 ? `${report.activities.length} activities logged` : 'Tap to add';
+            const naMarked = report.meta.naMarked || {};
+            document.getElementById('issues-preview').textContent = naMarked.issues ? 'N/A - No issues' : report.generalIssues.length > 0 ? `${report.generalIssues.length} issues` : 'None reported';
+            document.getElementById('inspections-preview').textContent = naMarked.inspections ? 'N/A - No inspections' : report.qaqcNotes.length > 0 ? `${report.qaqcNotes.length} inspections` : 'None reported';
+            document.getElementById('safety-preview').textContent = report.safety.hasIncidents ? 'INCIDENT REPORTED' : report.safety.noIncidents ? 'No incidents (confirmed)' : report.safety.notes.length > 0 ? 'Notes added' : 'Tap to confirm';
+            document.getElementById('visitors-preview').textContent = naMarked.visitors ? 'N/A - No visitors' : report.visitorsRemarks.length > 0 ? `${report.visitorsRemarks.length} entries` : 'None reported';
+            document.getElementById('photos-preview').textContent = naMarked.photos ? 'N/A - No photos' : report.photos.length > 0 ? `${report.photos.length} photos` : 'No photos';
+            updateStatusIcons();
+        }
+
+        function updateStatusIcons() {
+            const naMarked = report.meta.naMarked || {};
+            const sections = {
+                'weather': report.overview.weather.jobSiteCondition,
+                'activities': report.activities.length > 0,
+                'issues': report.generalIssues.length > 0 || naMarked.issues,
+                'inspections': report.qaqcNotes.length > 0 || naMarked.inspections,
+                'safety': report.safety.noIncidents || report.safety.hasIncidents || report.safety.notes.length > 0,
+                'visitors': report.visitorsRemarks.length > 0 || naMarked.visitors,
+                'photos': report.photos.length > 0 || naMarked.photos
+            };
+            Object.entries(sections).forEach(([section, hasData]) => {
+                const statusEl = document.getElementById(`${section}-status`);
+                if (!statusEl) return;
+                const card = document.querySelector(`[data-section="${section}"]`);
+                const isExpanded = card?.classList.contains('expanded');
+                if (hasData && !isExpanded) {
+                    statusEl.innerHTML = '<i class="fas fa-check text-safety-green text-xs"></i>';
+                    statusEl.className = 'w-8 h-8 bg-safety-green/20 border-2 border-safety-green flex items-center justify-center';
+                } else if (!isExpanded) {
+                    statusEl.innerHTML = '<i class="fas fa-chevron-down text-slate-400 text-xs"></i>';
+                    statusEl.className = 'w-8 h-8 border border-slate-300 flex items-center justify-center';
+                }
+            });
+        }
+
+        function updateProgress() {
+            const naMarked = report.meta.naMarked || {};
+            let filled = 0;
+            let total = 7; // weather, activities, issues, inspections, safety, visitors, photos
+
+            // Weather - has site condition text
+            if (report.overview.weather.jobSiteCondition) filled++;
+
+            // Activities - has at least one activity
+            if (report.activities.length > 0) filled++;
+
+            // Issues - has issues OR marked N/A
+            if (report.generalIssues.length > 0 || naMarked.issues) filled++;
+
+            // Inspections - has inspections OR marked N/A
+            if (report.qaqcNotes.length > 0 || naMarked.inspections) filled++;
+
+            // Safety - confirmed no incidents OR has incidents OR has notes
+            if (report.safety.noIncidents === true || report.safety.hasIncidents === true || report.safety.notes.length > 0) filled++;
+
+            // Visitors - has visitors OR marked N/A
+            if (report.visitorsRemarks.length > 0 || naMarked.visitors) filled++;
+
+            // Photos - has photos OR marked N/A
+            if (report.photos.length > 0 || naMarked.photos) filled++;
+
+            const percent = Math.round((filled / total) * 100);
+            document.getElementById('progressBar').style.width = `${percent}%`;
+            document.getElementById('progressText').textContent = `${percent}%`;
+        }
+
+        // ============ N/A MARKING ============
+        function markNA(section) {
+            if (!report.meta.naMarked) report.meta.naMarked = {};
+            report.meta.naMarked[section] = true;
+            const btn = document.getElementById(`${section}-na-btn`);
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-check mr-2"></i>Marked as N/A';
+                btn.className = 'w-full p-3 bg-safety-green/20 border-2 border-safety-green text-safety-green text-sm font-medium uppercase cursor-default';
+                btn.onclick = () => clearNA(section);
+            }
+            // Hide photo upload if photos section is marked N/A
+            if (section === 'photos') {
+                const uploadLabel = document.getElementById('photos-upload-label');
+                if (uploadLabel) uploadLabel.classList.add('hidden');
+            }
+            saveReport();
+            updateAllPreviews();
+            showToast('Marked as N/A');
+        }
+
+        function clearNA(section) {
+            if (report.meta.naMarked) { delete report.meta.naMarked[section]; }
+            const btn = document.getElementById(`${section}-na-btn`);
+            if (btn) {
+                const labels = { issues: 'No Issues - Mark as N/A', inspections: 'No Inspections - Mark as N/A', visitors: 'No Visitors - Mark as N/A', photos: 'No Photos - Mark as N/A' };
+                btn.innerHTML = `<i class="fas fa-ban mr-2"></i>${labels[section] || 'Mark as N/A'}`;
+                btn.className = 'w-full p-3 bg-slate-100 border border-slate-300 text-slate-600 hover:bg-slate-200 transition-colors text-sm font-medium uppercase';
+                btn.onclick = () => markNA(section);
+            }
+            // Show photo upload if photos section is cleared
+            if (section === 'photos') {
+                const uploadLabel = document.getElementById('photos-upload-label');
+                if (uploadLabel) uploadLabel.classList.remove('hidden');
+            }
+            saveReport();
+            updateAllPreviews();
+            showToast('N/A cleared');
+        }
+
+        function updateNAButtons() {
+            const naMarked = report.meta.naMarked || {};
+            Object.keys(naMarked).forEach(section => {
+                if (naMarked[section]) {
+                    const btn = document.getElementById(`${section}-na-btn`);
+                    if (btn) {
+                        btn.innerHTML = '<i class="fas fa-check mr-2"></i>Marked as N/A';
+                        btn.className = 'w-full p-3 bg-safety-green/20 border-2 border-safety-green text-safety-green text-sm font-medium uppercase cursor-default';
+                        btn.onclick = () => clearNA(section);
+                    }
+                    // Hide photo upload if photos is marked N/A
+                    if (section === 'photos') {
+                        const uploadLabel = document.getElementById('photos-upload-label');
+                        if (uploadLabel) uploadLabel.classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        // ============ UTILITIES ============
+        function showToast(message, type = 'success') {
+            const existing = document.querySelector('.toast-msg');
+            if (existing) existing.remove();
+            const colors = { success: 'bg-safety-green', warning: 'bg-dot-orange', error: 'bg-red-600', info: 'bg-dot-blue' };
+            const toast = document.createElement('div');
+            toast.className = `toast-msg fixed bottom-24 left-1/2 -translate-x-1/2 ${colors[type] || colors.success} text-white px-6 py-3 font-bold text-sm shadow-lg z-50 flex items-center gap-2 uppercase`;
+            toast.innerHTML = `<i class="fas fa-check"></i>${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function dismissWarningBanner() { document.getElementById('permissionsWarningBanner').classList.add('hidden'); }
+
+        function checkAndShowWarningBanner() {
+            const micGranted = localStorage.getItem('fvp_mic_granted') === 'true';
+            const locGranted = localStorage.getItem('fvp_loc_granted') === 'true';
+            if (isMobile && (!micGranted || !locGranted)) {
+                document.getElementById('permissionsWarningBanner').classList.remove('hidden');
+            }
+        }
+
+        // ============ PERMISSIONS ============
+        async function requestMicrophonePermission() {
+            const btn = document.getElementById('micPermissionBtn');
+            const status = document.getElementById('micPermissionStatus');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            status.textContent = 'Testing...';
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                stream.getTracks().forEach(track => track.stop());
+                localStorage.setItem('fvp_mic_granted', 'true');
+                updatePermissionUI('mic', 'granted');
+                showToast('Microphone enabled!', 'success');
+            } catch (err) {
+                console.error('Microphone permission error:', err);
+                updatePermissionUI('mic', 'denied');
+                status.textContent = 'Blocked - check settings';
+            }
+        }
+
+        async function requestLocationPermission() {
+            const btn = document.getElementById('locPermissionBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            try {
+                await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+                });
+                localStorage.setItem('fvp_loc_granted', 'true');
+                updatePermissionUI('loc', 'granted');
+                showToast('Location enabled!');
+                fetchWeather();
+            } catch (err) {
+                console.error('Location permission error:', err);
+                if (err.code === 1) { updatePermissionUI('loc', 'denied'); }
+            }
+        }
+
+        function updatePermissionUI(type, state) {
+            const btn = document.getElementById(`${type}PermissionBtn`);
+            const status = document.getElementById(`${type}PermissionStatus`);
+            const row = document.getElementById(`${type}PermissionRow`);
+            if (state === 'granted') {
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                btn.className = 'px-4 py-2 bg-safety-green text-white text-xs font-bold cursor-default';
+                btn.disabled = true;
+                status.textContent = type === 'mic' ? 'Verified Working' : 'Enabled';
+                status.className = 'text-xs text-safety-green';
+                row.className = 'bg-safety-green/10 border-2 border-safety-green p-4';
+            } else if (state === 'denied') {
+                btn.textContent = 'Denied';
+                btn.className = 'px-4 py-2 bg-red-500/50 text-white text-xs font-bold';
+                btn.disabled = true;
+                status.textContent = 'Blocked - check settings';
+                status.className = 'text-xs text-red-500';
+                row.className = 'bg-red-50 border-2 border-red-500 p-4';
+            }
+        }
+
+        function closePermissionsModal() {
+            document.getElementById('permissionsModal').classList.add('hidden');
+            localStorage.setItem('permissions_dismissed', 'true');
+        }
+
+        function finishReport() {
+            report.overview.endTime = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            report.meta.interviewCompleted = true;
+            if (report.overview.startTime) {
+                const start = new Date(`2000/01/01 ${report.overview.startTime}`);
+                const end = new Date(`2000/01/01 ${report.overview.endTime}`);
+                const diffMs = end - start;
+                const hours = Math.floor(diffMs / (1000 * 60 * 60));
+                const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                report.overview.shiftDuration = `${hours}.${String(mins).padStart(2, '0')} hours`;
+            }
+            if (report.safety.notes.length === 0) { report.safety.notes.push('No safety incidents reported.'); }
+            saveReport();
+            window.location.href = 'review.html';
+        }
+
+        // ============ EVENT LISTENERS ============
+        document.getElementById('site-conditions-input').addEventListener('change', (e) => {
+            report.overview.weather.jobSiteCondition = e.target.value;
+            saveReport();
+        });
+
+        document.getElementById('no-incidents').addEventListener('change', (e) => {
+            if (e.target.checked) { report.safety.hasIncidents = false; report.safety.noIncidents = true; document.getElementById('has-incidents').checked = false; }
+            else { report.safety.noIncidents = false; }
+            saveReport();
+            updateAllPreviews();
+        });
+
+        document.getElementById('has-incidents').addEventListener('change', (e) => {
+            report.safety.hasIncidents = e.target.checked;
+            if (e.target.checked) { report.safety.noIncidents = false; document.getElementById('no-incidents').checked = false; }
+            saveReport();
+            updateAllPreviews();
+        });
+
+        document.getElementById('photoInput').addEventListener('change', handlePhotoInput);
+
+        // ============ INIT ============
+        document.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+            report = getReport();
+            checkAndShowWarningBanner();
+            if (report.overview.weather.generalCondition === 'Syncing...' || report.overview.weather.generalCondition === '--') {
+                await fetchWeather();
+            }
+            renderAllSections();
+            updateAllPreviews();
+            updateProgress();
+            updateNAButtons();
+            document.getElementById('no-incidents').checked = report.safety.noIncidents || false;
+            document.getElementById('has-incidents').checked = report.safety.hasIncidents || false;
+        });
+    </script>
+</body>
+</html>

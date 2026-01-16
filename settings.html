@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Project Configuration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'dot-navy': '#0a1628',
+                        'dot-blue': '#1e3a5f',
+                        'dot-slate': '#334155',
+                        'dot-orange': '#ea580c',
+                        'dot-yellow': '#f59e0b',
+                        'safety-green': '#16a34a',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+        .header-stripe { background: repeating-linear-gradient(-45deg, #f59e0b, #f59e0b 10px, #0a1628 10px, #0a1628 20px); height: 4px; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen">
+    <div class="header-stripe"></div>
+
+    <div class="max-w-lg mx-auto min-h-screen flex flex-col">
+
+        <!-- HEADER -->
+        <header class="bg-dot-navy text-white p-4">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="w-10 h-10 flex items-center justify-center border border-slate-600 hover:bg-slate-800 transition-colors">
+                    <i class="fas fa-arrow-left text-slate-400"></i>
+                </a>
+                <div>
+                    <p class="text-[10px] font-bold text-dot-yellow uppercase tracking-widest">System Configuration</p>
+                    <h1 class="text-xl font-bold">Project Settings</h1>
+                </div>
+            </div>
+        </header>
+
+        <!-- FORM -->
+        <main class="flex-1 p-4 space-y-4">
+
+            <!-- Project Information -->
+            <section class="bg-white border-2 border-slate-200">
+                <div class="bg-dot-navy text-white p-4">
+                    <h2 class="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-building text-dot-yellow"></i>
+                        Project Information
+                    </h2>
+                </div>
+                <div class="p-4 space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-dot-blue uppercase tracking-wider">Project Name</label>
+                        <input type="text" id="projectName" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="Enter project name">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-dot-blue uppercase tracking-wider">NOAB Project No.</label>
+                        <input type="text" id="noabProjectNo" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="e.g. 1291">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-dot-blue uppercase tracking-wider">Location</label>
+                        <input type="text" id="location" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="e.g. MSY Airport">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contract Details -->
+            <section class="bg-white border-2 border-slate-200">
+                <div class="bg-dot-blue text-white p-4">
+                    <h2 class="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-file-contract"></i>
+                        Contract Details
+                    </h2>
+                </div>
+                <div class="p-4 space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-dot-blue uppercase tracking-wider">Notice to Proceed Date</label>
+                        <input type="date" id="ntpDate" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-dot-blue uppercase tracking-wider">Contract Duration (Days)</label>
+                        <input type="number" id="contractDuration" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="e.g. 467">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-dot-blue uppercase tracking-wider">Contractor</label>
+                        <input type="text" id="contractor" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="e.g. HGBM">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-dot-blue uppercase tracking-wider">Engineer</label>
+                        <input type="text" id="engineer" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="e.g. Garver, LLC">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Inspector Details -->
+            <section class="bg-white border-2 border-slate-200">
+                <div class="bg-safety-green text-white p-4">
+                    <h2 class="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-user-shield"></i>
+                        Inspector Information
+                    </h2>
+                </div>
+                <div class="p-4 space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-dot-blue uppercase tracking-wider">Inspector Name</label>
+                        <input type="text" id="inspectorName" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue" placeholder="e.g. John Smith, RPR">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-dot-blue uppercase tracking-wider">Default Start Time</label>
+                        <input type="time" id="defaultStartTime" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-dot-blue uppercase tracking-wider">Default End Time</label>
+                        <input type="time" id="defaultEndTime" class="w-full mt-2 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-dot-blue">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data Management -->
+            <section class="bg-white border-2 border-slate-200">
+                <div class="bg-dot-orange text-white p-4">
+                    <h2 class="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-database"></i>
+                        Data Management
+                    </h2>
+                </div>
+                <div class="p-4 space-y-3">
+                    <button onclick="exportAllData()" class="w-full p-4 bg-dot-blue text-white font-bold uppercase hover:bg-blue-800 transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-download"></i>
+                        Export All Reports
+                    </button>
+                    <button onclick="confirmClearData()" class="w-full p-4 bg-red-600 text-white font-bold uppercase hover:bg-red-700 transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-trash-alt"></i>
+                        Clear All Data
+                    </button>
+                    <p class="text-xs text-slate-500 text-center">Warning: Clearing data cannot be undone</p>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- SAVE BUTTON -->
+        <div class="p-4 bg-white border-t border-slate-200">
+            <button onclick="saveSettings()" class="w-full p-4 bg-safety-green hover:bg-green-700 text-white font-bold uppercase transition-colors flex items-center justify-center gap-2">
+                <i class="fas fa-save"></i>
+                Save Configuration
+            </button>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="bg-dot-navy text-center py-3">
+            <p class="text-[10px] text-slate-500 uppercase tracking-widest">
+                <i class="fas fa-shield-alt mr-1"></i>
+                DOT Compliant Field Documentation System
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        const SETTINGS_KEY = 'fvp_settings';
+
+        function loadSettings() {
+            const saved = localStorage.getItem(SETTINGS_KEY);
+            if (saved) {
+                try {
+                    const settings = JSON.parse(saved);
+                    document.getElementById('projectName').value = settings.projectName || '';
+                    document.getElementById('noabProjectNo').value = settings.noabProjectNo || '';
+                    document.getElementById('location').value = settings.location || '';
+                    document.getElementById('ntpDate').value = settings.ntpDate || '';
+                    document.getElementById('contractDuration').value = settings.contractDuration || '';
+                    document.getElementById('contractor').value = settings.contractor || '';
+                    document.getElementById('engineer').value = settings.engineer || '';
+                    document.getElementById('inspectorName').value = settings.inspectorName || '';
+                    document.getElementById('defaultStartTime').value = settings.defaultStartTime || '06:00';
+                    document.getElementById('defaultEndTime').value = settings.defaultEndTime || '16:00';
+                } catch (e) {}
+            } else {
+                document.getElementById('projectName').value = 'North-South Connector Road Phase 2';
+                document.getElementById('noabProjectNo').value = '1291';
+                document.getElementById('location').value = 'Louis Armstrong New Orleans Int\'l Airport';
+                document.getElementById('ntpDate').value = '2025-06-27';
+                document.getElementById('contractDuration').value = '467';
+                document.getElementById('contractor').value = 'Hunt, Gibbs, Boh, & Metro (HGBM)';
+                document.getElementById('engineer').value = 'Garver, LLC';
+                document.getElementById('inspectorName').value = 'Inspector Name, RPR';
+                document.getElementById('defaultStartTime').value = '06:00';
+                document.getElementById('defaultEndTime').value = '16:00';
+            }
+        }
+
+        function saveSettings() {
+            const settings = {
+                projectName: document.getElementById('projectName').value,
+                noabProjectNo: document.getElementById('noabProjectNo').value,
+                location: document.getElementById('location').value,
+                ntpDate: document.getElementById('ntpDate').value,
+                contractDuration: document.getElementById('contractDuration').value,
+                contractor: document.getElementById('contractor').value,
+                engineer: document.getElementById('engineer').value,
+                inspectorName: document.getElementById('inspectorName').value,
+                defaultStartTime: document.getElementById('defaultStartTime').value,
+                defaultEndTime: document.getElementById('defaultEndTime').value
+            };
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+            showToast('Configuration saved successfully');
+        }
+
+        function exportAllData() {
+            const allData = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('fieldvoice_') || key.startsWith('fvp_')) {
+                    try { allData[key] = JSON.parse(localStorage.getItem(key)); }
+                    catch (e) { allData[key] = localStorage.getItem(key); }
+                }
+            }
+            const dataStr = JSON.stringify(allData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `RPR_Data_Export_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Data exported successfully');
+        }
+
+        function confirmClearData() {
+            if (confirm('Are you sure you want to clear ALL data? This cannot be undone.')) {
+                if (confirm('This will delete all reports and settings. Are you absolutely sure?')) {
+                    for (let i = localStorage.length - 1; i >= 0; i--) {
+                        const key = localStorage.key(i);
+                        if (key.startsWith('fieldvoice_') || key.startsWith('fvp_')) {
+                            localStorage.removeItem(key);
+                        }
+                    }
+                    showToast('All data cleared', 'warning');
+                    setTimeout(() => window.location.href = 'index.html', 1500);
+                }
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const existing = document.querySelector('.toast-msg');
+            if (existing) existing.remove();
+            const colors = { success: 'bg-safety-green', warning: 'bg-dot-orange', error: 'bg-red-600' };
+            const toast = document.createElement('div');
+            toast.className = `toast-msg fixed bottom-24 left-1/2 -translate-x-1/2 ${colors[type] || colors.success} text-white px-6 py-3 font-bold text-sm shadow-lg z-50 flex items-center gap-2 uppercase`;
+            toast.innerHTML = `<i class="fas fa-check"></i>${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadSettings);
+    </script>
+</body>
+</html>
