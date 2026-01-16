@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Quick Report - Field Documentation</title>
+    <title>Daily Report - Field Documentation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -57,7 +57,7 @@
                     <i class="fas fa-arrow-left text-slate-400"></i>
                 </a>
                 <div class="text-center flex-1 mx-4">
-                    <p class="text-[10px] font-bold text-safety-green uppercase tracking-widest">Quick Report</p>
+                    <p class="text-[10px] font-bold text-safety-green uppercase tracking-widest">Daily Report</p>
                     <p id="currentDate" class="text-sm text-slate-400"></p>
                 </div>
                 <button onclick="finishReport()" class="px-4 py-2 bg-safety-green hover:bg-green-700 text-white text-sm font-bold uppercase transition-colors">
@@ -406,7 +406,7 @@
 
         function createFreshReport() {
             return {
-                meta: { createdAt: new Date().toISOString(), interviewCompleted: false, reportType: 'quick', version: 2, naMarked: {} },
+                meta: { createdAt: new Date().toISOString(), interviewCompleted: false, version: 2, naMarked: {} },
                 overview: {
                     projectName: "North-South Connector Road Phase 2",
                     date: new Date().toLocaleDateString(),
