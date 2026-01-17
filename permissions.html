@@ -961,7 +961,10 @@
 
             // Show iOS warning on speech pre-screen if on iOS
             if (isIOS) {
-                document.getElementById('ios-speech-warning').classList.remove('hidden');
+                const iosWarning = document.getElementById('ios-speech-warning');
+                if (iosWarning) {
+                    iosWarning.classList.remove('hidden');
+                }
             }
 
             showScreen('mic');
