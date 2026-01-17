@@ -50,13 +50,14 @@
 ## Project Structure
 
 ```
-/V3/
+/
 ├── index.html              # Home dashboard / main entry point
 ├── quick-interview.html    # Daily report flow (streamlined field entry)
-├── review.html             # AI-powered review & text refinement
+├── review.html             # AI-powered review & text refinement via n8n webhook
 ├── report.html             # Print-ready PDF report viewer/generator
 ├── editor.html             # Photo editor & section-specific editing
-├── permissions.html        # System setup, permission testing, API key config
+├── permissions.html        # System setup, permission testing (mic, camera, GPS)
+├── permission-debug.html   # Permission debugging and troubleshooting utility
 ├── settings.html           # Project configuration & data management
 ├── landing.html            # Marketing/onboarding landing page
 └── README.md               # This documentation file
@@ -66,14 +67,14 @@
 
 | Page | Lines | Purpose |
 |------|-------|---------|
-| `index.html` | ~740 | Main dashboard showing project info, weather, report status, and navigation |
-| `quick-interview.html` | ~1,460 | Streamlined report with 7 sections: Weather, Work Summary, Issues, Inspections, Safety, Visitors, Photos |
-| `interview.html` | ~1,196 | Full report with additional sections: Contractors, Personnel Headcounts, Equipment |
-| `review.html` | ~858 | Side-by-side original vs. AI-refined text comparison with manual editing |
-| `report.html` | ~595 | 4-page professional PDF-ready report with print styles |
-| `editor.html` | ~847 | Photo capture with GPS embedding, section-specific editing interface |
-| `permissions.html` | ~1,119 | Permission testing (mic, camera, GPS), Groq API key setup, iOS-specific instructions |
-| `settings.html` | ~268 | Project settings, inspector name, data export/clear functions |
+| `index.html` | ~601 | Main dashboard showing project info, weather, report status, and navigation |
+| `quick-interview.html` | ~1,253 | Streamlined report with 7 sections: Weather, Work Summary, Issues, Inspections, Safety, Visitors, Photos |
+| `review.html` | ~1,190 | Side-by-side original vs. AI-refined text comparison with manual editing, n8n webhook integration |
+| `report.html` | ~769 | Professional PDF-ready report with print styles and submit functionality |
+| `editor.html` | ~579 | Photo capture with GPS embedding, section-specific editing interface |
+| `permissions.html` | ~1,494 | Permission testing (mic, camera, GPS), iOS-specific instructions for native dictation |
+| `permission-debug.html` | ~978 | Debugging utility for troubleshooting permission issues |
+| `settings.html` | ~261 | Project settings, inspector name, data export/clear functions |
 | `landing.html` | ~1,467 | Marketing page with feature overview and onboarding |
 
 ---
@@ -243,15 +244,13 @@
      │
      └─► User clicks "Begin Daily Report"
           │
-          └─► [Report Type Modal]
-               ├─► "Quick Report" ─► [quick-interview.html]
-               └─► "Full Report" ─► [interview.html]
+          └─► [quick-interview.html]
 ```
 
 ### 2. Interview/Documentation Flow
 
 ```
-[quick-interview.html] or [interview.html]
+[quick-interview.html]
      │
      ├─► Expandable section cards for each field:
      │    ├─► Weather & Site Conditions
@@ -260,12 +259,10 @@
      │    ├─► QA/QC Inspections
      │    ├─► Safety
      │    ├─► Visitors & Communications
-     │    ├─► Progress Photos
-     │    └─► (Full only) Contractors, Headcounts, Equipment
+     │    └─► Progress Photos
      │
      ├─► Each section supports:
-     │    ├─► Text input (manual typing)
-     │    ├─► Voice recording (microphone button)
+     │    ├─► Text input (manual typing or keyboard dictation)
      │    ├─► Mark as N/A (skip section)
      │    └─► Real-time preview updates
      │
@@ -274,29 +271,22 @@
      └─► User clicks "Finish" ─► [review.html]
 ```
 
-### 3. Voice Recording Flow
+### 3. Voice Input Flow
 
 ```
-User taps microphone button
+User enters text in any input field
      │
-     ├─► Device Detection
-     │    ├─► iOS Safari? ─► Use Groq Whisper API
-     │    ├─► Other browser ─► Use Web Speech Recognition API
-     │    └─► SpeechRecognition failed before? ─► Fall back to Whisper
+     ├─► Native Keyboard Dictation (Primary Method):
+     │    ├─► User taps microphone button on device keyboard
+     │    ├─► iOS: Uses Siri dictation (Settings → Keyboard → Enable Dictation)
+     │    ├─► Android: Uses Google Voice Typing
+     │    ├─► Desktop: Uses OS-level dictation if available
+     │    └─► Transcribed text appears directly in input field
      │
-     ├─► Whisper API Path (iOS/fallback):
-     │    ├─► Check for API key (prompt setup if missing)
-     │    ├─► Start MediaRecorder (audio/webm or audio/mp4)
-     │    ├─► Show recording indicator ("Recording audio...")
-     │    ├─► User stops recording
-     │    ├─► Upload audio blob to Groq Whisper API
-     │    └─► Receive transcription, apply to section
-     │
-     └─► Web Speech Recognition Path (Chrome, Firefox, Edge):
-          ├─► Start recognition (continuous mode)
-          ├─► Show live transcription
-          ├─► User stops recording
-          └─► Apply final transcript to section
+     └─► Requirements:
+          ├─► Microphone permission granted to browser
+          ├─► Device dictation feature enabled in OS settings
+          └─► Internet connection (for cloud-based transcription)
 ```
 
 ### 4. AI Refinement Flow (review.html)
@@ -311,13 +301,12 @@ User taps microphone button
      │    ├─► Click individual "Refine" ─► Process single section
      │    └─► Manually edit either column
      │
-     ├─► Refinement Process:
-     │    ├─► Check for Groq API key
-     │    ├─► Send original text + section-specific prompt
-     │    ├─► Groq LLM returns professional version
+     ├─► Refinement Process (via n8n webhook):
+     │    ├─► Send original text + section name + report context
+     │    ├─► n8n workflow processes and returns refined text
      │    └─► Display with typing animation
      │
-     ├─► AI Refinement Rules (enforced via prompt):
+     ├─► AI Refinement Rules (enforced by n8n workflow):
      │    ├─► Never invent or add information
      │    ├─► Keep all facts, quantities, names exactly as stated
      │    ├─► Convert informal language to professional tone
@@ -412,13 +401,33 @@ tailwind.config = {
 }
 ```
 
-### Groq API Configuration
+### n8n Webhook Configuration
 
-Users must obtain their own API key from [console.groq.com](https://console.groq.com) and enter it on the Permissions page.
+The application uses n8n webhooks for AI text refinement and report submission. Configure webhook URLs in the code:
 
-**Models Used:**
-- **Whisper**: `whisper-large-v3-turbo` (speech-to-text)
-- **LLM**: Default Groq model for text refinement
+**Webhook Endpoints (in `review.html` and `report.html`):**
+- **N8N_REFINE_WEBHOOK**: Endpoint for AI text refinement requests
+- **N8N_SUBMIT_WEBHOOK**: Endpoint for submitting completed reports
+
+**Webhook Request Format (Refine):**
+```javascript
+{
+    section: "weather|activities|issues|inspections|safety|visitors|additionalNotes",
+    originalText: "User's original text",
+    reportContext: {
+        projectName: "Project Name",
+        reporterName: "Inspector Name",
+        date: "1/14/2025"
+    }
+}
+```
+
+**Expected Response:**
+```javascript
+{
+    refinedText: "Professionally refined text"
+}
+```
 
 ---
 
@@ -428,19 +437,23 @@ Users must obtain their own API key from [console.groq.com](https://console.groq
 
 | Permission | Purpose | How to Test |
 |------------|---------|-------------|
-| **Microphone** | Voice recording for transcription | `permissions.html` → Enable Microphone → Start Test |
+| **Microphone** | Native keyboard dictation support | `permissions.html` → Enable Microphone → Start Test |
 | **Camera** | Photo documentation | `editor.html` or inline photo capture |
 | **Geolocation** | GPS for weather & photo timestamps | Auto-requested on first weather sync |
 
-### iOS Safari Special Requirements
+### iOS Dictation Requirements
 
-iOS Safari uses Apple's Siri servers for Web Speech Recognition, requiring:
+iOS uses Siri for keyboard dictation. To enable:
 
-1. **Siri Enabled**: Settings → Siri & Search → Enable "Hey Siri" or "Press Side Button"
-2. **Dictation Enabled**: Settings → General → Keyboard → Enable Dictation
-3. **Privacy Settings**: Settings → Privacy & Security → Speech Recognition → Safari enabled
+1. **Dictation Enabled**: Settings → General → Keyboard → Enable Dictation
+2. **Microphone Permission**: Allow Safari to access microphone when prompted
 
-If these fail, the app falls back to **Groq Whisper API** (requires API key).
+### Android Dictation Requirements
+
+Android uses Google Voice Typing. Ensure:
+
+1. **Google Voice Typing**: Enabled in keyboard settings
+2. **Microphone Permission**: Allow browser to access microphone when prompted
 
 ---
 
@@ -466,13 +479,12 @@ If these fail, the app falls back to **Groq Whisper API** (requires API key).
 
 ## Error Handling
 
-### Speech Recognition Errors
-| Error Code | Meaning | Recovery |
-|------------|---------|----------|
-| `not-allowed` | Permission denied | Prompt user to enable in system settings |
-| `service-not-allowed` | iOS Siri/Dictation disabled | Show iOS help panel, offer Whisper fallback |
-| `network` | Connectivity issue | Retry or fallback to Whisper |
-| `aborted` | User cancelled | No action needed |
+### Dictation/Speech Errors
+| Error | Meaning | Recovery |
+|-------|---------|----------|
+| Microphone permission denied | User blocked mic access | Prompt user to enable in browser/system settings |
+| Dictation not available | OS dictation feature disabled | Guide user to enable dictation in device settings |
+| Network error | Connectivity issue for cloud transcription | Check internet connection |
 
 ### Photo Errors
 | Error | Recovery |
@@ -482,13 +494,14 @@ If these fail, the app falls back to **Groq Whisper API** (requires API key).
 | Storage quota exceeded | Remove oldest photo, try higher compression |
 | Invalid file type | Reject with error message |
 
-### API Errors
+### Webhook Errors
 | Scenario | Recovery |
 |----------|----------|
-| No API key | Prompt user to enter on Permissions page |
-| Invalid API key | Show error, prompt re-entry |
-| Rate limited | Show error, suggest waiting |
-| Network failure | Retry with exponential backoff |
+| Webhook URL not configured | Configure N8N_REFINE_WEBHOOK and N8N_SUBMIT_WEBHOOK in code |
+| Server error (5xx) | Check n8n workflow status, retry |
+| Request timeout (30s) | Check network connection, retry |
+| Invalid response | Verify n8n workflow returns expected JSON format |
+| Network failure | Check internet connection, retry |
 
 ---
 
@@ -499,7 +512,7 @@ If these fail, the app falls back to **Groq Whisper API** (requires API key).
 | **Chrome (Desktop/Android)** | Full | Best experience, all features work |
 | **Firefox** | Full | All features work |
 | **Safari (Desktop)** | Full | All features work |
-| **Safari (iOS)** | Partial | Requires Siri/Dictation OR Groq API key for voice |
+| **Safari (iOS)** | Full | Requires dictation enabled in iOS settings for voice input |
 | **Edge** | Full | All features work |
 
 ### Requirements
@@ -531,7 +544,7 @@ npx serve .
 3. Modify report template headers in `report.html`
 
 ### Adding New Report Sections
-1. Add section HTML to `quick-interview.html` and/or `interview.html`
+1. Add section HTML to `quick-interview.html`
 2. Add corresponding data field to report object structure
 3. Update `renderSection()` function for display
 4. Add refinement support in `review.html`
@@ -543,30 +556,31 @@ npx serve .
 
 | File | Lines | Size (approx) |
 |------|-------|---------------|
-| index.html | 740 | 28 KB |
-| quick-interview.html | 1,460 | 58 KB |
-| interview.html | 1,196 | 48 KB |
-| review.html | 858 | 34 KB |
-| report.html | 595 | 24 KB |
-| editor.html | 847 | 34 KB |
-| permissions.html | 1,119 | 45 KB |
-| settings.html | 268 | 11 KB |
+| index.html | 601 | 24 KB |
+| quick-interview.html | 1,253 | 50 KB |
+| review.html | 1,190 | 48 KB |
+| report.html | 769 | 31 KB |
+| editor.html | 579 | 23 KB |
+| permissions.html | 1,494 | 60 KB |
+| permission-debug.html | 978 | 39 KB |
+| settings.html | 261 | 10 KB |
 | landing.html | 1,467 | 59 KB |
-| **Total** | **~8,550** | **~341 KB** |
+| **Total** | **~8,592** | **~344 KB** |
 
 ---
 
 ## Security Considerations
 
 ### Data Privacy
-- All report data stored locally in browser (never sent to external servers except Groq APIs)
+- All report data stored locally in browser
+- Data only sent to configured n8n webhook endpoints for AI refinement and report submission
 - Photos stored as base64 in localStorage (never uploaded unless explicitly shared)
 - GPS coordinates embedded in photos for audit purposes
 
-### API Key Storage
-- Groq API key stored in localStorage (accessible to browser only)
-- Key never transmitted except to Groq's official API endpoints
-- Users responsible for their own API key security
+### Webhook Security
+- Webhook URLs should be configured with appropriate authentication in the n8n workflow
+- Data transmitted includes report text content for AI refinement
+- Consider using HTTPS endpoints and API key authentication in production
 
 ### HTTPS Requirement
 - Camera, microphone, and geolocation APIs require secure context (HTTPS)
@@ -600,11 +614,11 @@ Extend the `weatherCodes` object in `index.html` (lines 418-433) with additional
 ## Summary
 
 FieldVoice Pro is a sophisticated, production-ready field documentation system that:
-- Operates entirely client-side with no backend dependencies
-- Supports voice-first data entry with AI enhancement
+- Operates primarily client-side with optional n8n webhook integration for AI features
+- Supports voice-first data entry via native keyboard dictation with AI enhancement
 - Generates professional, DOT-compliant PDF reports
-- Works offline (except for weather sync and AI features)
-- Handles iOS Safari limitations gracefully with Groq API fallbacks
+- Works offline (except for weather sync and AI refinement features)
+- Uses n8n webhooks for AI text refinement and report submission
 - Manages browser storage efficiently with automatic compression
 
-The codebase is mature (~8,550 lines), well-structured, and includes comprehensive error handling for real-world field conditions.
+The codebase is mature (~8,592 lines), well-structured, and includes comprehensive error handling for real-world field conditions.
