@@ -1248,6 +1248,14 @@
         document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
             report = getReport();
+
+            // If user came back to edit a "completed" report (from review.html), mark it as in-progress again
+            // This ensures the dashboard shows "In Progress" instead of "Ready for Review" while editing
+            if (report.meta?.interviewCompleted && !report.meta?.submitted) {
+                report.meta.interviewCompleted = false;
+                saveReport();
+            }
+
             checkAndShowWarningBanner();
             checkDictationHintBanner();
             if (report.overview.weather.generalCondition === 'Syncing...' || report.overview.weather.generalCondition === '--') {
