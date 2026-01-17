@@ -4,6 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>System Setup - FieldVoice Pro</title>
+
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0a1628">
+
+    <!-- iOS PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FieldVoice">
+
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/icons/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="96x96" href="/icons/icon-96x96.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="/icons/icon-128x128.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -1489,6 +1508,64 @@
         }
 
         document.addEventListener('DOMContentLoaded', init);
+    </script>
+
+    <!-- PWA Service Worker Registration & Offline Banner -->
+    <div id="offline-banner" class="fixed top-0 left-0 right-0 bg-yellow-500 text-yellow-900 text-center py-2 px-4 font-bold text-sm z-[9999] transform -translate-y-full transition-transform duration-300" style="display: none;">
+        <i class="fas fa-wifi-slash mr-2"></i>You are offline - Some features may be unavailable
+    </div>
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('[PWA] Service Worker registered:', registration.scope);
+
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('[PWA] New version available');
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('[PWA] Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // Offline/Online Event Handlers
+        const offlineBanner = document.getElementById('offline-banner');
+
+        function showOfflineBanner() {
+            if (offlineBanner) {
+                offlineBanner.style.display = 'block';
+                setTimeout(() => {
+                    offlineBanner.style.transform = 'translateY(0)';
+                }, 10);
+            }
+        }
+
+        function hideOfflineBanner() {
+            if (offlineBanner) {
+                offlineBanner.style.transform = 'translateY(-100%)';
+                setTimeout(() => {
+                    offlineBanner.style.display = 'none';
+                }, 300);
+            }
+        }
+
+        window.addEventListener('online', hideOfflineBanner);
+        window.addEventListener('offline', showOfflineBanner);
+
+        // Check initial state
+        if (!navigator.onLine) {
+            showOfflineBanner();
+        }
     </script>
 </body>
 </html>
