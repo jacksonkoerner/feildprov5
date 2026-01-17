@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Permission Debug - FieldVoice Pro</title>
 
     <!-- PWA Meta Tags -->
@@ -41,7 +41,14 @@
         }
     </script>
     <style>
-        body { font-family: 'SF Mono', Monaco, 'Courier New', monospace; font-size: 12px; }
+        body {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 12px;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
         .log-entry { padding: 4px 8px; border-left: 3px solid transparent; margin: 2px 0; }
         .log-info { border-left-color: #3b82f6; background: #eff6ff; }
         .log-success { border-left-color: #16a34a; background: #f0fdf4; }
