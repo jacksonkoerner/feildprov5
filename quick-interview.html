@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Daily Report - Field Documentation</title>
 
     <!-- PWA Meta Tags -->
@@ -42,8 +42,18 @@
         }
     </script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
-        .header-stripe { background: repeating-linear-gradient(-45deg, #f59e0b, #f59e0b 10px, #0a1628 10px, #0a1628 20px); height: 4px; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+        .header-stripe {
+            background: repeating-linear-gradient(-45deg, #f59e0b, #f59e0b 10px, #0a1628 10px, #0a1628 20px);
+            height: 4px;
+            padding-top: env(safe-area-inset-top);
+        }
         .section-card { transition: all 0.3s ease; }
         .section-card.expanded { border-color: #1e3a5f; box-shadow: 0 0 0 2px rgba(30, 58, 95, 0.2); }
         .section-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
@@ -67,6 +77,18 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
+        </div>
+
+        <!-- Dictation Hint Banner -->
+        <div id="dictationHintBanner" class="bg-dot-blue/10 border-b border-dot-blue/20 px-4 py-3 flex items-center gap-3">
+            <i class="fas fa-microphone text-dot-blue"></i>
+            <p class="flex-1 text-sm text-slate-600">
+                <span class="font-medium">Pro tip:</span> Tap any text field and use the
+                <i class="fas fa-microphone text-xs"></i> on your keyboard to dictate
+            </p>
+            <button onclick="dismissDictationHint()" class="text-slate-400 hover:text-slate-600">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
 
         <!-- HEADER -->
@@ -174,11 +196,8 @@
                         </div>
                         <div>
                             <label class="text-xs font-bold text-slate-500 uppercase">Site Conditions</label>
-                            <div class="mt-2 flex items-center gap-2">
-                                <textarea id="site-conditions-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Describe site conditions..."></textarea>
-                                <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
-                                    <i class="fas fa-microphone"></i>
-                                </button>
+                            <div class="mt-2">
+                                <textarea id="site-conditions-input" class="w-full bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Describe site conditions..."></textarea>
                             </div>
                         </div>
                     </div>
@@ -205,7 +224,6 @@
                         <div class="flex items-center gap-2">
                             <textarea id="activity-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Describe work performed..."></textarea>
                             <button onclick="addActivity()" class="px-4 py-3 bg-safety-green hover:bg-green-700 text-white font-bold transition-colors"><i class="fas fa-plus"></i></button>
-                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
                         </div>
                     </div>
                 </div>
@@ -234,7 +252,6 @@
                         <div class="flex items-center gap-2">
                             <textarea id="issue-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Describe any issues or delays..."></textarea>
                             <button onclick="addIssue()" class="px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold transition-colors"><i class="fas fa-plus"></i></button>
-                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
                         </div>
                     </div>
                 </div>
@@ -263,7 +280,6 @@
                         <div class="flex items-center gap-2">
                             <textarea id="inspection-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Describe inspections or testing..."></textarea>
                             <button onclick="addInspection()" class="px-4 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold transition-colors"><i class="fas fa-plus"></i></button>
-                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
                         </div>
                     </div>
                 </div>
@@ -299,7 +315,6 @@
                         <div class="flex items-center gap-2">
                             <textarea id="safety-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Safety notes, toolbox talks..."></textarea>
                             <button onclick="addSafetyNote()" class="px-4 py-3 bg-safety-green hover:bg-green-700 text-white font-bold transition-colors"><i class="fas fa-plus"></i></button>
-                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
                         </div>
                     </div>
                 </div>
@@ -328,7 +343,6 @@
                         <div class="flex items-center gap-2">
                             <textarea id="visitor-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="2" placeholder="Visitors, calls, communications..."></textarea>
                             <button onclick="addVisitor()" class="px-4 py-3 bg-dot-blue hover:bg-blue-800 text-white font-bold transition-colors"><i class="fas fa-plus"></i></button>
-                            <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all"><i class="fas fa-microphone"></i></button>
                         </div>
                     </div>
                 </div>
@@ -384,11 +398,8 @@
                     <div class="px-4 pb-4 space-y-3 border-t border-slate-200 pt-4">
                         <div>
                             <label class="text-xs font-bold text-slate-500 uppercase">Additional Notes & Comments</label>
-                            <div class="mt-2 flex items-start gap-2">
-                                <textarea id="additional-notes-input" class="flex-1 bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="4" placeholder="Any other observations, comments, or information not covered above..."></textarea>
-                                <button onclick="showDictationHint()" class="voice-btn w-12 h-12 bg-dot-navy hover:bg-dot-blue flex items-center justify-center text-white transition-all">
-                                    <i class="fas fa-microphone"></i>
-                                </button>
+                            <div class="mt-2">
+                                <textarea id="additional-notes-input" class="w-full bg-white border-2 border-slate-300 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-dot-blue resize-none" rows="4" placeholder="Any other observations, comments, or information not covered above..."></textarea>
                             </div>
                             <p class="text-xs text-slate-400 mt-1">Optional - for anything that doesn't fit other categories</p>
                         </div>
@@ -397,33 +408,6 @@
             </div>
 
         </main>
-    </div>
-
-    <!-- Dictation Hint Modal -->
-    <div id="dictationHintModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm">
-            <div class="bg-dot-navy text-white p-4 text-center">
-                <p class="text-lg font-bold uppercase">Voice Input</p>
-                <p class="text-xs text-slate-400">Use your keyboard's dictation feature</p>
-            </div>
-            <div class="p-6 text-center">
-                <div class="w-20 h-20 bg-dot-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-keyboard text-dot-blue text-3xl"></i>
-                </div>
-                <p class="text-sm text-slate-700 mb-4">To dictate text, tap the text field and use the <strong>microphone button</strong> on your device's keyboard.</p>
-                <div class="bg-slate-50 border border-slate-200 p-3 rounded text-left">
-                    <p class="text-xs font-bold text-slate-500 uppercase mb-2">How to dictate:</p>
-                    <ol class="text-xs text-slate-600 space-y-1 list-decimal list-inside">
-                        <li>Tap any text input field</li>
-                        <li>Tap the <i class="fas fa-microphone text-dot-blue"></i> on your keyboard</li>
-                        <li>Speak your notes</li>
-                    </ol>
-                </div>
-            </div>
-            <div class="p-4 pt-0">
-                <button onclick="closeDictationHint()" class="w-full py-3 bg-dot-navy hover:bg-dot-blue text-white font-bold uppercase transition-colors">Got It</button>
-            </div>
-        </div>
     </div>
 
     <!-- Permissions Setup Modal -->
@@ -661,14 +645,19 @@
             });
         }
 
-        // ============ VOICE INPUT HINT ============
-        // Voice input now uses device's native keyboard dictation
-        function showDictationHint() {
-            document.getElementById('dictationHintModal').classList.remove('hidden');
+        // ============ DICTATION HINT BANNER ============
+        function dismissDictationHint() {
+            localStorage.setItem('fvp_dictation_hint_dismissed', 'true');
+            const banner = document.getElementById('dictationHintBanner');
+            if (banner) banner.classList.add('hidden');
         }
 
-        function closeDictationHint() {
-            document.getElementById('dictationHintModal').classList.add('hidden');
+        function checkDictationHintBanner() {
+            const dismissed = localStorage.getItem('fvp_dictation_hint_dismissed') === 'true';
+            const banner = document.getElementById('dictationHintBanner');
+            if (banner && dismissed) {
+                banner.classList.add('hidden');
+            }
         }
 
         // ============ MANUAL ADD FUNCTIONS ============
@@ -1250,6 +1239,7 @@
             document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
             report = getReport();
             checkAndShowWarningBanner();
+            checkDictationHintBanner();
             if (report.overview.weather.generalCondition === 'Syncing...' || report.overview.weather.generalCondition === '--') {
                 await fetchWeather();
             }
