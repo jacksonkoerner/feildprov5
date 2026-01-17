@@ -1510,6 +1510,23 @@
         document.addEventListener('DOMContentLoaded', init);
     </script>
 
+    <!-- PWA Navigation Fix - Prevent Safari from breaking out of standalone mode -->
+    <script>
+        (function() {
+            // Only apply fix when running as installed PWA
+            if (window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches) {
+                document.addEventListener('click', function(e) {
+                    const link = e.target.closest('a');
+                    if (link && link.href && link.href.startsWith(window.location.origin)) {
+                        // Internal link - prevent default and use location.href
+                        e.preventDefault();
+                        window.location.href = link.href;
+                    }
+                }, true);
+            }
+        })();
+    </script>
+
     <!-- PWA Service Worker Registration & Offline Banner -->
     <div id="offline-banner" class="fixed top-0 left-0 right-0 bg-yellow-500 text-yellow-900 text-center py-2 px-4 font-bold text-sm z-[9999] transform -translate-y-full transition-transform duration-300" style="display: none;">
         <i class="fas fa-wifi-slash mr-2"></i>You are offline - Some features may be unavailable
