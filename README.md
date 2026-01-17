@@ -38,6 +38,7 @@
 | Geolocation API | GPS coordinates for photos/weather |
 | Canvas API | Image compression |
 | localStorage | Client-side data persistence |
+| Service Worker API | Offline caching and PWA support |
 
 ### Architecture
 - **Type**: Static Single Page Application (SPA)
@@ -60,6 +61,18 @@
 ├── permission-debug.html   # Permission debugging and troubleshooting utility
 ├── settings.html           # Project configuration & data management
 ├── landing.html            # Marketing/onboarding landing page
+├── sw.js                   # Service worker for PWA offline support
+├── manifest.json           # PWA manifest with app metadata and icons
+├── icons/                  # PWA app icons directory
+│   ├── icon.svg            # Source SVG icon (construction/microphone themed)
+│   ├── icon-72x72.png      # App icon for various device sizes
+│   ├── icon-96x96.png
+│   ├── icon-128x128.png
+│   ├── icon-144x144.png
+│   ├── icon-152x152.png
+│   ├── icon-192x192.png
+│   ├── icon-384x384.png
+│   └── icon-512x512.png
 └── README.md               # This documentation file
 ```
 
@@ -477,6 +490,119 @@ Android uses Google Voice Typing. Ensure:
 
 ---
 
+## PWA & Offline Support
+
+FieldVoice Pro is a fully installable Progressive Web App (PWA) that works offline when saved to the home screen on mobile devices.
+
+### Installation
+
+**iOS (Safari):**
+1. Open the app in Safari
+2. Tap the Share button (box with arrow)
+3. Scroll down and tap "Add to Home Screen"
+4. Tap "Add" to confirm
+
+**Android (Chrome):**
+1. Open the app in Chrome
+2. Tap the menu (three dots)
+3. Tap "Install app" or "Add to Home Screen"
+4. Confirm installation
+
+### Offline Capabilities
+
+| Feature | Offline Support | Notes |
+|---------|-----------------|-------|
+| **App Loading** | Full | All HTML, CSS, JS cached by service worker |
+| **View Existing Reports** | Full | Reports stored in localStorage |
+| **Create/Edit Reports** | Full | All data saved locally |
+| **Photo Capture** | Full | Photos stored as base64 in localStorage |
+| **Weather Sync** | None | Requires internet (shows "Offline" status) |
+| **AI Refinement** | None | Requires internet (shows error message) |
+| **Report Submission** | None | Requires internet (shows error message) |
+| **Print/PDF Export** | Full | Uses browser print functionality |
+
+### Service Worker Details
+
+**File:** `sw.js`
+
+**Cache Strategy:**
+- **Static Assets (Cache-First):** HTML files, manifest, icons cached on install
+- **CDN Assets:** Tailwind CSS and Font Awesome cached with CORS handling
+- **API Calls (Network-First):** Weather and webhook calls attempt network first, return JSON error when offline
+
+**Cache Versioning:**
+```javascript
+const CACHE_VERSION = 'v1.0.0';
+const CACHE_NAME = `fieldvoice-pro-${CACHE_VERSION}`;
+```
+
+To force a cache update, increment the version number in `sw.js`.
+
+**Cached Files:**
+- All 9 HTML files
+- `manifest.json`
+- App icons (192x192, 512x512)
+- Tailwind CSS CDN
+- Font Awesome CSS and webfonts
+
+### Manifest Configuration
+
+**File:** `manifest.json`
+
+```json
+{
+    "name": "FieldVoice Pro",
+    "short_name": "FieldVoice",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#0a1628",
+    "theme_color": "#0a1628",
+    "start_url": "/index.html"
+}
+```
+
+### Offline UI Indicators
+
+**Yellow Banner:** A slide-down banner appears at the top of all pages when the device goes offline:
+- Message: "You are offline - Some features may be unavailable"
+- Automatically hides when connection is restored
+- Uses CSS transitions for smooth animation
+
+**Feature-Specific Messages:**
+- Weather sync: Shows "Offline" with wifi-slash icon
+- Report submission: Toast message "You are offline - Please connect to the internet to submit your report"
+- AI refinement: Toast message "You are offline - AI refinement requires internet connection"
+
+### PWA Meta Tags (All HTML Files)
+
+Each HTML file includes:
+```html
+<!-- PWA Meta Tags -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0a1628">
+
+<!-- iOS PWA Meta Tags -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FieldVoice">
+
+<!-- Apple Touch Icons -->
+<link rel="apple-touch-icon" href="/icons/icon-152x152.png">
+<link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png">
+```
+
+### App Icons
+
+Icons are located in `/icons/` with a construction/microphone themed design using the app's color palette:
+- **Navy (#0a1628):** Background
+- **Orange (#ea580c):** Microphone body
+- **Yellow (#f59e0b):** Microphone stand and accents
+- **Green (#16a34a):** Checkmark badge
+
+Available sizes: 72x72, 96x96, 128x128, 144x144, 152x152, 192x192, 384x384, 512x512
+
+---
+
 ## Error Handling
 
 ### Dictation/Speech Errors
@@ -556,16 +682,19 @@ npx serve .
 
 | File | Lines | Size (approx) |
 |------|-------|---------------|
-| index.html | 601 | 24 KB |
-| quick-interview.html | 1,253 | 50 KB |
-| review.html | 1,190 | 48 KB |
-| report.html | 769 | 31 KB |
-| editor.html | 579 | 23 KB |
-| permissions.html | 1,494 | 60 KB |
-| permission-debug.html | 978 | 39 KB |
-| settings.html | 261 | 10 KB |
-| landing.html | 1,467 | 59 KB |
-| **Total** | **~8,592** | **~344 KB** |
+| index.html | 679 | 27 KB |
+| quick-interview.html | 1,330 | 53 KB |
+| review.html | 1,267 | 51 KB |
+| report.html | 846 | 34 KB |
+| editor.html | 656 | 26 KB |
+| permissions.html | 1,571 | 63 KB |
+| permission-debug.html | 1,055 | 42 KB |
+| settings.html | 338 | 14 KB |
+| landing.html | 1,544 | 62 KB |
+| sw.js | 178 | 7 KB |
+| manifest.json | 53 | 2 KB |
+| icons/ | - | ~3 KB |
+| **Total** | **~9,600+** | **~384 KB** |
 
 ---
 
@@ -614,11 +743,13 @@ Extend the `weatherCodes` object in `index.html` (lines 418-433) with additional
 ## Summary
 
 FieldVoice Pro is a sophisticated, production-ready field documentation system that:
+- **Fully installable as a PWA** - Works offline when saved to home screen on mobile devices
 - Operates primarily client-side with optional n8n webhook integration for AI features
 - Supports voice-first data entry via native keyboard dictation with AI enhancement
 - Generates professional, DOT-compliant PDF reports
-- Works offline (except for weather sync and AI refinement features)
+- **Complete offline support** for report creation, editing, and viewing (weather sync and AI features require internet)
 - Uses n8n webhooks for AI text refinement and report submission
 - Manages browser storage efficiently with automatic compression
+- **Service worker caching** ensures fast load times and airplane mode compatibility
 
-The codebase is mature (~8,592 lines), well-structured, and includes comprehensive error handling for real-world field conditions.
+The codebase is mature (~9,600+ lines including PWA infrastructure), well-structured, and includes comprehensive error handling for real-world field conditions including graceful offline degradation.
