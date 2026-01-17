@@ -63,6 +63,13 @@
 ├── landing.html            # Marketing/onboarding landing page
 ├── sw.js                   # Service worker for PWA offline support
 ├── manifest.json           # PWA manifest with app metadata and icons
+├── assets/                 # Favicon and browser icon assets
+│   ├── favicon.ico         # Standard favicon for browsers
+│   ├── favicon-16x16.png   # Small favicon
+│   ├── favicon-32x32.png   # Standard favicon
+│   ├── apple-touch-icon.png      # iOS home screen icon
+│   ├── android-chrome-192x192.png  # Android Chrome icon
+│   └── android-chrome-512x512.png  # Android Chrome large icon
 ├── icons/                  # PWA app icons directory
 │   ├── icon.svg            # Source SVG icon (construction/microphone themed)
 │   ├── icon-72x72.png      # App icon for various device sizes
@@ -80,15 +87,15 @@
 
 | Page | Lines | Purpose |
 |------|-------|---------|
-| `index.html` | ~772 | Main dashboard showing project info, weather, report status, and navigation |
-| `quick-interview.html` | ~1,355 | Streamlined report with 7 sections: Weather, Work Summary, Issues, Inspections, Safety, Visitors, Photos |
-| `review.html` | ~1,307 | Side-by-side original vs. AI-refined text comparison with manual editing, n8n webhook integration |
-| `report.html` | ~876 | Professional PDF-ready report with print styles and submit functionality |
-| `editor.html` | ~679 | Photo capture with GPS embedding, section-specific editing interface |
-| `permissions.html` | ~1,598 | Permission testing (mic, camera, GPS), iOS-specific instructions for native dictation |
-| `permission-debug.html` | ~1,079 | Debugging utility for troubleshooting permission issues |
-| `settings.html` | ~365 | Project settings, inspector name, data export/clear functions |
-| `landing.html` | ~1,565 | Marketing page with feature overview and onboarding |
+| `index.html` | ~654 | Simplified dashboard with single-action interface, weather display, and navigation |
+| `quick-interview.html` | ~1,350 | Streamlined report with 7 sections: Weather, Work Summary, Issues, Inspections, Safety, Visitors, Photos |
+| `review.html` | ~1,302 | Side-by-side original vs. AI-refined text comparison with manual editing, n8n webhook integration |
+| `report.html` | ~871 | Professional PDF-ready report with print styles and submit functionality |
+| `editor.html` | ~674 | Photo capture with GPS embedding, section-specific editing interface |
+| `permissions.html` | ~1,593 | Permission testing (mic, camera, GPS), iOS-specific instructions for native dictation |
+| `permission-debug.html` | ~1,074 | Debugging utility for troubleshooting permission issues |
+| `settings.html` | ~374 | Project settings, inspector name, Setup button, data export/clear functions |
+| `landing.html` | ~1,560 | Marketing page with feature overview and onboarding |
 
 ---
 
@@ -284,13 +291,12 @@
      └─► User clicks "Finish" ─► [review.html]
 ```
 
-### 3. Voice Input Flow
+### 3. Voice Input Flow (Native Keyboard Dictation)
 
 ```
 User enters text in any input field
      │
-     ├─► Native Keyboard Dictation (Primary Method):
-     │    ├─► User taps microphone button on device keyboard
+     ├─► User taps microphone button on device keyboard:
      │    ├─► iOS: Uses Siri dictation (Settings → Keyboard → Enable Dictation)
      │    ├─► Android: Uses Google Voice Typing
      │    ├─► Desktop: Uses OS-level dictation if available
@@ -300,6 +306,10 @@ User enters text in any input field
           ├─► Microphone permission granted to browser
           ├─► Device dictation feature enabled in OS settings
           └─► Internet connection (for cloud-based transcription)
+
+Note: The app relies exclusively on native keyboard dictation for voice input,
+providing consistent, reliable behavior across all platforms without custom
+microphone buttons.
 ```
 
 ### 4. AI Refinement Flow (review.html)
@@ -578,17 +588,29 @@ To force a cache update, increment the version number in `sw.js`.
 Each HTML file includes:
 ```html
 <!-- PWA Meta Tags -->
-<link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
 <meta name="theme-color" content="#0a1628">
 
 <!-- iOS PWA Meta Tags -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FieldVoice">
+```
 
-<!-- Apple Touch Icons -->
-<link rel="apple-touch-icon" href="/icons/icon-152x152.png">
-<link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png">
+### Safe Area Support
+
+All pages include CSS for iOS notch/Dynamic Island support:
+```css
+body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+}
 ```
 
 ### App Icons
@@ -682,19 +704,20 @@ npx serve .
 
 | File | Lines | Size (approx) |
 |------|-------|---------------|
-| index.html | 772 | 36 KB |
-| quick-interview.html | 1,355 | 76 KB |
-| review.html | 1,307 | 64 KB |
-| report.html | 876 | 42 KB |
-| editor.html | 679 | 32 KB |
-| permissions.html | 1,598 | 80 KB |
-| permission-debug.html | 1,079 | 52 KB |
-| settings.html | 365 | 19 KB |
-| landing.html | 1,565 | 79 KB |
+| index.html | 654 | 31 KB |
+| quick-interview.html | 1,350 | 77 KB |
+| review.html | 1,302 | 65 KB |
+| report.html | 871 | 43 KB |
+| editor.html | 674 | 32 KB |
+| permissions.html | 1,593 | 81 KB |
+| permission-debug.html | 1,074 | 53 KB |
+| settings.html | 374 | 20 KB |
+| landing.html | 1,560 | 80 KB |
 | sw.js | 205 | 7 KB |
 | manifest.json | 65 | 2 KB |
 | icons/ | - | ~3 KB |
-| **Total** | **~9,900** | **~492 KB** |
+| assets/ | - | ~325 KB |
+| **Total** | **~9,722** | **~819 KB** |
 
 ---
 
@@ -740,10 +763,41 @@ Extend the `weatherCodes` object in `index.html` (lines 418-433) with additional
 
 ---
 
+## Recent Changes
+
+### Dashboard Simplification
+- Simplified the home dashboard to a single-action interface
+- Setup functionality moved to the Settings page for cleaner UX
+
+### Voice Input Streamlining
+- Removed dedicated microphone buttons throughout the app
+- Voice input now relies exclusively on native keyboard dictation (iOS Siri, Android Google Voice)
+- This approach provides better reliability and consistency across devices
+
+### iOS Support Improvements
+- Added safe-area CSS insets for proper display on devices with notch/Dynamic Island
+- Fixed PWA standalone mode navigation issues on iOS
+
+### Favicon & Branding
+- Added proper favicon assets in the `/assets/` directory
+- Includes favicon.ico, PNG favicons (16x16, 32x32), and apple-touch-icon
+- All HTML pages now reference the new favicon assets
+
+### Report Workflow Improvements
+- Improved report status tracking to accurately reflect workflow state
+- Fixed post-submission flow to allow starting fresh reports after submission
+
+### PWA Enhancements
+- Fixed PWA paths for GitHub Pages subdirectory hosting
+- Updated webhook URLs to production endpoints
+
+---
+
 ## Summary
 
 FieldVoice Pro is a sophisticated, production-ready field documentation system that:
 - **Fully installable as a PWA** - Works offline when saved to home screen on mobile devices
+- **Simplified single-action dashboard** - Streamlined interface for quick daily report creation
 - Operates primarily client-side with optional n8n webhook integration for AI features
 - Supports voice-first data entry via native keyboard dictation with AI enhancement
 - Generates professional, DOT-compliant PDF reports
@@ -751,5 +805,6 @@ FieldVoice Pro is a sophisticated, production-ready field documentation system t
 - Uses n8n webhooks for AI text refinement and report submission
 - Manages browser storage efficiently with automatic compression
 - **Service worker caching** ensures fast load times and airplane mode compatibility
+- **Safe-area support** for modern iOS devices with notch/Dynamic Island
 
-The codebase is mature (~9,900 lines including PWA infrastructure), well-structured, and includes comprehensive error handling for real-world field conditions including graceful offline degradation.
+The codebase is mature (~9,700 lines including PWA infrastructure), well-structured, and includes comprehensive error handling for real-world field conditions including graceful offline degradation.
