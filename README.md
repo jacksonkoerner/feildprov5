@@ -80,15 +80,15 @@
 
 | Page | Lines | Purpose |
 |------|-------|---------|
-| `index.html` | ~601 | Main dashboard showing project info, weather, report status, and navigation |
-| `quick-interview.html` | ~1,253 | Streamlined report with 7 sections: Weather, Work Summary, Issues, Inspections, Safety, Visitors, Photos |
-| `review.html` | ~1,190 | Side-by-side original vs. AI-refined text comparison with manual editing, n8n webhook integration |
-| `report.html` | ~769 | Professional PDF-ready report with print styles and submit functionality |
-| `editor.html` | ~579 | Photo capture with GPS embedding, section-specific editing interface |
-| `permissions.html` | ~1,494 | Permission testing (mic, camera, GPS), iOS-specific instructions for native dictation |
-| `permission-debug.html` | ~978 | Debugging utility for troubleshooting permission issues |
-| `settings.html` | ~261 | Project settings, inspector name, data export/clear functions |
-| `landing.html` | ~1,467 | Marketing page with feature overview and onboarding |
+| `index.html` | ~772 | Main dashboard showing project info, weather, report status, and navigation |
+| `quick-interview.html` | ~1,355 | Streamlined report with 7 sections: Weather, Work Summary, Issues, Inspections, Safety, Visitors, Photos |
+| `review.html` | ~1,307 | Side-by-side original vs. AI-refined text comparison with manual editing, n8n webhook integration |
+| `report.html` | ~876 | Professional PDF-ready report with print styles and submit functionality |
+| `editor.html` | ~679 | Photo capture with GPS embedding, section-specific editing interface |
+| `permissions.html` | ~1,598 | Permission testing (mic, camera, GPS), iOS-specific instructions for native dictation |
+| `permission-debug.html` | ~1,079 | Debugging utility for troubleshooting permission issues |
+| `settings.html` | ~365 | Project settings, inspector name, data export/clear functions |
+| `landing.html` | ~1,565 | Marketing page with feature overview and onboarding |
 
 ---
 
@@ -532,7 +532,7 @@ FieldVoice Pro is a fully installable Progressive Web App (PWA) that works offli
 
 **Cache Versioning:**
 ```javascript
-const CACHE_VERSION = 'v1.0.0';
+const CACHE_VERSION = 'v1.2.0';
 const CACHE_NAME = `fieldvoice-pro-${CACHE_VERSION}`;
 ```
 
@@ -682,19 +682,19 @@ npx serve .
 
 | File | Lines | Size (approx) |
 |------|-------|---------------|
-| index.html | 679 | 27 KB |
-| quick-interview.html | 1,330 | 53 KB |
-| review.html | 1,267 | 51 KB |
-| report.html | 846 | 34 KB |
-| editor.html | 656 | 26 KB |
-| permissions.html | 1,571 | 63 KB |
-| permission-debug.html | 1,055 | 42 KB |
-| settings.html | 338 | 14 KB |
-| landing.html | 1,544 | 62 KB |
-| sw.js | 178 | 7 KB |
-| manifest.json | 53 | 2 KB |
+| index.html | 772 | 36 KB |
+| quick-interview.html | 1,355 | 76 KB |
+| review.html | 1,307 | 64 KB |
+| report.html | 876 | 42 KB |
+| editor.html | 679 | 32 KB |
+| permissions.html | 1,598 | 80 KB |
+| permission-debug.html | 1,079 | 52 KB |
+| settings.html | 365 | 19 KB |
+| landing.html | 1,565 | 79 KB |
+| sw.js | 205 | 7 KB |
+| manifest.json | 65 | 2 KB |
 | icons/ | - | ~3 KB |
-| **Total** | **~9,600+** | **~384 KB** |
+| **Total** | **~9,900** | **~492 KB** |
 
 ---
 
@@ -752,4 +752,4 @@ FieldVoice Pro is a sophisticated, production-ready field documentation system t
 - Manages browser storage efficiently with automatic compression
 - **Service worker caching** ensures fast load times and airplane mode compatibility
 
-The codebase is mature (~9,600+ lines including PWA infrastructure), well-structured, and includes comprehensive error handling for real-world field conditions including graceful offline degradation.
+The codebase is mature (~9,900 lines including PWA infrastructure), well-structured, and includes comprehensive error handling for real-world field conditions including graceful offline degradation.
