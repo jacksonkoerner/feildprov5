@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Review Report - Field Documentation</title>
+    <title>AI Kit - Field Documentation</title>
 
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="./manifest.json">
@@ -82,22 +82,21 @@
         <!-- HEADER -->
         <header class="sticky top-0 z-20 bg-dot-navy text-white">
             <div class="px-4 py-3 flex items-center justify-between">
-                <a href="quick-interview.html" class="w-9 h-9 flex items-center justify-center border border-slate-600 hover:bg-slate-800 transition-colors">
-                    <i class="fas fa-arrow-left text-slate-400 text-sm"></i>
-                </a>
+                <div class="flex gap-2">
+                    <a href="index.html" class="w-9 h-9 flex items-center justify-center border border-slate-600 hover:bg-slate-800 transition-colors" title="Home">
+                        <i class="fas fa-home text-slate-400 text-sm"></i>
+                    </a>
+                    <a href="quick-interview.html" class="w-9 h-9 flex items-center justify-center border border-slate-600 hover:bg-slate-800 transition-colors" title="Back to Interview">
+                        <i class="fas fa-arrow-left text-slate-400 text-sm"></i>
+                    </a>
+                </div>
                 <div class="text-center flex-1 mx-4">
-                    <p class="text-[10px] font-bold text-safety-green uppercase tracking-widest">AI Review</p>
+                    <p class="text-[10px] font-bold text-safety-green uppercase tracking-widest">AI Kit</p>
                     <p id="currentDate" class="text-xs text-slate-400"></p>
                 </div>
                 <div class="flex gap-2">
                     <button onclick="exportTrainingData()" class="w-9 h-9 flex items-center justify-center border border-slate-600 hover:bg-slate-800 text-violet-400 transition-colors" title="Export for prompt training">
                         <i class="fas fa-database text-sm"></i>
-                    </button>
-                    <button onclick="saveAndExport()" class="px-3 py-2 bg-slate-600 hover:bg-slate-700 text-white text-xs font-bold uppercase transition-colors">
-                        <i class="fas fa-file-export mr-1"></i>Export
-                    </button>
-                    <button id="submit-report-btn" onclick="showSubmitConfirmation()" class="px-3 py-2 bg-dot-orange hover:bg-orange-700 text-white text-xs font-bold uppercase transition-colors">
-                        <i class="fas fa-cloud-upload-alt mr-1"></i>Submit
                     </button>
                 </div>
             </div>
@@ -308,14 +307,9 @@
 
         <!-- BOTTOM ACTION -->
         <div class="sticky bottom-0 p-4 bg-dot-navy border-t-2 border-dot-yellow">
-            <div class="flex gap-2">
-                <button onclick="saveAndViewReport()" class="flex-1 p-3 bg-safety-green hover:bg-green-700 text-white text-center font-bold uppercase text-sm transition-colors">
-                    <i class="fas fa-save mr-2"></i>Save & View Report
-                </button>
-                <button onclick="copyToClipboard()" class="px-4 py-3 bg-dot-blue hover:bg-blue-800 text-white transition-colors">
-                    <i class="fas fa-copy"></i>
-                </button>
-            </div>
+            <button onclick="saveAndViewReport()" class="w-full p-3 bg-safety-green hover:bg-green-700 text-white text-center font-bold uppercase text-sm transition-colors">
+                <i class="fas fa-save mr-2"></i>Save & View Report
+            </button>
         </div>
 
         <!-- Footer -->
