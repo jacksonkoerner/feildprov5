@@ -435,6 +435,7 @@
 
             // Note: getReport() returns null for submitted reports, so they fall into the "no report" case
             if (!report) {
+                // STATE: No Report Started
                 statusCard.innerHTML = `
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-slate-100 border-2 border-slate-300 flex items-center justify-center">
@@ -447,39 +448,39 @@
                         </div>
                     </div>
                 `;
-                mainActionIcon.className = 'fas fa-microphone text-dot-navy text-xl';
+                mainActionIcon.className = 'fas fa-clipboard-list text-dot-navy text-xl';
                 mainActionTitle.textContent = "Begin Daily Report";
                 mainActionSubtitle.textContent = "Quick field documentation";
                 viewReportBtn.classList.add('hidden');
-            } else if (report.meta?.interviewCompleted) {
-                const contractorCount = report.contractors?.length || 0;
+
+            } else if (report.meta?.interviewCompleted && !report.meta?.submitted) {
+                // STATE: Ready for Review (interview done, not yet submitted)
                 const photoCount = report.photos?.length || 0;
 
                 statusCard.innerHTML = `
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-safety-green flex items-center justify-center">
-                            <i class="fas fa-check text-white text-lg"></i>
+                        <div class="w-12 h-12 bg-dot-blue flex items-center justify-center">
+                            <i class="fas fa-clipboard-check text-white text-lg"></i>
                         </div>
                         <div class="flex-1">
-                            <p class="text-xs font-bold text-safety-green uppercase tracking-wider">COMPLETE</p>
-                            <p class="text-sm font-bold text-slate-700">Report Finalized</p>
-                            <p class="text-xs text-slate-500 mt-0.5">${contractorCount} contractors · ${photoCount} photos documented</p>
+                            <p class="text-xs font-bold text-dot-blue uppercase tracking-wider">READY FOR REVIEW</p>
+                            <p class="text-sm font-bold text-slate-700">Review & Submit Report</p>
+                            <p class="text-xs text-slate-500 mt-0.5">${photoCount} photo${photoCount !== 1 ? 's' : ''} · Tap to review and submit</p>
                         </div>
-                        <a href="report.html" class="px-4 py-2 bg-dot-navy text-white text-xs font-bold uppercase hover:bg-dot-blue transition-colors">
-                            View
+                        <a href="review.html" class="px-4 py-2 bg-safety-green text-white text-xs font-bold uppercase hover:bg-green-700 transition-colors">
+                            Review
                         </a>
                     </div>
                 `;
                 mainActionIcon.className = 'fas fa-edit text-dot-navy text-xl';
-                mainActionTitle.textContent = "Continue Editing";
-                mainActionSubtitle.textContent = "Add additional details or photos";
-                viewReportBtn.classList.remove('hidden');
-                viewReportBtn.classList.add('flex');
-            } else {
+                mainActionTitle.textContent = "Edit Report";
+                mainActionSubtitle.textContent = "Make changes before submitting";
+                // Hide View Report since it's not submitted yet
+                viewReportBtn.classList.add('hidden');
+
+            } else if (!report.meta?.interviewCompleted) {
+                // STATE: In Progress (still editing)
                 const progress = calculateProgress(report);
-                const currentStep = report.meta?.currentStep || 0;
-                const stepNames = ['Weather', 'Site Conditions', 'Contractors', 'Work Details', 'Headcounts', 'Equipment', 'Issues', 'Inspections', 'Safety', 'Visitors', 'Photos'];
-                const currentStepName = stepNames[currentStep] || 'Starting';
 
                 statusCard.innerHTML = `
                     <div class="flex items-center gap-4">
@@ -488,7 +489,7 @@
                         </div>
                         <div class="flex-1">
                             <p class="text-xs font-bold text-dot-orange uppercase tracking-wider">IN PROGRESS</p>
-                            <p class="text-sm font-bold text-slate-700">Report Active</p>
+                            <p class="text-sm font-bold text-slate-700">Report In Progress</p>
                             <div class="flex items-center gap-2 mt-1">
                                 <div class="flex-1 h-2 bg-slate-200 overflow-hidden">
                                     <div class="h-full bg-dot-orange transition-all" style="width: ${progress}%"></div>
@@ -500,9 +501,8 @@
                 `;
                 mainActionIcon.className = 'fas fa-play text-dot-navy text-xl';
                 mainActionTitle.textContent = "Continue Report";
-                mainActionSubtitle.textContent = `Resume at: ${currentStepName}`;
-                viewReportBtn.classList.remove('hidden');
-                viewReportBtn.classList.add('flex');
+                mainActionSubtitle.textContent = "Resume field documentation";
+                viewReportBtn.classList.add('hidden');
             }
         }
 
