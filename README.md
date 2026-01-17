@@ -54,7 +54,7 @@
 /
 ├── index.html              # Home dashboard / main entry point
 ├── quick-interview.html    # Daily report flow (streamlined field entry)
-├── review.html             # AI-powered review & text refinement via n8n webhook
+├── review.html             # AI Kit - text refinement & editing via n8n webhook
 ├── report.html             # Print-ready PDF report viewer/generator
 ├── editor.html             # Photo editor & section-specific editing
 ├── permissions.html        # System setup, permission testing (mic, camera, GPS)
@@ -87,12 +87,12 @@
 
 | Page | Lines | Purpose |
 |------|-------|---------|
-| `index.html` | ~654 | Simplified dashboard with single-action interface, weather display, and navigation |
+| `index.html` | ~678 | Simplified dashboard with single-action interface, weather display, and navigation |
 | `quick-interview.html` | ~1,350 | Streamlined report with 7 sections: Weather, Work Summary, Issues, Inspections, Safety, Visitors, Photos |
-| `review.html` | ~1,302 | Side-by-side original vs. AI-refined text comparison with manual editing, n8n webhook integration |
-| `report.html` | ~871 | Professional PDF-ready report with print styles and submit functionality |
+| `review.html` | ~1,296 | AI Kit - side-by-side original vs. AI-refined text comparison with manual editing, n8n webhook integration |
+| `report.html` | ~883 | Professional PDF-ready report with submit functionality, streamlined navigation |
 | `editor.html` | ~674 | Photo capture with GPS embedding, section-specific editing interface |
-| `permissions.html` | ~1,593 | Permission testing (mic, camera, GPS), iOS-specific instructions for native dictation |
+| `permissions.html` | ~1,596 | Permission testing (mic, camera, GPS), iOS-specific instructions for native dictation |
 | `permission-debug.html` | ~1,074 | Debugging utility for troubleshooting permission issues |
 | `settings.html` | ~374 | Project settings, inspector name, Setup button, data export/clear functions |
 | `landing.html` | ~1,560 | Marketing page with feature overview and onboarding |
@@ -288,7 +288,7 @@
      │
      ├─► Progress bar shows completion percentage
      │
-     └─► User clicks "Finish" ─► [review.html]
+     └─► User clicks "Finish" ─► [review.html] (AI Kit)
 ```
 
 ### 3. Voice Input Flow (Native Keyboard Dictation)
@@ -312,17 +312,18 @@ providing consistent, reliable behavior across all platforms without custom
 microphone buttons.
 ```
 
-### 4. AI Refinement Flow (review.html)
+### 4. AI Kit Flow (review.html)
 
 ```
-[review.html] Loaded with report data
+[review.html] Loaded with report data (AI Kit)
      │
      ├─► Display side-by-side: Original | AI Refined
      │
      ├─► User can:
      │    ├─► Click "Refine All" ─► Process all sections
      │    ├─► Click individual "Refine" ─► Process single section
-     │    └─► Manually edit either column
+     │    ├─► Manually edit either column
+     │    └─► Export training data for prompt refinement
      │
      ├─► Refinement Process (via n8n webhook):
      │    ├─► Send original text + section name + report context
@@ -344,14 +345,20 @@ microphone buttons.
 ```
 [report.html] Loaded with report data
      │
+     ├─► Navigation bar with:
+     │    ├─► Home button (return to dashboard)
+     │    ├─► Back to AI Kit link
+     │    └─► Submit button
+     │
      ├─► Render 4-page professional report:
      │    ├─► Page 1: Project Overview + Daily Work Summary
      │    ├─► Page 2: Personnel Table + Equipment Table
      │    ├─► Page 3: Issues, Visitors, QA/QC, Safety + Signature
      │    └─► Page 4: Photo Gallery (if photos exist)
      │
-     ├─► User clicks "Print / PDF"
-     │    └─► Browser print dialog (save as PDF)
+     ├─► User clicks "Submit"
+     │    ├─► Confirmation modal appears
+     │    └─► Report submitted via n8n webhook
      │
      └─► Print CSS ensures proper formatting:
           ├─► Page breaks at correct locations
@@ -428,7 +435,7 @@ tailwind.config = {
 
 The application uses n8n webhooks for AI text refinement and report submission. Configure webhook URLs in the code:
 
-**Webhook Endpoints (in `review.html` and `report.html`):**
+**Webhook Endpoints (in AI Kit `review.html` and `report.html`):**
 - **N8N_REFINE_WEBHOOK**: Endpoint for AI text refinement requests
 - **N8N_SUBMIT_WEBHOOK**: Endpoint for submitting completed reports
 
@@ -704,12 +711,12 @@ npx serve .
 
 | File | Lines | Size (approx) |
 |------|-------|---------------|
-| index.html | 654 | 31 KB |
+| index.html | 678 | 32 KB |
 | quick-interview.html | 1,350 | 77 KB |
-| review.html | 1,302 | 65 KB |
-| report.html | 871 | 43 KB |
+| review.html | 1,296 | 65 KB |
+| report.html | 883 | 44 KB |
 | editor.html | 674 | 32 KB |
-| permissions.html | 1,593 | 81 KB |
+| permissions.html | 1,596 | 81 KB |
 | permission-debug.html | 1,074 | 53 KB |
 | settings.html | 374 | 20 KB |
 | landing.html | 1,560 | 80 KB |
@@ -717,7 +724,7 @@ npx serve .
 | manifest.json | 65 | 2 KB |
 | icons/ | - | ~3 KB |
 | assets/ | - | ~325 KB |
-| **Total** | **~9,722** | **~819 KB** |
+| **Total** | **~9,755** | **~821 KB** |
 
 ---
 
@@ -765,6 +772,21 @@ Extend the `weatherCodes` object in `index.html` (lines 418-433) with additional
 
 ## Recent Changes
 
+### AI Review Renamed to AI Kit
+- The review page has been rebranded from "AI Review" to "AI Kit"
+- Updated page title and header to reflect the new branding
+- Added training data export functionality for prompt refinement
+
+### Report Page Streamlining
+- Removed Edit and Print buttons from report.html for a cleaner interface
+- Report page now focuses on Submit functionality with streamlined navigation
+- Navigation includes Home button, Back to AI Kit link, and Submit button
+
+### Navigation Improvements
+- Added Home buttons to key pages for easier navigation
+- Improved workflow tracking throughout the application
+- Better integration between AI Kit and Report pages
+
 ### Dashboard Simplification
 - Simplified the home dashboard to a single-action interface
 - Setup functionality moved to the Settings page for cleaner UX
@@ -798,6 +820,7 @@ Extend the `weatherCodes` object in `index.html` (lines 418-433) with additional
 FieldVoice Pro is a sophisticated, production-ready field documentation system that:
 - **Fully installable as a PWA** - Works offline when saved to home screen on mobile devices
 - **Simplified single-action dashboard** - Streamlined interface for quick daily report creation
+- **AI Kit integration** - Side-by-side text refinement with training data export for prompt improvement
 - Operates primarily client-side with optional n8n webhook integration for AI features
 - Supports voice-first data entry via native keyboard dictation with AI enhancement
 - Generates professional, DOT-compliant PDF reports
@@ -806,5 +829,6 @@ FieldVoice Pro is a sophisticated, production-ready field documentation system t
 - Manages browser storage efficiently with automatic compression
 - **Service worker caching** ensures fast load times and airplane mode compatibility
 - **Safe-area support** for modern iOS devices with notch/Dynamic Island
+- **Streamlined navigation** with Home buttons and improved workflow tracking
 
-The codebase is mature (~9,700 lines including PWA infrastructure), well-structured, and includes comprehensive error handling for real-world field conditions including graceful offline degradation.
+The codebase is mature (~9,755 lines including PWA infrastructure), well-structured, and includes comprehensive error handling for real-world field conditions including graceful offline degradation.
