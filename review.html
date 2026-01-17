@@ -80,7 +80,11 @@
         <div class="px-4 pt-4">
             <div class="p-3 bg-dot-blue/10 border border-dot-blue/30 text-sm text-slate-600 flex items-center gap-2">
                 <i class="fas fa-edit text-dot-blue"></i>
-                <span>Review and edit your report sections below. Changes are saved automatically.</span>
+                <span class="flex-1">Review and edit your report sections below. Changes are saved automatically.</span>
+                <button id="refine-all-btn" onclick="refineAll()" class="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold uppercase transition-colors flex items-center gap-2 whitespace-nowrap">
+                    <i class="fas fa-magic"></i>
+                    <span>Refine All</span>
+                </button>
             </div>
         </div>
 
@@ -94,7 +98,11 @@
                         <i class="fas fa-cloud-sun text-white text-sm"></i>
                     </div>
                     <p class="font-bold text-slate-800 uppercase text-sm flex-1">Weather & Site Conditions</p>
-                                    </div>
+                    <button id="weather-refine-btn" onclick="refineSection('weather')" class="px-3 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-bold uppercase transition-colors flex items-center gap-1.5">
+                        <i class="fas fa-magic"></i>
+                        <span>Refine</span>
+                    </button>
+                </div>
                 <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200">
                     <div class="p-3">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2">Original</p>
@@ -114,7 +122,11 @@
                         <i class="fas fa-tasks text-white text-sm"></i>
                     </div>
                     <p class="font-bold text-slate-800 uppercase text-sm flex-1">Work Summary</p>
-                                    </div>
+                    <button id="activities-refine-btn" onclick="refineSection('activities')" class="px-3 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-bold uppercase transition-colors flex items-center gap-1.5">
+                        <i class="fas fa-magic"></i>
+                        <span>Refine</span>
+                    </button>
+                </div>
                 <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200">
                     <div class="p-3">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2">Original</p>
@@ -135,7 +147,11 @@
                     </div>
                     <p class="font-bold text-slate-800 uppercase text-sm flex-1">Issues & Delays</p>
                     <span id="issues-na-badge" class="hidden px-2 py-1 bg-slate-200 text-slate-600 text-[10px] font-bold uppercase">N/A</span>
-                                    </div>
+                    <button id="issues-refine-btn" onclick="refineSection('issues')" class="px-3 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-bold uppercase transition-colors flex items-center gap-1.5">
+                        <i class="fas fa-magic"></i>
+                        <span>Refine</span>
+                    </button>
+                </div>
                 <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200">
                     <div class="p-3">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2">Original</p>
@@ -156,7 +172,11 @@
                     </div>
                     <p class="font-bold text-slate-800 uppercase text-sm flex-1">QA/QC Inspections</p>
                     <span id="inspections-na-badge" class="hidden px-2 py-1 bg-slate-200 text-slate-600 text-[10px] font-bold uppercase">N/A</span>
-                                    </div>
+                    <button id="inspections-refine-btn" onclick="refineSection('inspections')" class="px-3 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-bold uppercase transition-colors flex items-center gap-1.5">
+                        <i class="fas fa-magic"></i>
+                        <span>Refine</span>
+                    </button>
+                </div>
                 <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200">
                     <div class="p-3">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2">Original</p>
@@ -176,7 +196,11 @@
                         <i class="fas fa-hard-hat text-white text-sm"></i>
                     </div>
                     <p class="font-bold text-slate-800 uppercase text-sm flex-1">Safety</p>
-                                    </div>
+                    <button id="safety-refine-btn" onclick="refineSection('safety')" class="px-3 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-bold uppercase transition-colors flex items-center gap-1.5">
+                        <i class="fas fa-magic"></i>
+                        <span>Refine</span>
+                    </button>
+                </div>
                 <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200">
                     <div class="p-3">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2">Original</p>
@@ -197,7 +221,11 @@
                     </div>
                     <p class="font-bold text-slate-800 uppercase text-sm flex-1">Visitors & Communications</p>
                     <span id="visitors-na-badge" class="hidden px-2 py-1 bg-slate-200 text-slate-600 text-[10px] font-bold uppercase">N/A</span>
-                                    </div>
+                    <button id="visitors-refine-btn" onclick="refineSection('visitors')" class="px-3 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-bold uppercase transition-colors flex items-center gap-1.5">
+                        <i class="fas fa-magic"></i>
+                        <span>Refine</span>
+                    </button>
+                </div>
                 <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200">
                     <div class="p-3">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2">Original</p>
@@ -232,6 +260,10 @@
                         <i class="fas fa-sticky-note text-white text-sm"></i>
                     </div>
                     <p class="font-bold text-slate-800 uppercase text-sm flex-1">Additional Notes</p>
+                    <button id="additionalNotes-refine-btn" onclick="refineSection('additionalNotes')" class="px-3 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-bold uppercase transition-colors flex items-center gap-1.5">
+                        <i class="fas fa-magic"></i>
+                        <span>Refine</span>
+                    </button>
                 </div>
                 <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200">
                     <div class="p-3">
@@ -266,10 +298,14 @@
     </div>
 
     <script>
+        // ============ CONFIGURATION ============
+        const N8N_REFINE_WEBHOOK = "WEBHOOK_URL_PLACEHOLDER"; // Will be replaced with actual URL
+
         // ============ STATE ============
         let report = null;
         let refinedData = {};
         let naSections = {};
+        let isRefining = {}; // Track which sections are currently being refined
 
         // ============ STORAGE ============
         function getTodayKey() {
@@ -640,6 +676,261 @@
             toast.innerHTML = `<i class="fas fa-check"></i>${message}`;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 2000);
+        }
+
+        // ============ AI REFINEMENT ============
+
+        // Map section IDs to webhook section names
+        const sectionNameMap = {
+            'weather': 'weather',
+            'activities': 'activities',
+            'issues': 'issues',
+            'inspections': 'inspections',
+            'safety': 'safety',
+            'visitors': 'visitors',
+            'notes': 'additionalNotes',
+            'additionalNotes': 'additionalNotes'
+        };
+
+        // Map section IDs to element IDs (handles the notes/additionalNotes discrepancy)
+        const sectionElementMap = {
+            'weather': 'weather',
+            'activities': 'activities',
+            'issues': 'issues',
+            'inspections': 'inspections',
+            'safety': 'safety',
+            'visitors': 'visitors',
+            'notes': 'notes',
+            'additionalNotes': 'notes'
+        };
+
+        // Get original text for a section
+        function getOriginalText(section) {
+            const elementId = sectionElementMap[section] || section;
+            const originalEl = document.getElementById(`${elementId}-original`);
+            if (!originalEl) return '';
+            return originalEl.innerText.trim();
+        }
+
+        // Set refine button state (loading/normal/error)
+        function setRefineButtonState(section, state, errorMsg = '') {
+            // Handle additionalNotes special case
+            const btnId = section === 'notes' ? 'additionalNotes-refine-btn' : `${section}-refine-btn`;
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+
+            switch (state) {
+                case 'loading':
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Refining...</span>';
+                    break;
+                case 'error':
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    btn.classList.add('bg-red-600', 'hover:bg-red-700');
+                    btn.classList.remove('bg-violet-600', 'hover:bg-violet-700');
+                    btn.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Retry</span>';
+                    break;
+                case 'normal':
+                default:
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-red-600', 'hover:bg-red-700');
+                    btn.classList.add('bg-violet-600', 'hover:bg-violet-700');
+                    btn.innerHTML = '<i class="fas fa-magic"></i><span>Refine</span>';
+                    break;
+            }
+        }
+
+        // Type text with animation effect
+        async function typeText(element, text) {
+            element.innerHTML = '';
+            const chars = text.split('');
+            let currentText = '';
+
+            for (let i = 0; i < chars.length; i++) {
+                currentText += chars[i];
+                element.innerHTML = currentText.replace(/\n/g, '<br>');
+
+                // Variable speed: faster for spaces, slower for punctuation
+                let delay = 5;
+                if (chars[i] === '.' || chars[i] === '!' || chars[i] === '?') {
+                    delay = 50;
+                } else if (chars[i] === ',') {
+                    delay = 25;
+                } else if (chars[i] === ' ') {
+                    delay = 2;
+                }
+
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+
+        // Refine a single section via webhook
+        async function refineSection(section) {
+            const elementId = sectionElementMap[section] || section;
+            const webhookSection = sectionNameMap[section] || section;
+
+            // Check if section is marked as N/A
+            if (naSections[elementId]) {
+                showToast('Section marked as N/A', 'warning');
+                return false;
+            }
+
+            // Check if already refining
+            if (isRefining[section]) {
+                return false;
+            }
+
+            const originalText = getOriginalText(section);
+            if (!originalText || originalText === 'Loading...' || originalText.includes('No ') || originalText.includes('N/A')) {
+                showToast('No content to refine', 'warning');
+                return false;
+            }
+
+            isRefining[section] = true;
+            setRefineButtonState(elementId, 'loading');
+
+            // Show loading state in refined area
+            const refinedEl = document.getElementById(`${elementId}-refined`);
+            if (refinedEl) {
+                refinedEl.innerHTML = '<span class="text-violet-600"><i class="fas fa-spinner fa-spin mr-2"></i>Refining with AI...</span>';
+            }
+
+            try {
+                // Build the payload
+                const payload = {
+                    section: webhookSection,
+                    originalText: originalText,
+                    reportContext: {
+                        projectName: report?.overview?.projectName || 'Unknown Project',
+                        reporterName: report?.overview?.reporterName || 'Unknown Reporter',
+                        date: report?.overview?.date || new Date().toLocaleDateString()
+                    }
+                };
+
+                // Create abort controller for timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+                const response = await fetch(N8N_REFINE_WEBHOOK, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (!data.refinedText) {
+                    throw new Error('Invalid response: missing refinedText');
+                }
+
+                // Type the refined text with animation
+                if (refinedEl) {
+                    await typeText(refinedEl, data.refinedText);
+                }
+
+                // Save the refined data
+                refinedData[elementId] = data.refinedText;
+                saveRefinedDataToReport();
+
+                setRefineButtonState(elementId, 'normal');
+                isRefining[section] = false;
+                return true;
+
+            } catch (error) {
+                console.error('Refine error:', error);
+                isRefining[section] = false;
+
+                let errorMessage = 'Refinement failed';
+                if (error.name === 'AbortError') {
+                    errorMessage = 'Request timed out (30s)';
+                } else if (error.message.includes('fetch')) {
+                    errorMessage = 'Network error - check connection';
+                } else if (error.message.includes('Invalid response')) {
+                    errorMessage = 'Invalid response from server';
+                } else if (error.message.includes('Server error')) {
+                    errorMessage = error.message;
+                }
+
+                if (refinedEl) {
+                    refinedEl.innerHTML = `<span class="text-red-600"><i class="fas fa-exclamation-triangle mr-2"></i>${errorMessage}</span>`;
+                }
+
+                setRefineButtonState(elementId, 'error');
+                showToast(errorMessage, 'error');
+                return false;
+            }
+        }
+
+        // Refine all sections sequentially
+        async function refineAll() {
+            const allSections = ['weather', 'activities', 'issues', 'inspections', 'safety', 'visitors', 'notes'];
+            const sectionsToRefine = allSections.filter(section => !naSections[section]);
+
+            if (sectionsToRefine.length === 0) {
+                showToast('No sections to refine', 'warning');
+                return;
+            }
+
+            // Update the Refine All button to show progress
+            const refineAllBtn = document.getElementById('refine-all-btn');
+            const originalBtnHtml = refineAllBtn.innerHTML;
+            refineAllBtn.disabled = true;
+            refineAllBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            let successCount = 0;
+            let failCount = 0;
+
+            for (let i = 0; i < sectionsToRefine.length; i++) {
+                const section = sectionsToRefine[i];
+
+                // Update progress indicator
+                refineAllBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i><span>Refining ${i + 1} of ${sectionsToRefine.length}...</span>`;
+
+                // Check if there's actual content to refine
+                const originalText = getOriginalText(section);
+                if (!originalText || originalText === 'Loading...' || originalText.includes('No ') || originalText.includes('N/A')) {
+                    continue; // Skip empty sections
+                }
+
+                const success = await refineSection(section);
+                if (success) {
+                    successCount++;
+                } else {
+                    failCount++;
+                }
+
+                // Small delay between requests to avoid overwhelming the webhook
+                if (i < sectionsToRefine.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+            }
+
+            // Restore button state
+            refineAllBtn.disabled = false;
+            refineAllBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            refineAllBtn.innerHTML = originalBtnHtml;
+
+            // Show completion message
+            if (failCount === 0 && successCount > 0) {
+                showToast(`Refined ${successCount} sections!`, 'success');
+            } else if (successCount > 0) {
+                showToast(`Refined ${successCount} sections, ${failCount} failed`, 'warning');
+            } else if (failCount > 0) {
+                showToast('All refinements failed', 'error');
+            } else {
+                showToast('No content to refine', 'info');
+            }
         }
 
         // ============ INIT ============
