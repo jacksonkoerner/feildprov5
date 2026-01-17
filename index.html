@@ -163,48 +163,17 @@
             </div>
         </section>
 
-        <!-- TODAY'S REPORT STATUS -->
-        <section class="px-4 mb-4">
-            <div id="reportStatusCard" class="bg-white border-2 border-slate-200 p-4">
-                <!-- Dynamic content based on report status -->
-            </div>
+        <!-- DYNAMIC STATUS/ACTION CARD -->
+        <section id="reportStatusSection" class="px-4 mb-4">
+            <!-- Content rendered by updateReportStatus() -->
         </section>
 
-        <!-- MAIN ACTION BUTTON -->
-        <section class="px-4 flex-1 flex items-end pb-4">
-            <button id="mainActionBtn" onclick="handleMainAction()" class="w-full bg-dot-navy hover:bg-dot-blue text-white p-5 transition-colors shadow-lg">
-                <div class="flex items-center justify-center gap-4">
-                    <div class="w-12 h-12 bg-dot-yellow flex items-center justify-center">
-                        <i id="mainActionIcon" class="fas fa-microphone text-dot-navy text-xl"></i>
-                    </div>
-                    <div class="text-left">
-                        <p id="mainActionTitle" class="text-lg font-bold uppercase tracking-wide">Begin Daily Report</p>
-                        <p id="mainActionSubtitle" class="text-xs text-slate-400">Quick field documentation</p>
-                    </div>
-                    <i class="fas fa-chevron-right text-slate-500 ml-auto"></i>
-                </div>
-            </button>
-        </section>
-
-        <!-- QUICK ACTIONS -->
-        <section class="px-4 pb-6">
-            <div class="grid grid-cols-3 gap-2">
-                <a href="report.html" id="viewReportBtn" class="hidden bg-white border border-slate-300 p-4 text-center hover:bg-slate-50 transition-colors">
-                    <i class="fas fa-file-alt text-dot-blue text-lg mb-2"></i>
-                    <p class="text-xs font-bold text-slate-600 uppercase">View Report</p>
-                </a>
-                <a href="editor.html?section=photos" class="bg-white border border-slate-300 p-4 text-center hover:bg-slate-50 transition-colors">
-                    <i class="fas fa-camera text-dot-blue text-lg mb-2"></i>
-                    <p class="text-xs font-bold text-slate-600 uppercase">Add Photo</p>
-                </a>
-                <button onclick="viewHistory()" class="bg-white border border-slate-300 p-4 text-center hover:bg-slate-50 transition-colors">
-                    <i class="fas fa-archive text-dot-blue text-lg mb-2"></i>
-                    <p class="text-xs font-bold text-slate-600 uppercase">Archives</p>
-                </button>
-                <a href="permissions.html" class="bg-white border border-slate-300 p-4 text-center hover:bg-slate-50 transition-colors">
-                    <i class="fas fa-shield-alt text-dot-blue text-lg mb-2"></i>
-                    <p class="text-xs font-bold text-slate-600 uppercase">Setup</p>
-                </a>
+        <!-- MORE FEATURES COMING SOON -->
+        <section class="px-4 mb-4 flex-1">
+            <div class="bg-slate-50 border border-dashed border-slate-300 p-6 text-center">
+                <i class="fas fa-rocket text-slate-300 text-2xl mb-3"></i>
+                <p class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">More Features Coming Soon</p>
+                <p class="text-xs text-slate-400">Photo archives, report history, and more</p>
             </div>
         </section>
 
@@ -215,23 +184,6 @@
                 DOT Compliant Field Documentation System
             </p>
         </footer>
-    </div>
-
-    <!-- HISTORY MODAL -->
-    <div id="historyModal" class="hidden fixed inset-0 bg-black/80 z-50 overflow-y-auto">
-        <div class="max-w-lg mx-auto p-4">
-            <div class="bg-white">
-                <div class="bg-dot-navy text-white p-4 flex justify-between items-center">
-                    <h2 class="text-lg font-bold uppercase tracking-wide">Report Archives</h2>
-                    <button onclick="closeHistory()" class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div id="historyList" class="p-4 space-y-2 max-h-[60vh] overflow-y-auto">
-                    <!-- Dynamic content -->
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -291,28 +243,6 @@
                 } catch (e) {}
             }
             return false;
-        }
-
-        function getReportHistory() {
-            const history = [];
-            const keys = Object.keys(localStorage).filter(k => k.startsWith('fieldvoice_report_'));
-            keys.sort().reverse();
-
-            for (const key of keys.slice(0, 30)) {
-                try {
-                    const report = JSON.parse(localStorage.getItem(key));
-                    if (report) {
-                        history.push({
-                            key: key,
-                            date: report.overview?.date || key.replace('fieldvoice_report_', ''),
-                            projectName: report.overview?.projectName || 'Unknown Project',
-                            completed: report.meta?.interviewCompleted || false,
-                            contractorCount: report.contractors?.length || 0
-                        });
-                    }
-                } catch (e) {}
-            }
-            return history;
         }
 
         function saveReport(report) {
@@ -426,83 +356,81 @@
         // ============ UI UPDATES ============
         function updateReportStatus() {
             const report = getReport();
-            const statusCard = document.getElementById('reportStatusCard');
-            const mainActionBtn = document.getElementById('mainActionBtn');
-            const mainActionIcon = document.getElementById('mainActionIcon');
-            const mainActionTitle = document.getElementById('mainActionTitle');
-            const mainActionSubtitle = document.getElementById('mainActionSubtitle');
-            const viewReportBtn = document.getElementById('viewReportBtn');
+            const statusSection = document.getElementById('reportStatusSection');
 
             // Note: getReport() returns null for submitted reports, so they fall into the "no report" case
             if (!report) {
                 // STATE: No Report Started
-                statusCard.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-slate-100 border-2 border-slate-300 flex items-center justify-center">
-                            <i class="fas fa-clipboard text-slate-400 text-lg"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">STATUS</p>
-                            <p class="text-sm font-bold text-slate-700">No Report Started</p>
-                            <p class="text-xs text-slate-500 mt-0.5">Begin documentation to create today's report</p>
+                statusSection.innerHTML = `
+                    <div class="bg-white border-2 border-slate-200 p-6">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-slate-100 border-2 border-slate-300 flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-clipboard text-slate-400 text-2xl"></i>
+                            </div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">No Report Started</p>
+                            <p class="text-sm text-slate-500 mb-4">Begin documentation to create today's report</p>
+                            <a href="quick-interview.html" class="block w-full bg-dot-navy hover:bg-dot-blue text-white p-4 transition-colors">
+                                <div class="flex items-center justify-center gap-3">
+                                    <i class="fas fa-plus text-dot-yellow"></i>
+                                    <span class="font-bold uppercase tracking-wide">Begin Daily Report</span>
+                                </div>
+                            </a>
                         </div>
                     </div>
                 `;
-                mainActionIcon.className = 'fas fa-clipboard-list text-dot-navy text-xl';
-                mainActionTitle.textContent = "Begin Daily Report";
-                mainActionSubtitle.textContent = "Quick field documentation";
-                viewReportBtn.classList.add('hidden');
 
             } else if (report.meta?.interviewCompleted && !report.meta?.submitted) {
                 // STATE: Ready for Review (interview done, not yet submitted)
-                const photoCount = report.photos?.length || 0;
-
-                statusCard.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-dot-blue flex items-center justify-center">
-                            <i class="fas fa-clipboard-check text-white text-lg"></i>
+                statusSection.innerHTML = `
+                    <div class="bg-white border-2 border-dot-blue p-6">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-dot-blue flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-clipboard-check text-white text-2xl"></i>
+                            </div>
+                            <p class="text-xs font-bold text-dot-blue uppercase tracking-wider mb-1">Ready for Review</p>
+                            <p class="text-sm text-slate-700 font-medium mb-1">Report Complete</p>
+                            <p class="text-xs text-slate-500 mb-4">Review with AI and submit your report</p>
+                            <a href="review.html" class="block w-full bg-safety-green hover:bg-green-700 text-white p-4 transition-colors mb-3">
+                                <div class="flex items-center justify-center gap-3">
+                                    <i class="fas fa-check-circle text-white"></i>
+                                    <span class="font-bold uppercase tracking-wide">Review & Submit</span>
+                                </div>
+                            </a>
+                            <a href="quick-interview.html" class="text-sm text-slate-500 hover:text-dot-blue transition-colors">
+                                <i class="fas fa-edit mr-1"></i>or continue editing
+                            </a>
                         </div>
-                        <div class="flex-1">
-                            <p class="text-xs font-bold text-dot-blue uppercase tracking-wider">READY FOR REVIEW</p>
-                            <p class="text-sm font-bold text-slate-700">Review & Submit Report</p>
-                            <p class="text-xs text-slate-500 mt-0.5">${photoCount} photo${photoCount !== 1 ? 's' : ''} · Tap to review and submit</p>
-                        </div>
-                        <a href="review.html" class="px-4 py-2 bg-safety-green text-white text-xs font-bold uppercase hover:bg-green-700 transition-colors">
-                            Review
-                        </a>
                     </div>
                 `;
-                mainActionIcon.className = 'fas fa-edit text-dot-navy text-xl';
-                mainActionTitle.textContent = "Edit Report";
-                mainActionSubtitle.textContent = "Make changes before submitting";
-                // Hide View Report since it's not submitted yet
-                viewReportBtn.classList.add('hidden');
 
             } else if (!report.meta?.interviewCompleted) {
                 // STATE: In Progress (still editing)
                 const progress = calculateProgress(report);
 
-                statusCard.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-dot-orange flex items-center justify-center">
-                            <i class="fas fa-pen text-white text-lg"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-xs font-bold text-dot-orange uppercase tracking-wider">IN PROGRESS</p>
-                            <p class="text-sm font-bold text-slate-700">Report In Progress</p>
-                            <div class="flex items-center gap-2 mt-1">
+                statusSection.innerHTML = `
+                    <div class="bg-white border-2 border-dot-orange p-6">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-dot-orange flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-pen text-white text-2xl"></i>
+                            </div>
+                            <p class="text-xs font-bold text-dot-orange uppercase tracking-wider mb-1">In Progress</p>
+                            <p class="text-sm text-slate-700 font-medium mb-2">Report In Progress</p>
+                            <!-- Progress bar -->
+                            <div class="flex items-center gap-3 mb-4 max-w-xs mx-auto">
                                 <div class="flex-1 h-2 bg-slate-200 overflow-hidden">
                                     <div class="h-full bg-dot-orange transition-all" style="width: ${progress}%"></div>
                                 </div>
-                                <span class="text-xs font-bold text-slate-500">${progress}%</span>
+                                <span class="text-sm font-bold text-slate-500">${progress}%</span>
                             </div>
+                            <a href="quick-interview.html" class="block w-full bg-dot-orange hover:bg-orange-700 text-white p-4 transition-colors">
+                                <div class="flex items-center justify-center gap-3">
+                                    <i class="fas fa-play text-white"></i>
+                                    <span class="font-bold uppercase tracking-wide">Continue Report</span>
+                                </div>
+                            </a>
                         </div>
                     </div>
                 `;
-                mainActionIcon.className = 'fas fa-play text-dot-navy text-xl';
-                mainActionTitle.textContent = "Continue Report";
-                mainActionSubtitle.textContent = "Resume field documentation";
-                viewReportBtn.classList.add('hidden');
             }
         }
 
@@ -523,47 +451,6 @@
         }
 
         // ============ ACTIONS ============
-        function handleMainAction() {
-            window.location.href = 'quick-interview.html';
-        }
-
-        function viewHistory() {
-            const modal = document.getElementById('historyModal');
-            const list = document.getElementById('historyList');
-
-            const history = getReportHistory();
-
-            if (history.length === 0) {
-                list.innerHTML = `
-                    <div class="text-center py-12">
-                        <i class="fas fa-archive text-4xl text-slate-300 mb-4"></i>
-                        <p class="text-slate-500">No archived reports</p>
-                    </div>
-                `;
-            } else {
-                list.innerHTML = history.map(h => `
-                    <a href="report.html?key=${h.key}" class="block bg-slate-50 border border-slate-200 p-4 hover:bg-slate-100 transition-colors">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 ${h.completed ? 'bg-safety-green' : 'bg-dot-orange'} flex items-center justify-center">
-                                <i class="fas ${h.completed ? 'fa-check' : 'fa-clock'} text-white text-sm"></i>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-bold text-slate-700 truncate">${h.projectName}</p>
-                                <p class="text-xs text-slate-500">${h.date} · ${h.contractorCount} contractors</p>
-                            </div>
-                            <i class="fas fa-chevron-right text-slate-300"></i>
-                        </div>
-                    </a>
-                `).join('');
-            }
-
-            modal.classList.remove('hidden');
-        }
-
-        function closeHistory() {
-            document.getElementById('historyModal').classList.add('hidden');
-        }
-
         function openSettings() {
             window.location.href = 'settings.html';
         }
