@@ -481,6 +481,16 @@
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
+
+                    // If report was already submitted, archive it and start fresh
+                    if (parsed.meta && parsed.meta.submitted === true) {
+                        const archiveKey = `${getTodayKey()}_submitted_${Date.now()}`;
+                        localStorage.setItem(archiveKey, saved);
+                        localStorage.removeItem(getTodayKey());
+                        localStorage.removeItem('fieldvoice_report');
+                        return createFreshReport();
+                    }
+
                     if (!parsed.meta) parsed.meta = {};
                     if (!parsed.meta.naMarked) parsed.meta.naMarked = {};
                     if (!parsed.safety) parsed.safety = { hasIncidents: false, noIncidents: false, notes: [] };

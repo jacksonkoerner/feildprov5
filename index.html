@@ -250,7 +250,12 @@
             const saved = localStorage.getItem(getTodayKey());
             if (saved) {
                 try {
-                    return JSON.parse(saved);
+                    const parsed = JSON.parse(saved);
+                    // If report was submitted, treat as no report for dashboard
+                    if (parsed.meta && parsed.meta.submitted === true) {
+                        return null;
+                    }
+                    return parsed;
                 } catch (e) {
                     return null;
                 }
@@ -259,6 +264,10 @@
             if (legacy) {
                 try {
                     const parsed = JSON.parse(legacy);
+                    // Also check legacy report for submitted status
+                    if (parsed.meta && parsed.meta.submitted === true) {
+                        return null;
+                    }
                     if (parsed.overview?.date === new Date().toLocaleDateString()) {
                         return parsed;
                     }
@@ -423,35 +432,8 @@
             const mainActionTitle = document.getElementById('mainActionTitle');
             const mainActionSubtitle = document.getElementById('mainActionSubtitle');
             const viewReportBtn = document.getElementById('viewReportBtn');
-            const submittedBanner = document.getElementById('submittedBanner');
-            const bannerDismissedThisSession = sessionStorage.getItem('fvp_submitted_banner_dismissed') === 'true';
 
-            // Check if report was submitted - show banner and reset to "No Report" state
-            if (report && report.meta?.interviewCompleted && report.meta?.submitted) {
-                // Show success banner if not dismissed this session
-                if (!bannerDismissedThisSession) {
-                    submittedBanner.classList.remove('hidden');
-                }
-                // Show "No Report Started" UI since report is complete
-                statusCard.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-slate-100 border-2 border-slate-300 flex items-center justify-center">
-                            <i class="fas fa-clipboard text-slate-400 text-lg"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">STATUS</p>
-                            <p class="text-sm font-bold text-slate-700">No Report Started</p>
-                            <p class="text-xs text-slate-500 mt-0.5">Begin documentation to create today's report</p>
-                        </div>
-                    </div>
-                `;
-                mainActionIcon.className = 'fas fa-microphone text-dot-navy text-xl';
-                mainActionTitle.textContent = "Begin Daily Report";
-                mainActionSubtitle.textContent = "Quick field documentation";
-                viewReportBtn.classList.add('hidden');
-                return;
-            }
-
+            // Note: getReport() returns null for submitted reports, so they fall into the "no report" case
             if (!report) {
                 statusCard.innerHTML = `
                     <div class="flex items-center gap-4">
@@ -650,6 +632,37 @@
             const banner = document.getElementById('submittedBanner');
             banner.classList.add('hidden');
             sessionStorage.setItem('fvp_submitted_banner_dismissed', 'true');
+
+            // Archive the submitted report and clear for new report
+            const todayKey = getTodayKey();
+            const saved = localStorage.getItem(todayKey);
+            if (saved) {
+                try {
+                    const report = JSON.parse(saved);
+                    if (report.meta && report.meta.submitted) {
+                        // Archive with timestamp to allow multiple submissions per day
+                        const archiveKey = `${todayKey}_submitted_${Date.now()}`;
+                        localStorage.setItem(archiveKey, saved);
+                        localStorage.removeItem(todayKey);
+                        localStorage.removeItem('fieldvoice_report');
+                    }
+                } catch (e) {}
+            }
+
+            // Update UI to show fresh state
+            updateReportStatus();
+        }
+
+        // Check if there's a submitted report (for showing success banner)
+        function hasSubmittedReport() {
+            const saved = localStorage.getItem(getTodayKey());
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    return parsed.meta && parsed.meta.submitted === true;
+                } catch (e) {}
+            }
+            return false;
         }
 
         // ============ INIT ============
@@ -661,6 +674,12 @@
 
             if (shouldShowBanner()) {
                 showPermissionsBanner();
+            }
+
+            // Show submitted banner if there's a submitted report and not dismissed this session
+            const bannerDismissedThisSession = sessionStorage.getItem('fvp_submitted_banner_dismissed') === 'true';
+            if (hasSubmittedReport() && !bannerDismissedThisSession) {
+                document.getElementById('submittedBanner').classList.remove('hidden');
             }
 
             document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
