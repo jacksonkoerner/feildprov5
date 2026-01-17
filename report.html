@@ -43,12 +43,42 @@
                 <a href="quick-interview.html" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg font-bold text-sm hover:bg-indigo-200 transition-colors">
                     <i class="fas fa-edit mr-1"></i> Edit
                 </a>
-                <button onclick="window.print()" class="px-4 py-2 bg-emerald-600 text-white rounded-lg font-bold text-sm shadow-md hover:bg-emerald-700 transition-colors">
-                    <i class="fas fa-print mr-1"></i> Print / PDF
+                <button onclick="window.print()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-200 transition-colors">
+                    <i class="fas fa-print mr-1"></i> Print
+                </button>
+                <button id="submit-report-btn" onclick="showSubmitConfirmation()" class="px-4 py-2 bg-orange-600 text-white rounded-lg font-bold text-sm shadow-md hover:bg-orange-700 transition-colors">
+                    <i class="fas fa-cloud-upload-alt mr-1"></i> Submit
                 </button>
             </div>
         </div>
     </div>
+
+    <!-- Submit Confirmation Modal -->
+    <div id="submit-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 print-hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-cloud-upload-alt text-orange-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-slate-800">Submit Report</h3>
+                    <p class="text-sm text-slate-500">This action cannot be undone</p>
+                </div>
+            </div>
+            <p class="text-slate-600 mb-6">Are you sure you want to submit this report? This will save it to the project database.</p>
+            <div class="flex gap-3 justify-end">
+                <button onclick="hideSubmitConfirmation()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-200 transition-colors">
+                    Cancel
+                </button>
+                <button id="confirm-submit-btn" onclick="submitReport()" class="px-4 py-2 bg-orange-600 text-white rounded-lg font-bold text-sm shadow-md hover:bg-orange-700 transition-colors">
+                    <i class="fas fa-cloud-upload-alt mr-1"></i> Submit Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notification container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 print-hidden"></div>
 
     <div class="max-w-4xl mx-auto p-4 sm:p-8 print:p-0 print:max-w-none">
 
@@ -177,6 +207,9 @@
     </div>
 
     <script>
+        // ============ CONFIGURATION ============
+        const N8N_SUBMIT_WEBHOOK = "WEBHOOK_URL_PLACEHOLDER"; // Will be replaced with actual URL
+
         // ============ STATE MANAGEMENT ============
         function getReportKey() {
             const params = new URLSearchParams(window.location.search);
@@ -495,8 +528,242 @@
             }
         }
 
+        // ============ SUBMIT REPORT ============
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-emerald-600',
+                error: 'bg-red-600',
+                warning: 'bg-orange-500',
+                info: 'bg-blue-600'
+            };
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+            toast.className = `${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 mb-2 animate-fade-in`;
+            toast.innerHTML = `<i class="fas ${icons[type]}"></i><span class="font-bold text-sm">${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // Show confirmation modal
+        function showSubmitConfirmation() {
+            const report = getReport();
+
+            // Check if already submitted
+            if (report.meta?.submitted) {
+                showToast('This report has already been submitted', 'warning');
+                return;
+            }
+
+            document.getElementById('submit-modal').classList.remove('hidden');
+        }
+
+        // Hide confirmation modal
+        function hideSubmitConfirmation() {
+            document.getElementById('submit-modal').classList.add('hidden');
+        }
+
+        // Gather all report data for submission
+        function gatherReportData() {
+            const report = getReport();
+            const o = report.overview || {};
+            const w = o.weather || {};
+            const safety = report.safety || { hasIncidents: false, notes: [] };
+            const naMarked = report.meta?.naMarked || {};
+
+            // Get refined or original text for each section
+            const getTextContent = (section, originalData) => {
+                if (naMarked[section]) return 'N/A';
+                return report.refinedData?.[section] || originalData || '';
+            };
+
+            // Prepare activities text
+            let workSummaryText = '';
+            if (report.refinedData?.activities) {
+                workSummaryText = report.refinedData.activities;
+            } else if (report.activities?.length > 0) {
+                workSummaryText = report.activities.map(a => a.narrative).join('\n\n');
+            }
+
+            // Prepare issues text
+            let issuesText = getTextContent('issues', report.generalIssues?.join('\n\n') || '');
+
+            // Prepare inspections text
+            let inspectionsText = getTextContent('inspections', report.qaqcNotes?.join('\n\n') || '');
+
+            // Prepare visitors text
+            let visitorsText = '';
+            if (naMarked.visitors) {
+                visitorsText = 'N/A';
+            } else if (report.refinedData?.visitors) {
+                visitorsText = report.refinedData.visitors;
+            } else {
+                const visitorsContent = [...(report.visitorsRemarks || []), ...(report.communications || [])];
+                visitorsText = visitorsContent.join('\n\n');
+            }
+
+            // Prepare safety text
+            let safetyNotes = '';
+            if (report.refinedData?.safety) {
+                safetyNotes = report.refinedData.safety;
+            } else if (safety.notes?.length > 0) {
+                safetyNotes = safety.notes.join('\n\n');
+            }
+
+            // Prepare additional notes
+            let additionalNotes = report.refinedData?.notes || report.additionalNotes || '';
+
+            // Prepare photos array with base64 data
+            const photos = (report.photos || []).map(p => ({
+                id: p.id || `photo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                base64: p.url || '',
+                timestamp: p.timestamp || null,
+                gps: p.gps || null,
+                caption: p.caption || ''
+            }));
+
+            return {
+                submittedAt: new Date().toISOString(),
+                reporter: {
+                    name: report.reporter?.name || o.completedBy || ''
+                },
+                project: {
+                    name: report.project?.name || o.projectName || '',
+                    dayNumber: report.project?.dayNumber || null
+                },
+                date: o.date || new Date().toLocaleDateString(),
+                startTime: o.startTime || '',
+                endTime: o.endTime || '',
+                shiftDuration: o.shiftDuration || '',
+                weather: {
+                    highTemp: w.highTemp || '',
+                    lowTemp: w.lowTemp || '',
+                    precipitation: w.precipitation || '',
+                    generalCondition: w.generalCondition || '',
+                    jobSiteCondition: w.jobSiteCondition || 'Dry'
+                },
+                workSummary: workSummaryText,
+                issues: issuesText,
+                inspections: inspectionsText,
+                safety: {
+                    hasIncidents: safety.hasIncidents || false,
+                    notes: safetyNotes
+                },
+                visitors: visitorsText,
+                additionalNotes: additionalNotes,
+                photos: photos
+            };
+        }
+
+        // Submit report to webhook
+        async function submitReport() {
+            const submitBtn = document.getElementById('submit-report-btn');
+            const confirmBtn = document.getElementById('confirm-submit-btn');
+            const originalBtnHtml = submitBtn.innerHTML;
+            const originalConfirmHtml = confirmBtn.innerHTML;
+
+            // Set loading state
+            submitBtn.disabled = true;
+            confirmBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Submitting...';
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Submitting...';
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            confirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            try {
+                const payload = gatherReportData();
+
+                // Create abort controller for timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for photos
+
+                const response = await fetch(N8N_SUBMIT_WEBHOOK, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
+
+                // Mark report as submitted
+                const report = getReport();
+                if (!report.meta) report.meta = {};
+                report.meta.submitted = true;
+                report.meta.submittedAt = new Date().toISOString();
+
+                // Save updated report
+                const key = getReportKey();
+                localStorage.setItem(key, JSON.stringify(report));
+                localStorage.setItem('fieldvoice_report', JSON.stringify(report));
+
+                // Update button to show success
+                submitBtn.innerHTML = '<i class="fas fa-check mr-1"></i> Submitted';
+                submitBtn.classList.remove('bg-orange-600', 'hover:bg-orange-700');
+                submitBtn.classList.add('bg-emerald-600', 'cursor-default');
+                submitBtn.disabled = true;
+
+                hideSubmitConfirmation();
+                showToast('Report submitted successfully!', 'success');
+
+            } catch (error) {
+                console.error('Submit error:', error);
+
+                // Restore button state
+                submitBtn.disabled = false;
+                confirmBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
+                confirmBtn.innerHTML = originalConfirmHtml;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+                let errorMessage = 'Failed to submit report';
+                if (error.name === 'AbortError') {
+                    errorMessage = 'Request timed out - please try again';
+                } else if (error.message.includes('fetch')) {
+                    errorMessage = 'Network error - check your connection';
+                } else if (error.message.includes('Server error')) {
+                    errorMessage = error.message;
+                }
+
+                hideSubmitConfirmation();
+                showToast(errorMessage, 'error');
+            }
+        }
+
+        // Check if report was already submitted and update button
+        function checkSubmittedStatus() {
+            const report = getReport();
+            if (report.meta?.submitted) {
+                const submitBtn = document.getElementById('submit-report-btn');
+                submitBtn.innerHTML = '<i class="fas fa-check mr-1"></i> Submitted';
+                submitBtn.classList.remove('bg-orange-600', 'hover:bg-orange-700');
+                submitBtn.classList.add('bg-emerald-600', 'cursor-default');
+                submitBtn.disabled = true;
+            }
+        }
+
         // ============ INIT ============
-        document.addEventListener('DOMContentLoaded', renderReport);
+        document.addEventListener('DOMContentLoaded', () => {
+            renderReport();
+            checkSubmittedStatus();
+        });
     </script>
 </body>
 </html>
