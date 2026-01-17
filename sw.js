@@ -1,24 +1,24 @@
 // FieldVoice Pro Service Worker
 // Enables offline functionality for PWA
 
-const CACHE_VERSION = 'v1.1.0';
+const CACHE_VERSION = 'v1.2.0';
 const CACHE_NAME = `fieldvoice-pro-${CACHE_VERSION}`;
 
 // Files to cache for offline use
 const STATIC_ASSETS = [
-    '/',
-    '/index.html',
-    '/quick-interview.html',
-    '/review.html',
-    '/report.html',
-    '/editor.html',
-    '/permissions.html',
-    '/permission-debug.html',
-    '/settings.html',
-    '/landing.html',
-    '/manifest.json',
-    '/icons/icon-192x192.png',
-    '/icons/icon-512x512.png'
+    './',
+    './index.html',
+    './quick-interview.html',
+    './review.html',
+    './report.html',
+    './editor.html',
+    './permissions.html',
+    './permission-debug.html',
+    './settings.html',
+    './landing.html',
+    './manifest.json',
+    './icons/icon-192x192.png',
+    './icons/icon-512x512.png'
 ];
 
 // External CDN assets to cache
@@ -138,7 +138,7 @@ async function handleStaticRequest(request) {
         // Return a basic offline page for navigation requests
         if (request.mode === 'navigate') {
             const cache = await caches.open(CACHE_NAME);
-            const cachedIndex = await cache.match('/index.html');
+            const cachedIndex = await cache.match('./index.html');
             if (cachedIndex) {
                 return cachedIndex;
             }
