@@ -621,7 +621,7 @@
             URL.revokeObjectURL(url);
         }
 
-        function exportTrainingData() {
+        async function exportTrainingData() {
             saveRefinedDataToReport();
 
             const currentDate = new Date().toLocaleDateString('en-US', {
@@ -687,7 +687,160 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            showToast('Training data exported!');
+            // Export photos with metadata overlay
+            if (report.photos && report.photos.length > 0) {
+                showToast('Exporting photos with metadata...', 'info');
+                await exportPhotosWithMetadata();
+            } else {
+                showToast('Data exported! (No photos to export)', 'success');
+            }
+        }
+
+        // Export photos at original size with coordinates and timestamp overlaid
+        async function exportPhotosWithMetadata() {
+            const photos = report.photos || [];
+            if (photos.length === 0) return;
+
+            let exportedCount = 0;
+
+            for (let i = 0; i < photos.length; i++) {
+                const photo = photos[i];
+                try {
+                    const dataUrl = await processPhotoWithMetadata(photo, i + 1);
+                    if (dataUrl) {
+                        // Trigger download
+                        const a = document.createElement('a');
+                        a.href = dataUrl;
+                        const dateStr = new Date().toISOString().split('T')[0];
+                        a.download = `photo-${i + 1}-${dateStr}.jpg`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        exportedCount++;
+
+                        // Small delay between downloads to prevent browser blocking
+                        if (i < photos.length - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 300));
+                        }
+                    }
+                } catch (err) {
+                    console.error(`Error exporting photo ${i + 1}:`, err);
+                }
+            }
+
+            if (exportedCount > 0) {
+                showToast(`Exported ${exportedCount} photo(s) with metadata!`, 'success');
+            } else {
+                showToast('Data exported! (Photos could not be processed)', 'warning');
+            }
+        }
+
+        // Process a single photo: draw at original size with metadata overlay
+        function processPhotoWithMetadata(photo, photoNumber) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+
+                img.onload = function() {
+                    // Create canvas at original image dimensions
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    const ctx = canvas.getContext('2d');
+
+                    // Draw the original image at full size
+                    ctx.drawImage(img, 0, 0);
+
+                    // Prepare metadata text
+                    const lines = [];
+
+                    // Add timestamp
+                    if (photo.timestamp) {
+                        const date = new Date(photo.timestamp);
+                        const formattedDate = date.toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        });
+                        const formattedTime = date.toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        });
+                        lines.push(`${formattedDate} ${formattedTime}`);
+                    } else if (photo.time) {
+                        lines.push(photo.time);
+                    }
+
+                    // Add GPS coordinates
+                    if (photo.gps && (photo.gps.latitude || photo.gps.lat)) {
+                        const lat = photo.gps.latitude || photo.gps.lat;
+                        const lon = photo.gps.longitude || photo.gps.lon || photo.gps.lng;
+                        if (lat && lon) {
+                            const latStr = Math.abs(lat).toFixed(6) + '° ' + (lat >= 0 ? 'N' : 'S');
+                            const lonStr = Math.abs(lon).toFixed(6) + '° ' + (lon >= 0 ? 'E' : 'W');
+                            lines.push(`GPS: ${latStr}, ${lonStr}`);
+                        }
+                    }
+
+                    // Add project name if available
+                    if (report?.overview?.projectName) {
+                        lines.push(report.overview.projectName);
+                    }
+
+                    // Draw metadata overlay if we have any text
+                    if (lines.length > 0) {
+                        // Calculate font size based on image dimensions (responsive)
+                        const baseFontSize = Math.max(16, Math.min(canvas.width, canvas.height) * 0.025);
+                        const padding = baseFontSize * 0.8;
+                        const lineHeight = baseFontSize * 1.4;
+
+                        ctx.font = `bold ${baseFontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif`;
+
+                        // Calculate text dimensions
+                        let maxWidth = 0;
+                        lines.forEach(line => {
+                            const metrics = ctx.measureText(line);
+                            maxWidth = Math.max(maxWidth, metrics.width);
+                        });
+
+                        const boxWidth = maxWidth + padding * 2;
+                        const boxHeight = lines.length * lineHeight + padding * 2;
+
+                        // Position at bottom-left corner
+                        const boxX = padding;
+                        const boxY = canvas.height - boxHeight - padding;
+
+                        // Draw semi-transparent background
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                        ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+
+                        // Draw border
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+                        // Draw text
+                        ctx.fillStyle = '#ffffff';
+                        ctx.textBaseline = 'top';
+                        lines.forEach((line, index) => {
+                            ctx.fillText(line, boxX + padding, boxY + padding + index * lineHeight);
+                        });
+                    }
+
+                    // Export as JPEG at high quality
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+                    resolve(dataUrl);
+                };
+
+                img.onerror = function() {
+                    console.error('Failed to load image for photo', photoNumber);
+                    resolve(null);
+                };
+
+                // Load the image from base64 or URL
+                img.src = photo.url;
+            });
         }
 
         function copyToClipboard() {
