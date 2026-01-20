@@ -89,6 +89,9 @@
                     <a href="quick-interview.html" class="w-9 h-9 flex items-center justify-center border border-slate-600 hover:bg-slate-800 transition-colors" title="Back to Interview">
                         <i class="fas fa-arrow-left text-slate-400 text-sm"></i>
                     </a>
+                    <button onclick="showCancelConfirmation()" class="w-9 h-9 flex items-center justify-center border border-red-600/50 hover:bg-red-600/20 transition-colors" title="Cancel Report">
+                        <i class="fas fa-times text-red-400 text-sm"></i>
+                    </button>
                 </div>
                 <div class="text-center flex-1 mx-4">
                     <p class="text-[10px] font-bold text-safety-green uppercase tracking-widest">AI Kit</p>
@@ -338,6 +341,30 @@
                 <button id="confirm-submit-btn" onclick="submitReport()" class="px-4 py-2 bg-dot-orange text-white rounded-lg font-bold text-sm shadow-md hover:bg-orange-700 transition-colors">
                     <i class="fas fa-cloud-upload-alt mr-1"></i> Submit Report
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Report Confirmation Modal -->
+    <div id="cancel-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-lg overflow-hidden">
+            <div class="bg-red-600 text-white p-6 text-center">
+                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-white text-2xl"></i>
+                </div>
+                <p class="text-xl font-bold uppercase">Cancel Report?</p>
+                <p class="text-sm text-white/80 mt-1">This action cannot be undone</p>
+            </div>
+            <div class="p-4">
+                <p class="text-slate-600 text-sm text-center mb-4">Are you sure you want to cancel this report? All data entered today will be permanently deleted.</p>
+                <div class="space-y-2">
+                    <button onclick="cancelReport()" class="w-full p-4 bg-red-600 hover:bg-red-700 text-white font-bold uppercase rounded-lg transition-colors">
+                        <i class="fas fa-trash mr-2"></i>Yes, Cancel Report
+                    </button>
+                    <button onclick="hideCancelConfirmation()" class="w-full p-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold uppercase rounded-lg transition-colors">
+                        No, Keep Working
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1467,6 +1494,28 @@
         // Hide confirmation modal
         function hideSubmitConfirmation() {
             document.getElementById('submit-modal').classList.add('hidden');
+        }
+
+        // ============ CANCEL REPORT ============
+        function showCancelConfirmation() {
+            document.getElementById('cancel-modal').classList.remove('hidden');
+        }
+
+        function hideCancelConfirmation() {
+            document.getElementById('cancel-modal').classList.add('hidden');
+        }
+
+        function cancelReport() {
+            // Clear today's report data
+            localStorage.removeItem(getTodayKey());
+            localStorage.removeItem('fieldvoice_report');
+
+            showToast('Report cancelled', 'info');
+
+            // Redirect to dashboard after brief delay
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 500);
         }
 
         // Gather all report data for submission

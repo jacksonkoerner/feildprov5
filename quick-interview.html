@@ -89,9 +89,14 @@
         <!-- HEADER -->
         <header class="sticky top-0 z-20 bg-dot-navy text-white">
             <div class="p-4 flex items-center justify-between">
-                <a href="index.html" class="w-10 h-10 flex items-center justify-center border border-slate-600 hover:bg-slate-800 transition-colors">
-                    <i class="fas fa-arrow-left text-slate-400"></i>
-                </a>
+                <div class="flex items-center gap-2">
+                    <a href="index.html" class="w-10 h-10 flex items-center justify-center border border-slate-600 hover:bg-slate-800 transition-colors">
+                        <i class="fas fa-arrow-left text-slate-400"></i>
+                    </a>
+                    <button onclick="showCancelConfirmation()" class="w-10 h-10 flex items-center justify-center border border-red-600/50 hover:bg-red-600/20 transition-colors" title="Cancel Report">
+                        <i class="fas fa-times text-red-400"></i>
+                    </button>
+                </div>
                 <div class="text-center flex-1 mx-4">
                     <p class="text-[10px] font-bold text-safety-green uppercase tracking-widest">Daily Report</p>
                     <p id="currentDate" class="text-sm text-slate-400"></p>
@@ -453,6 +458,30 @@
             <div class="p-4 pt-0 space-y-2">
                 <button id="permissionsContinueBtn" onclick="closePermissionsModal()" class="w-full p-4 bg-dot-navy hover:bg-dot-blue text-white font-bold uppercase transition-colors">Continue</button>
                 <button onclick="closePermissionsModal()" class="w-full p-3 text-slate-500 hover:text-slate-700 text-sm font-medium">Skip for now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Report Confirmation Modal -->
+    <div id="cancel-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm">
+            <div class="bg-red-600 text-white p-6 text-center">
+                <div class="w-16 h-16 bg-white/20 flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-white text-2xl"></i>
+                </div>
+                <p class="text-xl font-bold uppercase">Cancel Report?</p>
+                <p class="text-sm text-white/80 mt-1">This action cannot be undone</p>
+            </div>
+            <div class="p-4">
+                <p class="text-slate-600 text-sm text-center mb-4">Are you sure you want to cancel this report? All data entered today will be permanently deleted.</p>
+                <div class="space-y-2">
+                    <button onclick="cancelReport()" class="w-full p-4 bg-red-600 hover:bg-red-700 text-white font-bold uppercase transition-colors">
+                        <i class="fas fa-trash mr-2"></i>Yes, Cancel Report
+                    </button>
+                    <button onclick="hideCancelConfirmation()" class="w-full p-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold uppercase transition-colors">
+                        No, Keep Working
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1167,6 +1196,28 @@
         function closePermissionsModal() {
             document.getElementById('permissionsModal').classList.add('hidden');
             localStorage.setItem('permissions_dismissed', 'true');
+        }
+
+        // ============ CANCEL REPORT ============
+        function showCancelConfirmation() {
+            document.getElementById('cancel-modal').classList.remove('hidden');
+        }
+
+        function hideCancelConfirmation() {
+            document.getElementById('cancel-modal').classList.add('hidden');
+        }
+
+        function cancelReport() {
+            // Clear today's report data
+            localStorage.removeItem(getTodayKey());
+            localStorage.removeItem('fieldvoice_report');
+
+            showToast('Report cancelled', 'info');
+
+            // Redirect to dashboard after brief delay
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 500);
         }
 
         function finishReport() {
