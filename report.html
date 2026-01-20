@@ -59,12 +59,23 @@
                 <a href="index.html" class="w-9 h-9 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors" title="Home">
                     <i class="fas fa-home text-slate-600"></i>
                 </a>
-                <a href="review.html" class="flex items-center gap-2 text-slate-600 font-bold hover:text-slate-800 transition-colors">
+                <!-- Default navigation (editable mode) -->
+                <a id="nav-edit-mode" href="review.html" class="flex items-center gap-2 text-slate-600 font-bold hover:text-slate-800 transition-colors">
                     <i class="fas fa-arrow-left"></i>
                     <span class="hidden sm:inline">Back to AI Kit</span>
                 </a>
+                <!-- Read-only navigation (hidden by default) -->
+                <a id="nav-readonly-mode" href="archives.html" class="hidden items-center gap-2 text-slate-600 font-bold hover:text-slate-800 transition-colors">
+                    <i class="fas fa-arrow-left"></i>
+                    <span class="hidden sm:inline">Back to Archives</span>
+                </a>
             </div>
             <div class="flex items-center gap-2">
+                <!-- View Only badge (hidden by default) -->
+                <span id="view-only-badge" class="hidden px-3 py-1.5 bg-slate-100 text-slate-500 rounded-lg font-bold text-xs uppercase tracking-wide">
+                    <i class="fas fa-eye mr-1"></i> View Only
+                </span>
+                <!-- Submit button (hidden in readonly mode) -->
                 <button id="submit-report-btn" onclick="showSubmitConfirmation()" class="px-4 py-2 bg-orange-600 text-white rounded-lg font-bold text-sm shadow-md hover:bg-orange-700 transition-colors">
                     <i class="fas fa-cloud-upload-alt mr-1"></i> Submit
                 </button>
@@ -278,9 +289,23 @@
         const N8N_SUBMIT_WEBHOOK = "https://advidere.app.n8n.cloud/webhook/fieldvoice-submit";
 
         // ============ STATE MANAGEMENT ============
+        function getQueryParams() {
+            return new URLSearchParams(window.location.search);
+        }
+
+        function isReadOnly() {
+            return getQueryParams().get('readonly') === 'true';
+        }
+
         function getReportKey() {
-            const params = new URLSearchParams(window.location.search);
-            return params.get('key') || getTodayKey();
+            const params = getQueryParams();
+            // Support both 'key' and 'date' params
+            const keyParam = params.get('key');
+            const dateParam = params.get('date');
+
+            if (keyParam) return keyParam;
+            if (dateParam) return `fieldvoice_report_${dateParam}`;
+            return getTodayKey();
         }
 
         function getTodayKey() {
@@ -1502,11 +1527,45 @@
             }
         }
 
+        // ============ READ-ONLY MODE ============
+        function applyReadOnlyMode() {
+            if (!isReadOnly()) return;
+
+            // Hide submit button
+            const submitBtn = document.getElementById('submit-report-btn');
+            if (submitBtn) {
+                submitBtn.classList.add('hidden');
+            }
+
+            // Show view-only badge
+            const viewOnlyBadge = document.getElementById('view-only-badge');
+            if (viewOnlyBadge) {
+                viewOnlyBadge.classList.remove('hidden');
+            }
+
+            // Switch navigation links
+            const editModeNav = document.getElementById('nav-edit-mode');
+            const readonlyModeNav = document.getElementById('nav-readonly-mode');
+
+            if (editModeNav) {
+                editModeNav.classList.add('hidden');
+                editModeNav.classList.remove('flex');
+            }
+            if (readonlyModeNav) {
+                readonlyModeNav.classList.remove('hidden');
+                readonlyModeNav.classList.add('flex');
+            }
+        }
+
         // ============ INIT ============
         document.addEventListener('DOMContentLoaded', () => {
+            applyReadOnlyMode();
             renderReport();
             checkSubmittedStatus();
-            markReportAsViewed();
+            // Only mark as viewed if not in read-only mode (viewing from archives)
+            if (!isReadOnly()) {
+                markReportAsViewed();
+            }
         });
     </script>
 

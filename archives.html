@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Report Archives - FieldVoice Pro</title>
+
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
+    <meta name="theme-color" content="#0a1628">
+
+    <!-- iOS PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FieldVoice">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'dot-navy': '#0a1628',
+                        'dot-blue': '#1e3a5f',
+                        'dot-slate': '#334155',
+                        'dot-orange': '#ea580c',
+                        'dot-yellow': '#f59e0b',
+                        'safety-green': '#16a34a',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+        .header-stripe {
+            background: repeating-linear-gradient(
+                -45deg,
+                #f59e0b,
+                #f59e0b 10px,
+                #0a1628 10px,
+                #0a1628 20px
+            );
+            height: 4px;
+            padding-top: env(safe-area-inset-top);
+        }
+
+        /* Swipe-to-delete container */
+        .swipe-container {
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .swipe-container::-webkit-scrollbar {
+            display: none;
+        }
+        .swipe-content {
+            display: flex;
+            width: max-content;
+        }
+        .swipe-main {
+            flex-shrink: 0;
+            width: 100%;
+            min-width: 100%;
+            scroll-snap-align: start;
+        }
+        .swipe-action {
+            flex-shrink: 0;
+            width: 80px;
+            scroll-snap-align: end;
+        }
+
+        /* Highlight animation for date search */
+        @keyframes highlightPulse {
+            0% { background-color: #fef3c7; }
+            50% { background-color: #fde68a; }
+            100% { background-color: transparent; }
+        }
+        .highlight-row {
+            animation: highlightPulse 1.5s ease-out;
+        }
+
+        /* Toast animation */
+        @keyframes slideIn {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .toast-animate {
+            animation: slideIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen">
+    <!-- Safety Stripe Header -->
+    <div class="header-stripe"></div>
+
+    <div id="app" class="max-w-lg mx-auto min-h-screen flex flex-col">
+
+        <!-- HEADER -->
+        <header class="bg-dot-navy text-white p-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <a href="index.html" class="w-10 h-10 border border-slate-600 flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                        <i class="fas fa-home"></i>
+                    </a>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fas fa-archive text-dot-yellow"></i>
+                            <span class="text-[10px] font-bold tracking-widest text-dot-yellow">FIELDVOICE PRO</span>
+                        </div>
+                        <h1 class="text-xl font-bold tracking-tight">Report Archives</h1>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- DATE PICKER SECTION -->
+        <section class="px-4 py-4 bg-white border-b border-slate-200">
+            <div class="flex items-center gap-2">
+                <div class="flex-1 relative">
+                    <input
+                        type="date"
+                        id="datePicker"
+                        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-dot-blue focus:border-transparent"
+                    >
+                </div>
+                <button
+                    onclick="searchByDate()"
+                    class="px-4 py-2 bg-dot-navy text-white font-bold text-sm rounded-lg hover:bg-dot-blue transition-colors"
+                >
+                    Go
+                </button>
+            </div>
+        </section>
+
+        <!-- REPORT LIST -->
+        <section id="reportListSection" class="flex-1 overflow-y-auto">
+            <!-- Reports will be rendered here by JavaScript -->
+        </section>
+
+        <!-- EMPTY STATE (hidden by default) -->
+        <section id="emptyState" class="flex-1 hidden px-4 py-12">
+            <div class="text-center">
+                <div class="w-20 h-20 bg-slate-100 border-2 border-slate-300 flex items-center justify-center mx-auto mb-4 rounded-full">
+                    <i class="fas fa-folder-open text-slate-400 text-3xl"></i>
+                </div>
+                <p class="text-lg font-bold text-slate-600 mb-2">No reports yet</p>
+                <p class="text-sm text-slate-500 mb-6">Complete your first daily report to see it here.</p>
+                <a href="index.html" class="inline-flex items-center gap-2 px-6 py-3 bg-dot-navy text-white font-bold text-sm rounded-lg hover:bg-dot-blue transition-colors">
+                    <i class="fas fa-plus"></i>
+                    Start First Report
+                </a>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="bg-dot-navy text-center py-3">
+            <p class="text-[10px] text-slate-500 uppercase tracking-widest">
+                <i class="fas fa-shield-alt mr-1"></i>
+                DOT Compliant Field Documentation System
+            </p>
+        </footer>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-trash-alt text-red-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-slate-800">Delete Report</h3>
+                    <p class="text-sm text-slate-500">This cannot be undone</p>
+                </div>
+            </div>
+            <p id="deleteModalText" class="text-slate-600 mb-6">Are you sure you want to delete this report?</p>
+            <div class="flex gap-3 justify-end">
+                <button onclick="hideDeleteModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-200 transition-colors">
+                    Cancel
+                </button>
+                <button id="confirmDeleteBtn" onclick="confirmDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg font-bold text-sm shadow-md hover:bg-red-700 transition-colors">
+                    <i class="fas fa-trash-alt mr-1"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed bottom-4 left-4 right-4 z-50 flex flex-col items-center gap-2 pointer-events-none"></div>
+
+    <script>
+        // ============ STATE ============
+        let reports = [];
+        let pendingDeleteKey = null;
+
+        // ============ STORAGE HELPERS ============
+        function scanReports() {
+            const reportKeys = [];
+            const reportPattern = /^fieldvoice_report_(\d{4}-\d{2}-\d{2})$/;
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const match = key.match(reportPattern);
+                if (match) {
+                    try {
+                        const data = JSON.parse(localStorage.getItem(key));
+                        const dateStr = match[1];
+
+                        reportKeys.push({
+                            key: key,
+                            date: dateStr,
+                            submitted: data.meta?.submitted === true,
+                            submittedAt: data.meta?.submittedAt || null,
+                            photoCount: (data.photos || []).length,
+                            createdAt: data.meta?.createdAt || null,
+                            projectName: data.project?.name || data.overview?.projectName || null
+                        });
+                    } catch (e) {
+                        console.error('Failed to parse report:', key, e);
+                    }
+                }
+            }
+
+            // Sort by date descending (newest first)
+            reportKeys.sort((a, b) => b.date.localeCompare(a.date));
+
+            return reportKeys;
+        }
+
+        function deleteReport(key) {
+            localStorage.removeItem(key);
+            // Also check and remove legacy key if it matches
+            const legacyData = localStorage.getItem('fieldvoice_report');
+            if (legacyData) {
+                try {
+                    const parsed = JSON.parse(legacyData);
+                    const legacyDate = parsed.overview?.date;
+                    // Extract date from key (fieldvoice_report_YYYY-MM-DD)
+                    const keyDate = key.replace('fieldvoice_report_', '');
+                    // Compare dates (legacy might be in different format)
+                    if (legacyDate) {
+                        const legacyDateObj = new Date(legacyDate);
+                        const keyDateObj = new Date(keyDate);
+                        if (legacyDateObj.toDateString() === keyDateObj.toDateString()) {
+                            localStorage.removeItem('fieldvoice_report');
+                        }
+                    }
+                } catch (e) {}
+            }
+        }
+
+        // ============ UI RENDERING ============
+        function formatDate(dateStr) {
+            const date = new Date(dateStr + 'T12:00:00'); // Add noon time to avoid timezone issues
+            return date.toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        function renderReportList() {
+            reports = scanReports();
+            const listSection = document.getElementById('reportListSection');
+            const emptyState = document.getElementById('emptyState');
+
+            if (reports.length === 0) {
+                listSection.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            listSection.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            listSection.innerHTML = reports.map((report, index) => `
+                <div id="report-row-${report.date}" class="swipe-container border-b border-slate-200 bg-white">
+                    <div class="swipe-content">
+                        <div class="swipe-main">
+                            <a href="report.html?date=${report.date}&readonly=true" class="block px-4 py-4 hover:bg-slate-50 transition-colors">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-bold text-slate-800 text-sm truncate">${formatDate(report.date)}</p>
+                                        ${report.projectName ? `<p class="text-xs text-slate-500 truncate mt-0.5">${report.projectName}</p>` : ''}
+                                    </div>
+                                    <div class="flex items-center gap-3 ml-3">
+                                        ${report.photoCount > 0 ? `
+                                            <span class="flex items-center gap-1 text-slate-500 text-xs">
+                                                <i class="fas fa-camera text-slate-400"></i>
+                                                ${report.photoCount}
+                                            </span>
+                                        ` : ''}
+                                        <span class="px-2 py-1 text-[10px] font-bold uppercase tracking-wide rounded ${
+                                            report.submitted
+                                                ? 'bg-safety-green/10 text-safety-green'
+                                                : 'bg-dot-yellow/10 text-dot-orange'
+                                        }">
+                                            ${report.submitted ? 'Submitted' : 'Draft'}
+                                        </span>
+                                        <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="swipe-action flex items-stretch">
+                            <button
+                                onclick="showDeleteModal('${report.key}', '${report.date}')"
+                                class="w-full bg-red-600 text-white font-bold text-sm flex items-center justify-center hover:bg-red-700 transition-colors"
+                            >
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============ DATE SEARCH ============
+        function searchByDate() {
+            const datePicker = document.getElementById('datePicker');
+            const selectedDate = datePicker.value;
+
+            if (!selectedDate) {
+                showToast('Please select a date', 'warning');
+                return;
+            }
+
+            const key = `fieldvoice_report_${selectedDate}`;
+            const exists = localStorage.getItem(key);
+
+            if (exists) {
+                const row = document.getElementById(`report-row-${selectedDate}`);
+                if (row) {
+                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Add highlight effect
+                    row.querySelector('.swipe-main').classList.add('highlight-row');
+                    setTimeout(() => {
+                        row.querySelector('.swipe-main').classList.remove('highlight-row');
+                    }, 1500);
+                }
+            } else {
+                const formattedDate = formatDate(selectedDate);
+                showToast(`No report found for ${formattedDate}`, 'info');
+            }
+        }
+
+        // ============ DELETE MODAL ============
+        function showDeleteModal(key, date) {
+            pendingDeleteKey = key;
+            const formattedDate = formatDate(date);
+            document.getElementById('deleteModalText').textContent =
+                `Are you sure you want to delete the report for ${formattedDate}? This action cannot be undone.`;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        function hideDeleteModal() {
+            pendingDeleteKey = null;
+            document.getElementById('deleteModal').classList.add('hidden');
+        }
+
+        function confirmDelete() {
+            if (pendingDeleteKey) {
+                deleteReport(pendingDeleteKey);
+                showToast('Report deleted', 'success');
+                renderReportList();
+            }
+            hideDeleteModal();
+        }
+
+        // ============ TOAST NOTIFICATIONS ============
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+
+            const colors = {
+                success: 'bg-safety-green',
+                error: 'bg-red-600',
+                warning: 'bg-dot-orange',
+                info: 'bg-dot-blue'
+            };
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+
+            toast.className = `${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 toast-animate pointer-events-auto max-w-sm`;
+            toast.innerHTML = `
+                <i class="fas ${icons[type]}"></i>
+                <span class="font-medium text-sm">${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                toast.style.transition = 'all 0.3s ease-out';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ============ INITIALIZATION ============
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set date picker max to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('datePicker').max = today;
+            document.getElementById('datePicker').value = today;
+
+            // Render the report list
+            renderReportList();
+        });
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                hideDeleteModal();
+            }
+        });
+
+        // Close modal on background click
+        document.getElementById('deleteModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                hideDeleteModal();
+            }
+        });
+    </script>
+
+    <!-- PWA Navigation Fix - Prevent Safari from breaking out of standalone mode -->
+    <script>
+        (function() {
+            // Only apply fix when running as installed PWA
+            if (window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches) {
+                document.addEventListener('click', function(e) {
+                    const link = e.target.closest('a');
+                    if (link && link.href && link.href.startsWith(window.location.origin)) {
+                        // Internal link - prevent default and use location.href
+                        e.preventDefault();
+                        window.location.href = link.href;
+                    }
+                }, true);
+            }
+        })();
+    </script>
+
+    <!-- PWA Service Worker Registration & Offline Banner -->
+    <div id="offline-banner" class="fixed top-0 left-0 right-0 bg-yellow-500 text-yellow-900 text-center py-2 px-4 font-bold text-sm z-[9999] transform -translate-y-full transition-transform duration-300" style="display: none;">
+        <i class="fas fa-wifi-slash mr-2"></i>You are offline - Some features may be unavailable
+    </div>
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('[PWA] Service Worker registered:', registration.scope);
+
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('[PWA] New version available');
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('[PWA] Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // Offline/Online Event Handlers
+        const offlineBanner = document.getElementById('offline-banner');
+
+        function showOfflineBanner() {
+            if (offlineBanner) {
+                offlineBanner.style.display = 'block';
+                setTimeout(() => {
+                    offlineBanner.style.transform = 'translateY(0)';
+                }, 10);
+            }
+        }
+
+        function hideOfflineBanner() {
+            if (offlineBanner) {
+                offlineBanner.style.transform = 'translateY(-100%)';
+                setTimeout(() => {
+                    offlineBanner.style.display = 'none';
+                }, 300);
+            }
+        }
+
+        window.addEventListener('online', hideOfflineBanner);
+        window.addEventListener('offline', showOfflineBanner);
+
+        // Check initial state
+        if (!navigator.onLine) {
+            showOfflineBanner();
+        }
+    </script>
+</body>
+</html>
