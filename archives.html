@@ -84,16 +84,6 @@
             scroll-snap-align: end;
         }
 
-        /* Highlight animation for date search */
-        @keyframes highlightPulse {
-            0% { background-color: #fef3c7; }
-            50% { background-color: #fde68a; }
-            100% { background-color: transparent; }
-        }
-        .highlight-row {
-            animation: highlightPulse 1.5s ease-out;
-        }
-
         /* Toast animation */
         @keyframes slideIn {
             from { transform: translateY(100%); opacity: 0; }
@@ -127,25 +117,6 @@
                 </div>
             </div>
         </header>
-
-        <!-- DATE PICKER SECTION -->
-        <section class="px-4 py-4 bg-white border-b border-slate-200">
-            <div class="flex items-center gap-2">
-                <div class="flex-1 relative">
-                    <input
-                        type="date"
-                        id="datePicker"
-                        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-dot-blue focus:border-transparent"
-                    >
-                </div>
-                <button
-                    onclick="searchByDate()"
-                    class="px-4 py-2 bg-dot-navy text-white font-bold text-sm rounded-lg hover:bg-dot-blue transition-colors"
-                >
-                    Go
-                </button>
-            </div>
-        </section>
 
         <!-- REPORT LIST -->
         <section id="reportListSection" class="flex-1 overflow-y-auto">
@@ -331,35 +302,6 @@
             `).join('');
         }
 
-        // ============ DATE SEARCH ============
-        function searchByDate() {
-            const datePicker = document.getElementById('datePicker');
-            const selectedDate = datePicker.value;
-
-            if (!selectedDate) {
-                showToast('Please select a date', 'warning');
-                return;
-            }
-
-            const key = `fieldvoice_report_${selectedDate}`;
-            const exists = localStorage.getItem(key);
-
-            if (exists) {
-                const row = document.getElementById(`report-row-${selectedDate}`);
-                if (row) {
-                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    // Add highlight effect
-                    row.querySelector('.swipe-main').classList.add('highlight-row');
-                    setTimeout(() => {
-                        row.querySelector('.swipe-main').classList.remove('highlight-row');
-                    }, 1500);
-                }
-            } else {
-                const formattedDate = formatDate(selectedDate);
-                showToast(`No report found for ${formattedDate}`, 'info');
-            }
-        }
-
         // ============ DELETE MODAL ============
         function showDeleteModal(key, date) {
             pendingDeleteKey = key;
@@ -419,11 +361,6 @@
 
         // ============ INITIALIZATION ============
         document.addEventListener('DOMContentLoaded', () => {
-            // Set date picker max to today
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('datePicker').max = today;
-            document.getElementById('datePicker').value = today;
-
             // Render the report list
             renderReportList();
         });
