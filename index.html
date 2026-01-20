@@ -117,9 +117,14 @@
                     </h1>
                     <p id="currentDate" class="text-xs text-slate-400 mt-1"></p>
                 </div>
-                <button onclick="openSettings()" class="w-10 h-10 border border-slate-600 flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <i class="fas fa-cog"></i>
-                </button>
+                <div class="flex items-center gap-2">
+                    <a href="archives.html" class="w-10 h-10 border border-slate-600 flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-white transition-colors" title="Report Archives">
+                        <i class="fas fa-archive"></i>
+                    </a>
+                    <button onclick="openSettings()" class="w-10 h-10 border border-slate-600 flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-white transition-colors" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -163,13 +168,22 @@
             <!-- Content rendered by updateReportStatus() -->
         </section>
 
-        <!-- MORE FEATURES COMING SOON -->
+        <!-- REPORT ARCHIVES -->
         <section class="px-4 mb-4 flex-1">
-            <div class="bg-slate-50 border border-dashed border-slate-300 p-6 text-center">
-                <i class="fas fa-rocket text-slate-300 text-2xl mb-3"></i>
-                <p class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">More Features Coming Soon</p>
-                <p class="text-xs text-slate-400">Photo archives, report history, and more</p>
-            </div>
+            <a href="archives.html" class="block bg-white border-l-4 border-dot-slate p-4 hover:bg-slate-50 transition-colors">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-slate-100 flex items-center justify-center rounded">
+                            <i class="fas fa-archive text-dot-slate"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-800">Report Archives</p>
+                            <p class="text-xs text-slate-500">View past reports and history</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-slate-300"></i>
+                </div>
+            </a>
         </section>
 
         <!-- FOOTER -->
