@@ -96,6 +96,54 @@
         </div>
     </div>
 
+    <!-- Download Offer Modal -->
+    <div id="download-offer-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 print-hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-download text-emerald-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-slate-800">Report Submitted Successfully!</h3>
+                    <p class="text-sm text-slate-500">Would you like to save a copy?</p>
+                </div>
+            </div>
+            <p class="text-slate-600 mb-6">Download a backup copy of your report with all photos and data. This is recommended before starting a new report.</p>
+            <div class="flex gap-3 justify-end">
+                <button onclick="showSkipConfirmation()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-200 transition-colors">
+                    Skip
+                </button>
+                <button id="download-report-btn" onclick="downloadReportAndRedirect()" class="px-4 py-2 bg-emerald-600 text-white rounded-lg font-bold text-sm shadow-md hover:bg-emerald-700 transition-colors">
+                    <i class="fas fa-download mr-1"></i> Download Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skip Confirmation Modal -->
+    <div id="skip-confirm-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 print-hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-amber-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-slate-800">Are you sure?</h3>
+                    <p class="text-sm text-slate-500">You're about to skip the download</p>
+                </div>
+            </div>
+            <p class="text-slate-600 mb-6">After starting a new report, this data may no longer be available for download.</p>
+            <div class="flex gap-3 justify-end">
+                <button onclick="hideSkipConfirmation()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-200 transition-colors">
+                    Go Back
+                </button>
+                <button onclick="skipAndRedirect()" class="px-4 py-2 bg-slate-600 text-white rounded-lg font-bold text-sm shadow-md hover:bg-slate-700 transition-colors">
+                    Skip Anyway
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast notification container -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 print-hidden"></div>
 
@@ -746,7 +794,9 @@
                 submitBtn.disabled = true;
 
                 hideSubmitConfirmation();
-                showToast('Report submitted successfully!', 'success');
+
+                // Show download offer modal instead of toast and redirect
+                showDownloadOfferModal();
 
             } catch (error) {
                 console.error('Submit error:', error);
@@ -782,6 +832,661 @@
                 submitBtn.classList.remove('bg-orange-600', 'hover:bg-orange-700');
                 submitBtn.classList.add('bg-emerald-600', 'cursor-default');
                 submitBtn.disabled = true;
+            }
+        }
+
+        // ============ DOWNLOAD OFFER MODAL CONTROLS ============
+
+        // Show download offer modal
+        function showDownloadOfferModal() {
+            document.getElementById('download-offer-modal').classList.remove('hidden');
+        }
+
+        // Hide download offer modal
+        function hideDownloadOfferModal() {
+            document.getElementById('download-offer-modal').classList.add('hidden');
+        }
+
+        // Show skip confirmation modal
+        function showSkipConfirmation() {
+            document.getElementById('download-offer-modal').classList.add('hidden');
+            document.getElementById('skip-confirm-modal').classList.remove('hidden');
+        }
+
+        // Hide skip confirmation modal and go back to download offer
+        function hideSkipConfirmation() {
+            document.getElementById('skip-confirm-modal').classList.add('hidden');
+            document.getElementById('download-offer-modal').classList.remove('hidden');
+        }
+
+        // Skip download and redirect to home
+        function skipAndRedirect() {
+            document.getElementById('skip-confirm-modal').classList.add('hidden');
+            window.location.href = 'index.html';
+        }
+
+        // ============ EXPORT HELPER FUNCTIONS ============
+
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML.replace(/\n/g, '<br>');
+        }
+
+        // Process a single photo: draw at original size with metadata overlay
+        function processPhotoWithMetadata(photo, photoNumber, report) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+
+                img.onload = function() {
+                    // Create canvas at original image dimensions
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    const ctx = canvas.getContext('2d');
+
+                    // Draw the original image at full size
+                    ctx.drawImage(img, 0, 0);
+
+                    // Prepare metadata text
+                    const lines = [];
+
+                    // Add timestamp
+                    if (photo.timestamp) {
+                        const date = new Date(photo.timestamp);
+                        const formattedDate = date.toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        });
+                        const formattedTime = date.toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        });
+                        lines.push(`${formattedDate} ${formattedTime}`);
+                    } else if (photo.time) {
+                        lines.push(photo.time);
+                    }
+
+                    // Add GPS coordinates
+                    if (photo.gps && (photo.gps.latitude || photo.gps.lat)) {
+                        const lat = photo.gps.latitude || photo.gps.lat;
+                        const lon = photo.gps.longitude || photo.gps.lon || photo.gps.lng;
+                        if (lat && lon) {
+                            const latStr = Math.abs(lat).toFixed(6) + '° ' + (lat >= 0 ? 'N' : 'S');
+                            const lonStr = Math.abs(lon).toFixed(6) + '° ' + (lon >= 0 ? 'E' : 'W');
+                            lines.push(`GPS: ${latStr}, ${lonStr}`);
+                        }
+                    }
+
+                    // Add project name if available
+                    if (report?.overview?.projectName || report?.project?.name) {
+                        lines.push(report.project?.name || report.overview.projectName);
+                    }
+
+                    // Draw metadata overlay if we have any text
+                    if (lines.length > 0) {
+                        // Calculate font size based on image dimensions (responsive)
+                        const baseFontSize = Math.max(16, Math.min(canvas.width, canvas.height) * 0.025);
+                        const padding = baseFontSize * 0.8;
+                        const lineHeight = baseFontSize * 1.4;
+
+                        ctx.font = `bold ${baseFontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif`;
+
+                        // Calculate text dimensions
+                        let maxWidth = 0;
+                        lines.forEach(line => {
+                            const metrics = ctx.measureText(line);
+                            maxWidth = Math.max(maxWidth, metrics.width);
+                        });
+
+                        const boxWidth = maxWidth + padding * 2;
+                        const boxHeight = lines.length * lineHeight + padding * 2;
+
+                        // Position at bottom-left corner
+                        const boxX = padding;
+                        const boxY = canvas.height - boxHeight - padding;
+
+                        // Draw semi-transparent background
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                        ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+
+                        // Draw border
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+                        // Draw text
+                        ctx.fillStyle = '#ffffff';
+                        ctx.textBaseline = 'top';
+                        lines.forEach((line, index) => {
+                            ctx.fillText(line, boxX + padding, boxY + padding + index * lineHeight);
+                        });
+                    }
+
+                    // Export as JPEG at high quality
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+                    resolve(dataUrl);
+                };
+
+                img.onerror = function() {
+                    console.error('Failed to load image for photo', photoNumber);
+                    resolve(null);
+                };
+
+                // Load the image from base64 or URL
+                img.src = photo.url;
+            });
+        }
+
+        // ============ DOWNLOAD REPORT FUNCTIONALITY ============
+
+        async function downloadReportAndRedirect() {
+            const downloadBtn = document.getElementById('download-report-btn');
+            const originalBtnHtml = downloadBtn.innerHTML;
+
+            // Set loading state
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Preparing...';
+            downloadBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            try {
+                const report = getReport();
+                showToast('Preparing report...', 'info');
+
+                const currentDate = new Date().toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                const exportDate = new Date().toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                // Detect if running as installed PWA
+                const isInstalledPWA = window.navigator.standalone === true ||
+                                       window.matchMedia('(display-mode: standalone)').matches;
+
+                // Get refined data or fall back to original
+                const naMarked = report.meta?.naMarked || {};
+                const refinedData = report.refinedData || {};
+
+                // Build sections HTML for the exported report
+                const sections = [
+                    { id: 'activities', title: 'Work Summary', icon: '📋' },
+                    { id: 'issues', title: 'Issues & Delays', icon: '⚠️' },
+                    { id: 'inspections', title: 'QA/QC Inspections', icon: '✅' },
+                    { id: 'safety', title: 'Safety', icon: '🦺' },
+                    { id: 'visitors', title: 'Visitors & Communications', icon: '👥' },
+                    { id: 'notes', title: 'Additional Notes', icon: '📝' }
+                ];
+
+                // Get section content
+                function getSectionContent(sectionId) {
+                    if (naMarked[sectionId]) return null;
+
+                    // Check for refined data first
+                    if (refinedData[sectionId]) return refinedData[sectionId];
+
+                    // Fall back to original data
+                    switch(sectionId) {
+                        case 'activities':
+                            return report.activities?.map(a => a.narrative).join('\n\n') || '';
+                        case 'issues':
+                            return report.generalIssues?.join('\n\n') || '';
+                        case 'inspections':
+                            return report.qaqcNotes?.join('\n\n') || '';
+                        case 'safety':
+                            let safetyText = '';
+                            if (report.safety?.hasIncidents) safetyText = 'INCIDENT REPORTED\n\n';
+                            else if (report.safety?.noIncidents) safetyText = 'No incidents reported.\n\n';
+                            safetyText += report.safety?.notes?.join('\n\n') || '';
+                            return safetyText;
+                        case 'visitors':
+                            const visitorsContent = [...(report.visitorsRemarks || []), ...(report.communications || [])];
+                            return visitorsContent.join('\n\n');
+                        case 'notes':
+                            return report.additionalNotes || '';
+                        default:
+                            return '';
+                    }
+                }
+
+                // Build sections HTML
+                let sectionsHtml = '';
+                sections.forEach(section => {
+                    const content = getSectionContent(section.id);
+                    const isNA = naMarked[section.id];
+
+                    sectionsHtml += `
+                    <div class="section">
+                        <h2>${section.icon} ${section.title}</h2>
+                        ${isNA ? `
+                            <div class="na-badge">N/A - Not Applicable</div>
+                        ` : `
+                            <div class="content-box">
+                                <div class="content-text">${content ? escapeHtml(content) : '<em>No data recorded</em>'}</div>
+                            </div>
+                        `}
+                    </div>`;
+                });
+
+                // Process photos with metadata burned onto them
+                let photosHtml = '';
+                const photos = report.photos || [];
+                if (photos.length > 0) {
+                    downloadBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> Processing photos...`;
+
+                    for (let i = 0; i < photos.length; i++) {
+                        const photo = photos[i];
+                        try {
+                            const processedDataUrl = await processPhotoWithMetadata(photo, i + 1, report);
+                            if (processedDataUrl) {
+                                photosHtml += `
+                                <div class="photo-container">
+                                    <div class="photo-number">Photo ${i + 1} of ${photos.length}</div>
+                                    <img src="${processedDataUrl}" alt="Photo ${i + 1}">
+                                    ${photo.caption ? `<div class="photo-caption">${escapeHtml(photo.caption)}</div>` : ''}
+                                </div>`;
+                            }
+                        } catch (err) {
+                            console.error(`Error processing photo ${i + 1}:`, err);
+                        }
+                    }
+                }
+
+                // Get project and reporter info
+                const projectName = report.project?.name || report.overview?.projectName || 'N/A';
+                const reporterName = report.reporter?.name || report.overview?.completedBy || 'N/A';
+                const reportDate = report.overview?.date || new Date().toLocaleDateString();
+
+                // Build the complete HTML document
+                const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FieldVoice Pro Report - ${exportDate}</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+            background: #f8fafc;
+            padding: 0;
+            margin: 0;
+        }
+        .export-banner {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            color: white;
+            padding: 16px 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .export-banner .title {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .export-banner .instruction {
+            opacity: 0.95;
+            font-size: 13px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #0a1628 0%, #1e3a5f 100%);
+            color: white;
+            padding: 30px 20px;
+            margin-bottom: 20px;
+            border-bottom: 4px solid #f59e0b;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .header .meta {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .header .meta span {
+            display: inline-block;
+            margin-right: 20px;
+        }
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: #e2e8f0;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 600px) {
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .overview-item {
+            background: white;
+            padding: 12px 16px;
+        }
+        .overview-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+        .overview-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .section {
+            background: white;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 16px;
+            page-break-inside: avoid;
+        }
+        .section h2 {
+            background: #f1f5f9;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #334155;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .content-box {
+            padding: 16px;
+        }
+        .content-text {
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+        .content-text em {
+            color: #94a3b8;
+            font-style: italic;
+        }
+        .na-badge {
+            padding: 16px;
+            color: #64748b;
+            font-style: italic;
+            background: #f8fafc;
+        }
+        .photos-section {
+            background: white;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 16px;
+        }
+        .photos-section h2 {
+            background: #0a1628;
+            color: #f59e0b;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .photo-container {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            page-break-inside: avoid;
+        }
+        .photo-container:last-child {
+            border-bottom: none;
+        }
+        .photo-number {
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        .photo-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border: 1px solid #e2e8f0;
+        }
+        .photo-caption {
+            margin-top: 12px;
+            padding: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-top: none;
+            font-size: 14px;
+            color: #475569;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 12px;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 20px;
+        }
+        @media print {
+            .export-banner {
+                display: none;
+            }
+            body {
+                background: white;
+            }
+            .container {
+                padding: 0;
+                max-width: none;
+            }
+            .section, .photos-section {
+                box-shadow: none;
+                border: 1px solid #ccc;
+                page-break-inside: avoid;
+            }
+            .photo-container {
+                page-break-inside: avoid;
+            }
+            .header {
+                background: #0a1628 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="export-banner">
+        <div class="title">FieldVoice Pro Report - ${exportDate}</div>
+        <div class="instruction">Use your device's share or save function to keep this file</div>
+    </div>
+
+    <div class="header">
+        <div class="container">
+            <h1>Daily Field Report</h1>
+            <div class="meta">
+                <span>📅 ${escapeHtml(reportDate)}</span>
+                <span>📍 ${escapeHtml(projectName)}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="overview-grid">
+            <div class="overview-item">
+                <div class="overview-label">Project Name</div>
+                <div class="overview-value">${escapeHtml(projectName)}</div>
+            </div>
+            <div class="overview-item">
+                <div class="overview-label">Report Date</div>
+                <div class="overview-value">${escapeHtml(reportDate)}</div>
+            </div>
+            <div class="overview-item">
+                <div class="overview-label">Completed By</div>
+                <div class="overview-value">${escapeHtml(reporterName)}</div>
+            </div>
+            <div class="overview-item">
+                <div class="overview-label">Contract Day</div>
+                <div class="overview-value">${report.project?.dayNumber ? 'Day ' + report.project.dayNumber : (report.overview?.contractDayNo || 'N/A')}</div>
+            </div>
+            <div class="overview-item">
+                <div class="overview-label">Shift Hours</div>
+                <div class="overview-value">${escapeHtml(report.overview?.startTime || '--')} - ${escapeHtml(report.overview?.endTime || '--')}</div>
+            </div>
+            <div class="overview-item">
+                <div class="overview-label">Weather</div>
+                <div class="overview-value">${escapeHtml(report.overview?.weather?.generalCondition || '--')}, High: ${escapeHtml(report.overview?.weather?.highTemp || '--')}, Low: ${escapeHtml(report.overview?.weather?.lowTemp || '--')}</div>
+            </div>
+        </div>
+
+        ${sectionsHtml}
+
+        ${photos.length > 0 ? `
+        <div class="photos-section">
+            <h2>📷 Progress Photos</h2>
+            ${photosHtml || '<div class="na-badge">Photos could not be processed</div>'}
+        </div>
+        ` : ''}
+
+        <div class="footer">
+            Generated on ${new Date().toLocaleString()} | FieldVoice Pro - DOT Compliant Field Documentation
+        </div>
+    </div>
+</body>
+</html>`;
+
+                // Create blob and file for sharing/downloading
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const fileName = `daily-report-${new Date().toISOString().split('T')[0]}.html`;
+
+                // Check if we should use Web Share API (PWA on iOS with share support)
+                if (isInstalledPWA && navigator.share) {
+                    try {
+                        const file = new File([blob], fileName, { type: 'text/html' });
+
+                        // Check if the browser can share files
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                            downloadBtn.innerHTML = '<i class="fas fa-share-alt mr-1"></i> Opening share...';
+                            showToast('Opening share sheet...', 'info');
+
+                            await navigator.share({
+                                files: [file],
+                                title: `Daily Report - ${exportDate}`,
+                                text: 'Field report with photos and metadata'
+                            });
+
+                            showToast('Report shared successfully!', 'success');
+                            // Hide modal and redirect after share completes
+                            hideDownloadOfferModal();
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 500);
+                            return;
+                        }
+                    } catch (err) {
+                        // User cancelled share or share failed
+                        if (err.name === 'AbortError') {
+                            // User cancelled - still redirect since report was submitted
+                            showToast('Share cancelled - redirecting...', 'info');
+                            hideDownloadOfferModal();
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 1000);
+                            return;
+                        }
+                        console.error('Share failed:', err);
+                        // Fall through to other methods
+                    }
+                }
+
+                // For regular browsers (not PWA), use window.open approach
+                if (!isInstalledPWA) {
+                    try {
+                        const newWindow = window.open('', '_blank');
+                        if (newWindow) {
+                            newWindow.document.write(htmlContent);
+                            newWindow.document.close();
+                            showToast('Report opened in new tab', 'success');
+                            // Hide modal and redirect
+                            hideDownloadOfferModal();
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 500);
+                            return;
+                        }
+                    } catch (err) {
+                        console.error('Window.open failed:', err);
+                    }
+                }
+
+                // Fallback: trigger download or navigate
+                try {
+                    const url = URL.createObjectURL(blob);
+
+                    if (isInstalledPWA) {
+                        // For PWA, navigate in same window
+                        sessionStorage.setItem('fieldvoice_pre_export_url', window.location.href);
+                        showToast('Report opened - use Share to save', 'info');
+                        window.location.href = url;
+                    } else {
+                        // Try download link
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = fileName;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        showToast('Report downloaded', 'success');
+                        // Clean up and redirect
+                        setTimeout(() => URL.revokeObjectURL(url), 10000);
+                        hideDownloadOfferModal();
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 500);
+                    }
+                } catch (err) {
+                    console.error('Export failed:', err);
+                    showToast('Export failed - please try again', 'error');
+                    // Restore button state
+                    downloadBtn.disabled = false;
+                    downloadBtn.innerHTML = originalBtnHtml;
+                    downloadBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+
+            } catch (error) {
+                console.error('Download error:', error);
+                showToast('Failed to prepare download', 'error');
+                // Restore button state
+                downloadBtn.disabled = false;
+                downloadBtn.innerHTML = originalBtnHtml;
+                downloadBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
         }
 
