@@ -623,7 +623,7 @@
 
         async function exportTrainingData() {
             saveRefinedDataToReport();
-            showToast('Generating HTML report...', 'info');
+            showToast('Preparing report...', 'info');
 
             const currentDate = new Date().toLocaleDateString('en-US', {
                 weekday: 'long',
@@ -631,6 +631,16 @@
                 month: 'long',
                 day: 'numeric'
             });
+
+            const exportDate = new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            // Detect if running as installed PWA
+            const isInstalledPWA = window.navigator.standalone === true ||
+                                   window.matchMedia('(display-mode: standalone)').matches;
 
             const sections = [
                 { id: 'weather', title: 'Weather & Site Conditions', icon: '🌤️' },
@@ -700,7 +710,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Report - ${currentDate}</title>
+    <title>FieldVoice Pro Export - ${exportDate}</title>
     <style>
         * {
             box-sizing: border-box;
@@ -715,20 +725,23 @@
             padding: 0;
             margin: 0;
         }
-        .ios-banner {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        .export-banner {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
             color: white;
-            padding: 12px 20px;
+            padding: 16px 20px;
             text-align: center;
             font-size: 14px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
-        .ios-banner strong {
-            display: block;
-            margin-bottom: 4px;
+        .export-banner .title {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .export-banner .instruction {
+            opacity: 0.95;
+            font-size: 13px;
         }
         .container {
             max-width: 800px;
@@ -815,6 +828,8 @@
             font-size: 14px;
             white-space: pre-wrap;
             word-wrap: break-word;
+            user-select: text;
+            -webkit-user-select: text;
         }
         .content-text em {
             color: #94a3b8;
@@ -870,6 +885,8 @@
             border-top: none;
             font-size: 14px;
             color: #475569;
+            user-select: text;
+            -webkit-user-select: text;
         }
         .footer {
             text-align: center;
@@ -880,7 +897,7 @@
             margin-top: 20px;
         }
         @media print {
-            .ios-banner {
+            .export-banner {
                 display: none;
             }
             body {
@@ -888,18 +905,28 @@
             }
             .container {
                 padding: 0;
+                max-width: none;
             }
             .section, .photos-section {
                 box-shadow: none;
                 border: 1px solid #ccc;
+                page-break-inside: avoid;
+            }
+            .photo-container {
+                page-break-inside: avoid;
+            }
+            .header {
+                background: #0a1628 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
         }
     </style>
 </head>
 <body>
-    <div class="ios-banner">
-        <strong>📱 To save this report:</strong>
-        Tap the share button (↑) and select "Save to Files" or "Add to Reading List"
+    <div class="export-banner">
+        <div class="title">FieldVoice Pro Export - ${exportDate}</div>
+        <div class="instruction">Use your device's share or save function to keep this file</div>
     </div>
 
     <div class="header">
@@ -923,39 +950,90 @@
         ` : ''}
 
         <div class="footer">
-            Generated on ${new Date().toLocaleString()} | DOT Compliant Field Documentation System
+            Generated on ${new Date().toLocaleString()} | FieldVoice Pro - DOT Compliant Field Documentation
         </div>
     </div>
 </body>
 </html>`;
 
-            // Open in new tab (works on iOS PWA without triggering share sheet)
+            // Create blob and file for sharing/downloading
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const fileName = `daily-report-${new Date().toISOString().split('T')[0]}.html`;
+
+            // Check if we should use Web Share API (PWA on iOS with share support)
+            if (isInstalledPWA && navigator.share) {
+                try {
+                    const file = new File([blob], fileName, { type: 'text/html' });
+
+                    // Check if the browser can share files
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        showToast('Opening share sheet...', 'info');
+
+                        await navigator.share({
+                            files: [file],
+                            title: `Daily Report - ${exportDate}`,
+                            text: 'Field report with photos and metadata'
+                        });
+
+                        showToast('Share sheet opened', 'success');
+                        return;
+                    }
+                } catch (err) {
+                    // User cancelled share or share failed
+                    if (err.name !== 'AbortError') {
+                        console.error('Share failed:', err);
+                    }
+                    // Fall through to other methods
+                }
+            }
+
+            // For regular browsers (not PWA), use window.open approach
+            if (!isInstalledPWA) {
+                try {
+                    const newWindow = window.open('', '_blank');
+                    if (newWindow) {
+                        newWindow.document.write(htmlContent);
+                        newWindow.document.close();
+                        showToast('Report opened in new tab', 'success');
+                        return;
+                    }
+                } catch (err) {
+                    console.error('Window.open failed:', err);
+                }
+            }
+
+            // Fallback: Navigate to blob URL (works in PWA but user needs to use back gesture)
             try {
-                const newWindow = window.open('', '_blank');
-                if (newWindow) {
-                    newWindow.document.write(htmlContent);
-                    newWindow.document.close();
-                    showToast('Report opened in new tab!', 'success');
+                const url = URL.createObjectURL(blob);
+
+                // Store current location so we can potentially navigate back
+                sessionStorage.setItem('fieldvoice_pre_export_url', window.location.href);
+
+                // For PWA, navigate in same window (share/save from there)
+                if (isInstalledPWA) {
+                    showToast('Report opened - use Share to save', 'info');
+                    window.location.href = url;
                 } else {
-                    // Fallback: try blob URL approach
-                    const blob = new Blob([htmlContent], { type: 'text/html' });
-                    const url = URL.createObjectURL(blob);
-                    window.open(url, '_blank');
-                    showToast('Report opened in new tab!', 'success');
+                    // Try opening in new tab one more time
+                    const opened = window.open(url, '_blank');
+                    if (opened) {
+                        showToast('Report opened in new tab', 'success');
+                    } else {
+                        // Last resort: trigger download
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = fileName;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        showToast('Report downloaded', 'success');
+                    }
+                    // Clean up blob URL after a delay
+                    setTimeout(() => URL.revokeObjectURL(url), 10000);
                 }
             } catch (err) {
-                console.error('Error opening report:', err);
-                // Final fallback: download as file
-                const blob = new Blob([htmlContent], { type: 'text/html' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `daily-report-${new Date().toISOString().split('T')[0]}.html`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                showToast('Report downloaded!', 'success');
+                console.error('Export failed:', err);
+                showToast('Export failed - please try again', 'error');
             }
         }
 
