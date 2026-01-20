@@ -308,29 +308,27 @@
             showToast('Refreshing app...', 'success');
 
             try {
-                // Unregister all service workers
-                if ('serviceWorker' in navigator) {
-                    const registrations = await navigator.serviceWorker.getRegistrations();
-                    for (const registration of registrations) {
-                        await registration.unregister();
-                    }
-                }
-
-                // Clear all caches
+                // Step 1: Delete ALL caches first
                 if ('caches' in window) {
                     const cacheNames = await caches.keys();
-                    for (const cacheName of cacheNames) {
-                        await caches.delete(cacheName);
-                    }
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                    console.log('[PWA Refresh] All caches deleted:', cacheNames);
                 }
 
-                // Reload the page to get fresh content
-                setTimeout(() => {
-                    window.location.reload(true);
-                }, 500);
+                // Step 2: Unregister ALL service workers (only after caches are deleted)
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(registrations.map(reg => reg.unregister()));
+                    console.log('[PWA Refresh] All service workers unregistered:', registrations.length);
+                }
+
+                // Step 3: Only AFTER both complete, force reload
+                console.log('[PWA Refresh] If still outdated after reload, remove app from home screen and re-add it');
+                window.location.reload();
             } catch (error) {
-                console.error('Error refreshing app:', error);
-                showToast('Error refreshing. Please try again.', 'error');
+                console.error('[PWA Refresh] Error:', error);
+                console.log('[PWA Refresh] If still outdated, remove app from home screen and re-add it');
+                showToast('Error refreshing. Try removing and re-adding the app.', 'error');
             }
         }
 
