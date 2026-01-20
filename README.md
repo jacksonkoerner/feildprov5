@@ -323,7 +323,8 @@ microphone buttons.
      │    ├─► Click "Refine All" ─► Process all sections
      │    ├─► Click individual "Refine" ─► Process single section
      │    ├─► Manually edit either column
-     │    └─► Export training data for prompt refinement
+     │    ├─► Export training data for prompt refinement (database icon)
+     │    └─► Export self-contained HTML report with photos
      │
      ├─► Refinement Process (via n8n webhook):
      │    ├─► Send original text + section name + report context
@@ -337,7 +338,13 @@ microphone buttons.
      │    ├─► Format for DOT documentation standards
      │    └─► Highlight safety concerns appropriately
      │
-     └─► User clicks "Export" ─► [report.html]
+     ├─► HTML Export Process:
+     │    ├─► Generate self-contained HTML with embedded CSS
+     │    ├─► Photos include metadata overlay (GPS, timestamp)
+     │    ├─► iOS PWA: Open native share sheet via Web Share API
+     │    └─► Desktop/Browser: Download as .html file
+     │
+     └─► User clicks "Continue" ─► [report.html] for submission
 ```
 
 ### 5. Report Generation Flow
@@ -772,10 +779,34 @@ Extend the `weatherCodes` object in `index.html` (lines 418-433) with additional
 
 ## Recent Changes
 
+### Self-Contained HTML Report Export (Latest)
+- Replaced text export with professional self-contained HTML report
+- HTML reports include embedded photos, metadata, and full styling
+- Reports are portable and can be viewed offline in any browser
+- Export button in AI Kit generates a complete, shareable report file
+
+### Web Share API Support for iOS PWA
+- Added native share sheet integration when running as installed PWA on iOS
+- Users can share HTML reports directly to Files, AirDrop, email, or other apps
+- Graceful fallback to download for non-PWA or desktop browsers
+- Improved UX with toast notifications during share process
+
+### Photo Export with Metadata Overlay
+- Photos in exported reports now include metadata overlays
+- Overlay displays GPS coordinates, date/time stamps, and photo index
+- Metadata is burned into the exported images for permanent documentation
+- High-quality JPEG export (95% quality) preserves photo detail
+
+### Training Data Export
+- Added export functionality for AI prompt training and refinement
+- Exports original vs. refined text pairs for each section
+- Useful for improving AI refinement prompts over time
+- Accessible via database icon in AI Kit header
+
 ### AI Review Renamed to AI Kit
 - The review page has been rebranded from "AI Review" to "AI Kit"
 - Updated page title and header to reflect the new branding
-- Added training data export functionality for prompt refinement
+- Cleaner interface with improved button layout
 
 ### Report Page Streamlining
 - Removed Edit and Print buttons from report.html for a cleaner interface
@@ -821,9 +852,11 @@ FieldVoice Pro is a sophisticated, production-ready field documentation system t
 - **Fully installable as a PWA** - Works offline when saved to home screen on mobile devices
 - **Simplified single-action dashboard** - Streamlined interface for quick daily report creation
 - **AI Kit integration** - Side-by-side text refinement with training data export for prompt improvement
+- **Self-contained HTML export** - Generate portable, professional reports with embedded photos and metadata
+- **Web Share API support** - Native share sheet integration on iOS PWA for easy report distribution
 - Operates primarily client-side with optional n8n webhook integration for AI features
 - Supports voice-first data entry via native keyboard dictation with AI enhancement
-- Generates professional, DOT-compliant PDF reports
+- Generates professional, DOT-compliant reports (HTML export and PDF print)
 - **Complete offline support** for report creation, editing, and viewing (weather sync and AI features require internet)
 - Uses n8n webhooks for AI text refinement and report submission
 - Manages browser storage efficiently with automatic compression
