@@ -220,6 +220,38 @@
         </footer>
     </div>
 
+    <!-- Refresh App Confirmation Modal -->
+    <div id="refresh-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-sync-alt text-slate-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-slate-800">Refresh App</h3>
+                    <p class="text-sm text-slate-500">This will download the latest version</p>
+                </div>
+            </div>
+            <div class="text-slate-600 mb-6">
+                <p class="mb-3">After tapping Continue:</p>
+                <ul class="list-disc ml-5 space-y-1 text-sm">
+                    <li>The app will reload</li>
+                    <li>Close the app completely (swipe up in app switcher)</li>
+                    <li>Reopen from your home screen</li>
+                </ul>
+                <p class="mt-3 text-sm font-medium text-slate-700">Your reports and settings will be kept.</p>
+            </div>
+            <div class="flex gap-3 justify-end">
+                <button onclick="hideRefreshModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-200 transition-colors">
+                    Cancel
+                </button>
+                <button onclick="executeRefresh()" class="px-4 py-2 bg-slate-600 text-white rounded-lg font-bold text-sm shadow-md hover:bg-slate-700 transition-colors">
+                    <i class="fas fa-sync-alt mr-1"></i> Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const SETTINGS_KEY = 'fvp_settings';
 
@@ -300,11 +332,16 @@
             }
         }
 
-        async function refreshApp() {
-            if (!confirm('This will refresh the app to get the latest version. Your reports and settings will be kept. Continue?')) {
-                return;
-            }
+        function refreshApp() {
+            document.getElementById('refresh-modal').classList.remove('hidden');
+        }
 
+        function hideRefreshModal() {
+            document.getElementById('refresh-modal').classList.add('hidden');
+        }
+
+        async function executeRefresh() {
+            hideRefreshModal();
             showToast('Refreshing app...', 'success');
 
             try {
