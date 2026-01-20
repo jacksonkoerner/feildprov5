@@ -183,6 +183,24 @@
                 </div>
             </section>
 
+            <!-- Troubleshooting -->
+            <section class="bg-white border-2 border-slate-200">
+                <div class="bg-dot-slate text-white p-4">
+                    <h2 class="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-tools"></i>
+                        Troubleshooting
+                    </h2>
+                </div>
+                <div class="p-4 space-y-3">
+                    <p class="text-xs text-slate-600">If the app isn't working correctly or you want to get the latest updates, use the button below to refresh the app.</p>
+                    <button onclick="refreshApp()" class="w-full p-4 bg-slate-500 text-white font-bold uppercase hover:bg-slate-600 transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh App
+                    </button>
+                    <p class="text-xs text-slate-500 text-center">This clears the cache to get the latest version. Your reports and settings will be kept.</p>
+                </div>
+            </section>
+
         </main>
 
         <!-- SAVE BUTTON -->
@@ -279,6 +297,40 @@
                     showToast('All data cleared', 'warning');
                     setTimeout(() => window.location.href = 'index.html', 1500);
                 }
+            }
+        }
+
+        async function refreshApp() {
+            if (!confirm('This will refresh the app to get the latest version. Your reports and settings will be kept. Continue?')) {
+                return;
+            }
+
+            showToast('Refreshing app...', 'success');
+
+            try {
+                // Unregister all service workers
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (const registration of registrations) {
+                        await registration.unregister();
+                    }
+                }
+
+                // Clear all caches
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    for (const cacheName of cacheNames) {
+                        await caches.delete(cacheName);
+                    }
+                }
+
+                // Reload the page to get fresh content
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 500);
+            } catch (error) {
+                console.error('Error refreshing app:', error);
+                showToast('Error refreshing. Please try again.', 'error');
             }
         }
 
