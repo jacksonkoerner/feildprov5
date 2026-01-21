@@ -52,9 +52,46 @@
         .section-card { transition: all 0.3s ease; }
         .section-card.expanded { border-color: #1e3a5f; box-shadow: 0 0 0 2px rgba(30, 58, 95, 0.2); }
         .section-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-        .section-card.expanded .section-content { max-height: 1000px; }
+        .section-card.expanded .section-content { max-height: 2000px; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Auto-expanding caption textarea */
+        .caption-textarea {
+            width: 100%;
+            min-height: 2.5em;
+            max-height: 8em;
+            resize: none;
+            overflow-y: hidden;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            padding: 6px 8px;
+            font-size: 12px;
+            line-height: 1.4;
+            background: #f8fafc;
+            color: #334155;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .caption-textarea:focus {
+            outline: none;
+            border-color: #1e3a5f;
+            background: #fff;
+        }
+        .caption-textarea::placeholder {
+            color: #94a3b8;
+            font-style: italic;
+        }
+        .caption-counter {
+            font-size: 10px;
+            color: #94a3b8;
+            text-align: right;
+            margin-top: 2px;
+        }
+        .caption-counter.warning {
+            color: #ea580c;
+        }
+        .caption-counter.error {
+            color: #dc2626;
+        }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen">
@@ -885,6 +922,75 @@
             showToast('Photo removed', 'info');
         }
 
+        // ============ PHOTO CAPTIONS ============
+        function escapeHtmlAttr(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;')
+                      .replace(/"/g, '&quot;')
+                      .replace(/'/g, '&#39;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;');
+        }
+
+        function autoExpandTextarea(textarea) {
+            // Reset height to auto to get the correct scrollHeight
+            textarea.style.height = 'auto';
+            // Set height to scrollHeight, respecting max-height from CSS
+            const maxHeight = parseFloat(getComputedStyle(textarea).maxHeight) || 128;
+            const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+            textarea.style.height = newHeight + 'px';
+            // Show scrollbar only if content exceeds max height
+            textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
+        }
+
+        function handleCaptionInput(textarea, index) {
+            // Auto-expand the textarea
+            autoExpandTextarea(textarea);
+
+            // Get the current value
+            const value = textarea.value;
+            const length = value.length;
+
+            // Update counter display
+            const counter = document.getElementById(`caption-counter-${index}`);
+            if (counter) {
+                counter.textContent = `${length}/500`;
+                counter.style.display = length > 400 ? 'block' : 'none';
+                counter.classList.remove('warning', 'error');
+                if (length > 500) {
+                    counter.classList.add('error');
+                } else if (length > 400) {
+                    counter.classList.add('warning');
+                }
+            }
+
+            // Save caption to report (debounced save on input)
+            if (report.photos[index]) {
+                report.photos[index].caption = value.substring(0, 500);
+            }
+        }
+
+        function saveCaptionOnBlur(index) {
+            const textarea = document.querySelector(`textarea[data-photo-index="${index}"]`);
+            if (textarea && report.photos[index]) {
+                const value = textarea.value.substring(0, 500);
+                report.photos[index].caption = value;
+                saveReport();
+                console.log(`[PHOTO] Caption saved for photo ${index}: "${value.substring(0, 50)}${value.length > 50 ? '...' : ''}"`);
+            }
+        }
+
+        // Also save captions when user navigates away from the page
+        window.addEventListener('beforeunload', function() {
+            document.querySelectorAll('.caption-textarea').forEach(textarea => {
+                const index = parseInt(textarea.dataset.photoIndex);
+                if (!isNaN(index) && report.photos[index]) {
+                    report.photos[index].caption = textarea.value.substring(0, 500);
+                }
+            });
+            saveReport();
+        });
+
         // ============ RENDER SECTIONS ============
         function renderSection(section) {
             switch (section) {
@@ -935,29 +1041,46 @@
                     break;
                 case 'photos':
                     document.getElementById('photos-grid').innerHTML = report.photos.map((p, i) => `
-                        <div class="relative border-2 border-slate-300 overflow-hidden bg-slate-100">
-                            <img src="${p.url}" class="w-full aspect-square object-cover" onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23cbd5e1%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2364748b%22 font-size=%2212%22>Error</text></svg>';">
-                            <button onclick="removePhoto(${i})" class="absolute top-2 right-2 w-7 h-7 bg-red-600 text-white text-xs flex items-center justify-center shadow-lg"><i class="fas fa-times"></i></button>
-                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 pt-6">
-                                <div class="flex items-center gap-1 text-white/90 mb-1">
-                                    <i class="fas fa-clock text-[8px]"></i>
-                                    <p class="text-[10px] font-medium">${p.date} ${p.time}</p>
+                        <div class="border-2 border-slate-300 overflow-hidden bg-slate-100">
+                            <div class="relative">
+                                <img src="${p.url}" class="w-full aspect-square object-cover" onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23cbd5e1%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2364748b%22 font-size=%2212%22>Error</text></svg>';">
+                                <button onclick="removePhoto(${i})" class="absolute top-2 right-2 w-7 h-7 bg-red-600 text-white text-xs flex items-center justify-center shadow-lg"><i class="fas fa-times"></i></button>
+                                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 pt-6">
+                                    <div class="flex items-center gap-1 text-white/90 mb-1">
+                                        <i class="fas fa-clock text-[8px]"></i>
+                                        <p class="text-[10px] font-medium">${p.date} ${p.time}</p>
+                                    </div>
+                                    ${p.gps ? `
+                                        <div class="flex items-center gap-1 text-safety-green">
+                                            <i class="fas fa-map-marker-alt text-[8px]"></i>
+                                            <p class="text-[9px] font-mono">${p.gps.lat.toFixed(5)}, ${p.gps.lng.toFixed(5)}</p>
+                                            <span class="text-[8px] text-white/60">(±${p.gps.accuracy}m)</span>
+                                        </div>
+                                    ` : `
+                                        <div class="flex items-center gap-1 text-dot-orange">
+                                            <i class="fas fa-location-crosshairs text-[8px]"></i>
+                                            <p class="text-[9px]">No GPS</p>
+                                        </div>
+                                    `}
                                 </div>
-                                ${p.gps ? `
-                                    <div class="flex items-center gap-1 text-safety-green">
-                                        <i class="fas fa-map-marker-alt text-[8px]"></i>
-                                        <p class="text-[9px] font-mono">${p.gps.lat.toFixed(5)}, ${p.gps.lng.toFixed(5)}</p>
-                                        <span class="text-[8px] text-white/60">(±${p.gps.accuracy}m)</span>
-                                    </div>
-                                ` : `
-                                    <div class="flex items-center gap-1 text-dot-orange">
-                                        <i class="fas fa-location-crosshairs text-[8px]"></i>
-                                        <p class="text-[9px]">No GPS</p>
-                                    </div>
-                                `}
+                            </div>
+                            <div class="p-2 bg-white">
+                                <textarea
+                                    class="caption-textarea"
+                                    placeholder="Add caption..."
+                                    maxlength="500"
+                                    data-photo-index="${i}"
+                                    oninput="handleCaptionInput(this, ${i})"
+                                    onblur="saveCaptionOnBlur(${i})"
+                                >${escapeHtmlAttr(p.caption || '')}</textarea>
+                                <div id="caption-counter-${i}" class="caption-counter ${(p.caption?.length || 0) > 400 ? ((p.caption?.length || 0) > 500 ? 'error' : 'warning') : ''}" style="display: ${(p.caption?.length || 0) > 400 ? 'block' : 'none'}">
+                                    ${p.caption?.length || 0}/500
+                                </div>
                             </div>
                         </div>
                     `).join('') || '<p class="col-span-2 text-center text-slate-400 text-sm py-4">No photos yet</p>';
+                    // Auto-expand textareas after rendering
+                    document.querySelectorAll('.caption-textarea').forEach(autoExpandTextarea);
                     break;
             }
         }
