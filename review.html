@@ -72,6 +72,45 @@
         .section-na {
             opacity: 0.5;
         }
+        /* Photo caption styles */
+        .photo-caption-input {
+            width: 100%;
+            min-height: 2em;
+            max-height: 6em;
+            resize: none;
+            overflow-y: hidden;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 4px 6px;
+            font-size: 11px;
+            line-height: 1.3;
+            background: #f8fafc;
+            color: #475569;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .photo-caption-input:focus {
+            outline: none;
+            border-color: #1e3a5f;
+            background: #fff;
+        }
+        .photo-caption-input::placeholder {
+            color: #94a3b8;
+            font-style: italic;
+        }
+        .photo-caption-display {
+            font-size: 11px;
+            color: #64748b;
+            font-style: italic;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+        .photo-caption-counter {
+            font-size: 9px;
+            color: #94a3b8;
+            text-align: right;
+        }
+        .photo-caption-counter.warning { color: #ea580c; }
+        .photo-caption-counter.error { color: #dc2626; }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen">
@@ -486,6 +525,65 @@
             saveReport();
         }
 
+        // ============ PHOTO CAPTION FUNCTIONS ============
+        function escapeHtmlForTextarea(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;');
+        }
+
+        function autoExpandPhotoCaptionTextarea(textarea) {
+            textarea.style.height = 'auto';
+            const maxHeight = parseFloat(getComputedStyle(textarea).maxHeight) || 96;
+            const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+            textarea.style.height = newHeight + 'px';
+            textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
+        }
+
+        function handlePhotoCaptionInput(textarea, index) {
+            autoExpandPhotoCaptionTextarea(textarea);
+
+            const value = textarea.value;
+            const length = value.length;
+
+            const counter = document.getElementById(`photo-caption-counter-${index}`);
+            if (counter) {
+                counter.textContent = `${length}/500`;
+                counter.style.display = length > 400 ? 'block' : 'none';
+                counter.classList.remove('warning', 'error');
+                if (length > 500) {
+                    counter.classList.add('error');
+                } else if (length > 400) {
+                    counter.classList.add('warning');
+                }
+            }
+
+            if (report.photos && report.photos[index]) {
+                report.photos[index].caption = value.substring(0, 500);
+            }
+        }
+
+        function savePhotoCaption(index) {
+            const textarea = document.querySelector(`textarea[data-photo-index="${index}"]`);
+            if (textarea && report.photos && report.photos[index]) {
+                const value = textarea.value.substring(0, 500);
+                report.photos[index].caption = value;
+                saveReport();
+            }
+        }
+
+        // Save captions when navigating away
+        window.addEventListener('beforeunload', function() {
+            document.querySelectorAll('.photo-caption-input').forEach(textarea => {
+                const index = parseInt(textarea.dataset.photoIndex);
+                if (!isNaN(index) && report?.photos?.[index]) {
+                    report.photos[index].caption = textarea.value.substring(0, 500);
+                }
+            });
+            if (report) saveReport();
+        });
+
         // ============ DISPLAY ORIGINAL DATA ============
         function displayOriginalData() {
             if (!report) return;
@@ -557,13 +655,30 @@
             const photosGrid = document.getElementById('photos-grid');
             if (report.photos?.length > 0) {
                 photosGrid.innerHTML = report.photos.map((p, i) => `
-                    <div class="relative bg-slate-100 border border-slate-200 overflow-hidden aspect-square">
-                        <img src="${p.url}" class="w-full h-full object-cover">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-1.5">
-                            <p class="text-[9px] text-white/80">${p.time || ''}</p>
+                    <div class="bg-slate-100 border border-slate-200 overflow-hidden">
+                        <div class="relative aspect-square">
+                            <img src="${p.url}" class="w-full h-full object-cover">
+                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-1.5">
+                                <p class="text-[9px] text-white/80">${p.time || ''}</p>
+                            </div>
+                        </div>
+                        <div class="p-1.5 bg-white">
+                            <textarea
+                                class="photo-caption-input"
+                                placeholder="Add caption..."
+                                maxlength="500"
+                                data-photo-index="${i}"
+                                oninput="handlePhotoCaptionInput(this, ${i})"
+                                onblur="savePhotoCaption(${i})"
+                            >${escapeHtmlForTextarea(p.caption || '')}</textarea>
+                            <div id="photo-caption-counter-${i}" class="photo-caption-counter" style="display: ${(p.caption?.length || 0) > 400 ? 'block' : 'none'}">
+                                ${p.caption?.length || 0}/500
+                            </div>
                         </div>
                     </div>
                 `).join('');
+                // Auto-expand textareas
+                document.querySelectorAll('.photo-caption-input').forEach(autoExpandPhotoCaptionTextarea);
             } else {
                 photosGrid.innerHTML = '<p class="text-slate-400 italic text-sm col-span-full text-center py-4">No photos</p>';
             }
@@ -905,13 +1020,14 @@
             border: 1px solid #e2e8f0;
         }
         .photo-caption {
-            margin-top: 12px;
-            padding: 12px;
+            margin-top: 8px;
+            padding: 10px 12px;
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            border-top: none;
-            font-size: 14px;
-            color: #475569;
+            font-size: 13px;
+            font-style: italic;
+            color: #64748b;
+            line-height: 1.4;
             user-select: text;
             -webkit-user-select: text;
         }

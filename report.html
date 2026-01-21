@@ -632,7 +632,7 @@
                                 <span class="font-bold text-slate-600">${p.date || '--'}</span>
                                 <span class="text-slate-400">${p.time || ''}</span>
                             </div>
-                            <p class="text-slate-700">${p.caption || 'No caption provided.'}</p>
+                            ${p.caption ? `<p class="text-slate-600 italic text-[10px] leading-tight">${escapeHtml(p.caption)}</p>` : '<p class="text-slate-400 italic">No caption</p>'}
                             ${p.gps ? `<p class="text-slate-400 mt-1 text-[8px]"><i class="fas fa-map-marker-alt mr-1"></i>${p.gps.lat.toFixed(5)}, ${p.gps.lng.toFixed(5)}</p>` : ''}
                         </div>
                     </div>
@@ -1352,13 +1352,14 @@
             border: 1px solid #e2e8f0;
         }
         .photo-caption {
-            margin-top: 12px;
-            padding: 12px;
+            margin-top: 8px;
+            padding: 10px 12px;
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            border-top: none;
-            font-size: 14px;
-            color: #475569;
+            font-size: 13px;
+            font-style: italic;
+            color: #64748b;
+            line-height: 1.4;
             user-select: text;
             -webkit-user-select: text;
         }
